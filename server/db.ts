@@ -1,11 +1,10 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, projects, inspections, contactEmails, InsertProject, InsertInspection, InsertContactEmail } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +88,100 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Project queries
+export async function getProjectsByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(projects).where(eq(projects.email, email));
+  return result;
+}
+
+export async function getProjectById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function syncProject(project: InsertProject) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.insert(projects).values(project).onDuplicateKeyUpdate({
+    set: project,
+  });
+}
+
+export async function syncAllProjects(projectList: InsertProject[]) {
+  const db = await getDb();
+  if (!db) return;
+
+  // Clear existing projects and insert new ones
+  await db.delete(projects);
+  
+  if (projectList.length > 0) {
+    await db.insert(projects).values(projectList);
+  }
+}
+
+// Inspection queries
+export async function getInspectionsByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(inspections).where(eq(inspections.projectId, projectId));
+  return result;
+}
+
+export async function createInspection(inspection: InsertInspection) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(inspections).values(inspection);
+  return result;
+}
+
+export async function updateInspection(id: number, updates: Partial<InsertInspection>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(inspections).set(updates).where(eq(inspections.id, id));
+}
+
+// Contact email queries
+export async function getContactEmailsByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select().from(contactEmails).where(eq(contactEmails.projectId, projectId));
+  return result;
+}
+
+export async function createContactEmail(contact: InsertContactEmail) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(contactEmails).values(contact);
+  return result;
+}
+
+export async function deleteContactEmail(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(contactEmails).where(eq(contactEmails.id, id));
+}

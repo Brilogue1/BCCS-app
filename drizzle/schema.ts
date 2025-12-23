@@ -2,16 +2,10 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-or
 
 /**
  * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
+ * Extended with custom authentication fields for Google Sheets login.
  */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
@@ -25,4 +19,75 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Projects table - synced from Google Sheets
+ */
+export const projects = mysqlTable("projects", {
+  id: int("id").autoincrement().primaryKey(),
+  opportunityName: text("opportunityName").notNull(),
+  contactName: text("contactName"),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 320 }),
+  pipeline: text("pipeline"),
+  stage: text("stage"),
+  leadValue: text("leadValue"),
+  source: text("source"),
+  assigned: text("assigned"),
+  createdOn: text("createdOn"),
+  updatedOn: text("updatedOn"),
+  lostReasonId: text("lostReasonId"),
+  lostReasonName: text("lostReasonName"),
+  followers: text("followers"),
+  notes: text("notes"),
+  tag: text("tag"),
+  // Additional fields from Google Sheets (to be populated)
+  address: text("address"),
+  subdivision: text("subdivision"),
+  lotNumber: text("lotNumber"),
+  permitNumber: text("permitNumber"),
+  assignedPermitTech: text("assignedPermitTech"),
+  assignedPlansExaminer: text("assignedPlansExaminer"),
+  assignedInspector: text("assignedInspector"),
+  lastUpdated: timestamp("lastUpdated"),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
+});
+
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = typeof projects.$inferInsert;
+
+/**
+ * Inspections table - stores scheduled inspections
+ */
+export const inspections = mysqlTable("inspections", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  inspectionType: varchar("inspectionType", { length: 100 }).notNull(),
+  inspectionDate: timestamp("inspectionDate").notNull(),
+  inspectionTime: varchar("inspectionTime", { length: 20 }),
+  notes: text("notes"),
+  status: mysqlEnum("status", ["pending", "scheduled", "completed", "cancelled"]).default("pending").notNull(),
+  ghlSynced: int("ghlSynced").default(0).notNull(), // 0 = not synced, 1 = synced
+  ghlId: varchar("ghlId", { length: 100 }),
+  createdBy: varchar("createdBy", { length: 320 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Inspection = typeof inspections.$inferSelect;
+export type InsertInspection = typeof inspections.$inferInsert;
+
+/**
+ * Contact emails table - manages additional emails for projects
+ */
+export const contactEmails = mysqlTable("contactEmails", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  name: text("name"),
+  ghlSynced: int("ghlSynced").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContactEmail = typeof contactEmails.$inferSelect;
+export type InsertContactEmail = typeof contactEmails.$inferInsert;
