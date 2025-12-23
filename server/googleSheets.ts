@@ -107,16 +107,25 @@ export async function fetchLoginCredentials(): Promise<SheetRow[]> {
 /**
  * Validate user credentials against Google Sheets
  */
-export async function validateCredentials(email: string, password: string): Promise<boolean> {
+export async function validateCredentials(email: string, password: string): Promise<{ valid: boolean; role?: string }> {
   try {
     const credentials = await fetchLoginCredentials();
     const user = credentials.find(row => 
       row['Email']?.toLowerCase() === email.toLowerCase() &&
       row['Password:'] === password
     );
-    return !!user;
+    
+    if (!user) {
+      return { valid: false };
+    }
+    
+    // Check if user has admin role from the sheet (Admin? column)
+    const isAdmin = user['Admin?']?.toUpperCase() === 'YES';
+    const role = isAdmin ? 'admin' : 'user';
+    
+    return { valid: true, role };
   } catch (error) {
     console.error('Error validating credentials:', error);
-    return false;
+    return { valid: false };
   }
 }

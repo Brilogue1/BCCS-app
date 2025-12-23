@@ -42,3 +42,12 @@
 - [x] Test contact management
 - [x] Test GHL integration
 - [x] Create checkpoint for deployment
+
+
+## Bug Fixes
+- [x] Fix invalid date parsing in Google Sheets sync
+
+## New Features
+- [x] Add master admin login to view all projects
+- [x] Detect admin role from Google Sheets
+- [x] Show all projects for admin users

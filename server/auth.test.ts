@@ -57,8 +57,8 @@ describe("auth.login", () => {
     const { ctx, cookies } = createMockContext();
     const caller = appRouter.createCaller(ctx);
 
-    // Mock validateCredentials to return true
-    vi.spyOn(googleSheets, "validateCredentials").mockResolvedValue(true);
+    // Mock validateCredentials to return valid with role
+    vi.spyOn(googleSheets, "validateCredentials").mockResolvedValue({ valid: true, role: 'user' });
 
     const result = await caller.auth.login({
       email: "bccsflatv@gmail.com",
@@ -74,8 +74,8 @@ describe("auth.login", () => {
     const { ctx } = createMockContext();
     const caller = appRouter.createCaller(ctx);
 
-    // Mock validateCredentials to return false
-    vi.spyOn(googleSheets, "validateCredentials").mockResolvedValue(false);
+    // Mock validateCredentials to return invalid
+    vi.spyOn(googleSheets, "validateCredentials").mockResolvedValue({ valid: false });
 
     await expect(
       caller.auth.login({

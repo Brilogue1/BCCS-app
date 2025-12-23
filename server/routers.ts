@@ -5,6 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
+import { projects } from "../drizzle/schema";
 import { fetchAllProjects, validateCredentials } from "./googleSheets";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -27,9 +28,9 @@ export const appRouter = router({
         const { email, password } = input;
         
         // Validate credentials against Google Sheets
-        const isValid = await validateCredentials(email, password);
+        const validation = await validateCredentials(email, password);
         
-        if (!isValid) {
+        if (!validation.valid) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
             message: 'Invalid email or password',
@@ -40,22 +41,25 @@ export const appRouter = router({
         let user = await db.getUserByEmail(email);
         
         if (!user) {
-          // Create new user with custom openId
+          // Create new user with custom openId and role from sheet
           const openId = `sheet-${email}`;
           await db.upsertUser({
             openId,
             email,
             name: email.split('@')[0],
             loginMethod: 'google-sheets',
+            role: (validation.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
             lastSignedIn: new Date(),
           });
           user = await db.getUserByEmail(email);
         } else {
-          // Update last signed in
+          // Update last signed in and role
           await db.upsertUser({
             ...user,
+            role: (validation.role === 'admin' ? 'admin' : user.role || 'user') as 'admin' | 'user',
             lastSignedIn: new Date(),
           });
+          user = await db.getUserByEmail(email);
         }
         
         if (!user) {
@@ -100,6 +104,15 @@ export const appRouter = router({
 
   projects: router({
     list: protectedProcedure.query(async ({ ctx }) => {
+      // If user is admin, return all projects
+      if (ctx.user.role === 'admin') {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) return [];
+        const allProjects = await dbInstance.select().from(projects);
+        return allProjects;
+      }
+      
+      // Otherwise, filter by user email
       const userEmail = ctx.user.email;
       if (!userEmail) {
         throw new TRPCError({
@@ -108,7 +121,6 @@ export const appRouter = router({
         });
       }
       
-      // Get projects filtered by user email
       const userProjects = await db.getProjectsByEmail(userEmail);
       return userProjects;
     }),
@@ -125,8 +137,8 @@ export const appRouter = router({
           });
         }
         
-        // Verify user has access to this project
-        if (project.email !== ctx.user.email) {
+        // Verify user has access to this project (admins can see all)
+        if (ctx.user.role !== 'admin' && project.email !== ctx.user.email) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -141,33 +153,42 @@ export const appRouter = router({
       const sheetData = await fetchAllProjects();
       
       // Transform sheet data to project records
-      const projects = sheetData.map(row => ({
-        opportunityName: row['Opportunity Name'] || '',
-        contactName: row['Contact Name'] || '',
-        phone: row['phone'] || '',
-        email: row['email'] || '',
-        pipeline: row['pipeline'] || '',
-        stage: row['stage'] || '',
-        leadValue: row['Lead Value'] || '',
-        source: row['source'] || '',
-        assigned: row['assigned'] || '',
-        createdOn: row['Created on'] || '',
-        updatedOn: row['Updated on'] || '',
-        lostReasonId: row['lost reason ID'] || '',
-        lostReasonName: row['lost reason name'] || '',
-        followers: row['Followers'] || '',
-        notes: row['Notes'] || '',
-        tag: row['tag'] || '',
-        address: row['Address'] || row['address'] || '',
-        subdivision: row['Subdivision'] || row['subdivision'] || '',
-        lotNumber: row['Lot #'] || row['lot'] || '',
-        permitNumber: row['Permit #'] || row['permit'] || '',
-        assignedPermitTech: row['Assigned Permit Tech'] || '',
-        assignedPlansExaminer: row['Assigned Plans Examiner'] || '',
-        assignedInspector: row['Assigned Inspector'] || '',
-        lastUpdated: row['Updated on'] ? new Date(row['Updated on']) : new Date(),
-        syncedAt: new Date(),
-      }));
+      const projects = sheetData.map(row => {
+        // Helper to safely parse dates
+        const parseDate = (dateStr: string | undefined): Date | null => {
+          if (!dateStr || dateStr.trim() === '') return null;
+          const parsed = new Date(dateStr);
+          return isNaN(parsed.getTime()) ? null : parsed;
+        };
+
+        return {
+          opportunityName: row['Opportunity Name'] || '',
+          contactName: row['Contact Name'] || '',
+          phone: row['phone'] || '',
+          email: row['email'] || '',
+          pipeline: row['pipeline'] || '',
+          stage: row['stage'] || '',
+          leadValue: row['Lead Value'] || '',
+          source: row['source'] || '',
+          assigned: row['assigned'] || '',
+          createdOn: row['Created on'] || '',
+          updatedOn: row['Updated on'] || '',
+          lostReasonId: row['lost reason ID'] || '',
+          lostReasonName: row['lost reason name'] || '',
+          followers: row['Followers'] || '',
+          notes: row['Notes'] || '',
+          tag: row['tag'] || '',
+          address: row['Address'] || row['address'] || '',
+          subdivision: row['Subdivision'] || row['subdivision'] || '',
+          lotNumber: row['Lot #'] || row['lot'] || '',
+          permitNumber: row['Permit #'] || row['permit'] || '',
+          assignedPermitTech: row['Assigned Permit Tech'] || '',
+          assignedPlansExaminer: row['Assigned Plans Examiner'] || '',
+          assignedInspector: row['Assigned Inspector'] || '',
+          lastUpdated: parseDate(row['Updated on']),
+          syncedAt: new Date(),
+        };
+      });
       
       // Sync to database
       await db.syncAllProjects(projects);
