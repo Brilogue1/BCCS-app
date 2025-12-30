@@ -77,3 +77,8 @@
 ## Bug Fixes
 - [x] Fix admin access check in project detail queries
 - [x] Fix admin access check in inspection queries
+
+## Inspection Types Enhancement
+- [x] Add OTHER ELECTRIC to inspection types list
+- [x] Add OTHER MECHANICAL to inspection types list
+- [x] Add OTHER PLUMBING to inspection types list
