@@ -167,12 +167,17 @@ export async function getInspectionsByProjectId(projectId: number) {
   return result;
 }
 
-export async function createInspection(inspection: InsertInspection) {
+export async function createInspection(inspection: InsertInspection, project?: { opportunityName?: string | null; address?: string | null }) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const result = await db.insert(inspections).values(inspection);
-  return result;
+  if (!db) throw new Error('Database not available');
+  
+  const inspectionData = {
+    ...inspection,
+    projectName: project?.opportunityName || null,
+    projectAddress: project?.address || null,
+  };
+  
+  await db.insert(inspections).values(inspectionData);
 }
 
 export async function updateInspection(id: number, updates: Partial<InsertInspection>) {

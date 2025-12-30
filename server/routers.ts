@@ -246,8 +246,6 @@ export const appRouter = router({
       .input(z.object({
         projectId: z.number(),
         inspectionType: z.string(),
-        inspectionDate: z.date(),
-        inspectionTime: z.string().optional(),
         notes: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -260,25 +258,23 @@ export const appRouter = router({
           });
         }
         
-        const result = await db.createInspection({
+        await db.createInspection({
           ...input,
           createdBy: ctx.user.email || '',
           status: 'pending',
           ghlSynced: 0,
-        });
+        }, project);
         
-        // Attempt to sync to GHL in background
+        // At        // Sync to GHL if configured
         if (isGHLConfigured()) {
           syncInspectionToGHL({
             projectId: input.projectId,
-            opportunityName: project.opportunityName || '',
+            projectName: project.opportunityName || '',
+            projectAddress: project.address || '',
             inspectionType: input.inspectionType,
-            inspectionDate: input.inspectionDate,
-            inspectionTime: input.inspectionTime,
             notes: input.notes,
           }).catch(err => console.error('[GHL] Sync failed:', err));
-        }
-        
+        }       
         return { success: true };
       }),
   }),

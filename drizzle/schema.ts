@@ -62,9 +62,9 @@ export type InsertProject = typeof projects.$inferInsert;
 export const inspections = mysqlTable("inspections", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
-  inspectionType: varchar("inspectionType", { length: 100 }).notNull(),
-  inspectionDate: timestamp("inspectionDate").notNull(),
-  inspectionTime: varchar("inspectionTime", { length: 20 }),
+  projectName: varchar("projectName", { length: 500 }),
+  projectAddress: varchar("projectAddress", { length: 500 }),
+  inspectionType: varchar("inspectionType", { length: 255 }).notNull(),
   notes: text("notes"),
   status: mysqlEnum("status", ["pending", "scheduled", "completed", "cancelled"]).default("pending").notNull(),
   ghlSynced: int("ghlSynced").default(0).notNull(), // 0 = not synced, 1 = synced

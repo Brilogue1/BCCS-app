@@ -63,3 +63,13 @@
 
 - [x] Fix Google Sheets sync database insertion error
 - [x] Add data validation and duplicate handling
+
+## Inspection Form Updates
+- [x] Extract inspection types from Excel file
+- [x] Update database schema to store inspection types
+- [x] Replace inspection type text field with dropdown
+- [x] Remove date and time fields from inspection form
+- [x] Auto-populate project name in inspection form
+- [x] Auto-populate project address in inspection form
+- [x] Update inspection creation mutation
+- [x] Test inspection scheduling with new form

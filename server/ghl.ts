@@ -41,10 +41,9 @@ export function isGHLConfigured(): boolean {
  */
 export async function syncInspectionToGHL(inspection: {
   projectId: number;
-  opportunityName: string;
+  projectName: string;
+  projectAddress: string;
   inspectionType: string;
-  inspectionDate: Date;
-  inspectionTime?: string;
   notes?: string;
 }): Promise<{ success: boolean; ghlId?: string; error?: string }> {
   if (!isGHLConfigured()) {
@@ -59,10 +58,9 @@ export async function syncInspectionToGHL(inspection: {
         type: 'inspection_scheduled',
         data: {
           projectId: inspection.projectId,
-          opportunityName: inspection.opportunityName,
+          projectName: inspection.projectName,
+          projectAddress: inspection.projectAddress,
           inspectionType: inspection.inspectionType,
-          inspectionDate: inspection.inspectionDate.toISOString(),
-          inspectionTime: inspection.inspectionTime,
           notes: inspection.notes,
         },
       });
@@ -74,8 +72,7 @@ export async function syncInspectionToGHL(inspection: {
       `${GHL_API_BASE_URL}/appointments`,
       {
         locationId: GHL_LOCATION_ID,
-        title: `${inspection.inspectionType} - ${inspection.opportunityName}`,
-        startTime: inspection.inspectionDate.toISOString(),
+        title: `${inspection.inspectionType} - ${inspection.projectName} (${inspection.projectAddress})`,
         notes: inspection.notes || '',
       },
       {
