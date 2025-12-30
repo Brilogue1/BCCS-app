@@ -73,3 +73,7 @@
 - [x] Auto-populate project address in inspection form
 - [x] Update inspection creation mutation
 - [x] Test inspection scheduling with new form
+
+## Bug Fixes
+- [x] Fix admin access check in project detail queries
+- [x] Fix admin access check in inspection queries

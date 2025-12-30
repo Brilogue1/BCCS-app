@@ -230,9 +230,9 @@ export const appRouter = router({
     list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
-        // Verify user has access to this project
+        // Verify user has access to this project (admins can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || project.email !== ctx.user.email) {
+        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -249,9 +249,9 @@ export const appRouter = router({
         notes: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Verify user has access to this project
+        // Verify user has access to this project (admins can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || project.email !== ctx.user.email) {
+        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -283,9 +283,9 @@ export const appRouter = router({
     list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
-        // Verify user has access to this project
+        // Verify user has access to this project (admins can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || project.email !== ctx.user.email) {
+        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -302,9 +302,9 @@ export const appRouter = router({
         name: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Verify user has access to this project
+        // Verify user has access to this project (admins can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || project.email !== ctx.user.email) {
+        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
