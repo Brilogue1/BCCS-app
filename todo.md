@@ -51,3 +51,5 @@
 - [x] Add master admin login to view all projects
 - [x] Detect admin role from Google Sheets
 - [x] Show all projects for admin users
+
+- [x] Fix Google Sheets sync to handle extra columns from spreadsheet

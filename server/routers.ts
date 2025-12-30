@@ -153,42 +153,54 @@ export const appRouter = router({
       const sheetData = await fetchAllProjects();
       
       // Transform sheet data to project records
-      const projects = sheetData.map(row => {
-        // Helper to safely parse dates
-        const parseDate = (dateStr: string | undefined): Date | null => {
-          if (!dateStr || dateStr.trim() === '') return null;
-          const parsed = new Date(dateStr);
-          return isNaN(parsed.getTime()) ? null : parsed;
-        };
+      const projects = sheetData
+        .filter(row => {
+          // Filter out rows without essential data
+          const hasOpportunityName = row['Opportunity Name'] && row['Opportunity Name'].trim() !== '';
+          const hasEmail = row['email'] && row['email'].trim() !== '';
+          return hasOpportunityName || hasEmail;
+        })
+        .map(row => {
+          // Helper to safely parse dates
+          const parseDate = (dateStr: string | undefined): Date | null => {
+            if (!dateStr || dateStr.trim() === '') return null;
+            const parsed = new Date(dateStr);
+            return isNaN(parsed.getTime()) ? null : parsed;
+          };
 
-        return {
-          opportunityName: row['Opportunity Name'] || '',
-          contactName: row['Contact Name'] || '',
-          phone: row['phone'] || '',
-          email: row['email'] || '',
-          pipeline: row['pipeline'] || '',
-          stage: row['stage'] || '',
-          leadValue: row['Lead Value'] || '',
-          source: row['source'] || '',
-          assigned: row['assigned'] || '',
-          createdOn: row['Created on'] || '',
-          updatedOn: row['Updated on'] || '',
-          lostReasonId: row['lost reason ID'] || '',
-          lostReasonName: row['lost reason name'] || '',
-          followers: row['Followers'] || '',
-          notes: row['Notes'] || '',
-          tag: row['tag'] || '',
-          address: row['Address'] || row['address'] || '',
-          subdivision: row['Subdivision'] || row['subdivision'] || '',
-          lotNumber: row['Lot #'] || row['lot'] || '',
-          permitNumber: row['Permit #'] || row['permit'] || '',
-          assignedPermitTech: row['Assigned Permit Tech'] || '',
-          assignedPlansExaminer: row['Assigned Plans Examiner'] || '',
-          assignedInspector: row['Assigned Inspector'] || '',
-          lastUpdated: parseDate(row['Updated on']),
-          syncedAt: new Date(),
-        };
-      });
+          // Helper to safely get string value
+          const getString = (value: string | undefined): string => {
+            return value && value.trim() !== '' ? value.trim() : '';
+          };
+
+          return {
+            opportunityName: getString(row['Opportunity Name']),
+            contactName: getString(row['Contact Name']),
+            phone: getString(row['phone']),
+            email: getString(row['email']),
+            pipeline: getString(row['pipeline']),
+            stage: getString(row['stage']),
+            leadValue: getString(row['Lead Value']),
+            source: getString(row['source']),
+            assigned: getString(row['assigned']),
+            createdOn: getString(row['Created on']),
+            updatedOn: getString(row['Updated on']),
+            lostReasonId: getString(row['lost reason ID']),
+            lostReasonName: getString(row['lost reason name']),
+            followers: getString(row['Followers']),
+            notes: getString(row['Notes']),
+            tag: getString(row['tag']),
+            address: getString(row['Address'] || row['address']),
+            subdivision: getString(row['Subdivision'] || row['subdivision']),
+            lotNumber: getString(row['Lot #'] || row['lot']),
+            permitNumber: getString(row['Permit #'] || row['permit']),
+            assignedPermitTech: getString(row['Assigned Permit Tech']),
+            assignedPlansExaminer: getString(row['Assigned Plans Examiner']),
+            assignedInspector: getString(row['Assigned Inspector']),
+            lastUpdated: parseDate(row['Updated on']),
+            syncedAt: new Date(),
+          };
+        });
       
       // Sync to database
       await db.syncAllProjects(projects);
