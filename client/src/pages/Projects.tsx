@@ -56,9 +56,12 @@ export default function Projects() {
       <header className="bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">BCCS Client Portal</h1>
-              <p className="text-sm text-slate-600">Welcome, {user?.name || user?.email}</p>
+            <div className="flex items-center gap-4">
+              <img src="/bccs-logo.png" alt="BCCS Logo" className="h-16 w-16" />
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">BCCS Client Portal</h1>
+                <p className="text-sm text-slate-600">Welcome, {user?.name || user?.email}</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button

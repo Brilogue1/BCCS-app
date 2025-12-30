@@ -89,3 +89,8 @@
 - [x] Verify admin status from Admin? column
 - [x] Filter projects by user email for non-admin users
 - [x] Test login with sheet credentials
+
+## Branding
+- [x] Add BCCS logo to portal header
+- [x] Copy logo file to public directory
+- [x] Update header component with logo
