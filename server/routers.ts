@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects } from "./googleSheets";
+import { fetchAllProjects, validateCredentials } from "./googleSheets";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -28,25 +28,28 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const { email, password } = input;
         
-        // Hash the password for comparison
-        const hashedPassword = createHash('sha256').update(password).digest('hex');
+        // Validate credentials against Google Sheets
+        const validation = await validateCredentials(email, password);
         
-        // Get user from database
-        let user = await db.getUserByEmail(email);
-        
-        if (!user || user.password !== hashedPassword) {
+        if (!validation.valid) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
             message: 'Invalid email or password',
           });
         }
         
-        // Update last signed in
+        // Create or update user in database
+        const openId = `local-${email}`;
         await db.upsertUser({
-          ...user,
+          openId,
+          email,
+          name: email.split('@')[0] || 'User',
+          loginMethod: 'local',
+          role: validation.role as 'admin' | 'user',
           lastSignedIn: new Date(),
         });
-        user = await db.getUserByEmail(email);
+        
+        let user = await db.getUserByEmail(email);
         
         if (!user) {
           throw new TRPCError({

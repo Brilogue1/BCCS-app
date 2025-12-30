@@ -82,3 +82,10 @@
 - [x] Add OTHER ELECTRIC to inspection types list
 - [x] Add OTHER MECHANICAL to inspection types list
 - [x] Add OTHER PLUMBING to inspection types list
+
+## Google Sheets Authentication
+- [x] Update authentication to use App: Logins sheet (gid=5432432)
+- [x] Fetch user credentials from Google Sheets on login
+- [x] Verify admin status from Admin? column
+- [x] Filter projects by user email for non-admin users
+- [x] Test login with sheet credentials
