@@ -53,3 +53,13 @@
 - [x] Show all projects for admin users
 
 - [x] Fix Google Sheets sync to handle extra columns from spreadsheet
+
+- [x] Debug Google Sheets sync - check server logs and CSV parsing
+
+- [x] Replace Google Sheets login with database-based authentication
+- [x] Add password hashing for security
+- [x] Create seed script to add initial admin users
+- [x] Update login mutation to validate against database
+
+- [x] Fix Google Sheets sync database insertion error
+- [x] Add data validation and duplicate handling

@@ -6,7 +6,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials } from "./googleSheets";
+import { fetchAllProjects } from "./googleSheets";
+import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
@@ -27,40 +28,25 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const { email, password } = input;
         
-        // Validate credentials against Google Sheets
-        const validation = await validateCredentials(email, password);
+        // Hash the password for comparison
+        const hashedPassword = createHash('sha256').update(password).digest('hex');
         
-        if (!validation.valid) {
+        // Get user from database
+        let user = await db.getUserByEmail(email);
+        
+        if (!user || user.password !== hashedPassword) {
           throw new TRPCError({
             code: 'UNAUTHORIZED',
             message: 'Invalid email or password',
           });
         }
         
-        // Create or get user
-        let user = await db.getUserByEmail(email);
-        
-        if (!user) {
-          // Create new user with custom openId and role from sheet
-          const openId = `sheet-${email}`;
-          await db.upsertUser({
-            openId,
-            email,
-            name: email.split('@')[0],
-            loginMethod: 'google-sheets',
-            role: (validation.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
-            lastSignedIn: new Date(),
-          });
-          user = await db.getUserByEmail(email);
-        } else {
-          // Update last signed in and role
-          await db.upsertUser({
-            ...user,
-            role: (validation.role === 'admin' ? 'admin' : user.role || 'user') as 'admin' | 'user',
-            lastSignedIn: new Date(),
-          });
-          user = await db.getUserByEmail(email);
-        }
+        // Update last signed in
+        await db.upsertUser({
+          ...user,
+          lastSignedIn: new Date(),
+        });
+        user = await db.getUserByEmail(email);
         
         if (!user) {
           throw new TRPCError({
@@ -69,9 +55,13 @@ export const appRouter = router({
           });
         }
         
-        // Create JWT token
-        const token = await new SignJWT({ openId: user.openId })
-          .setProtectedHeader({ alg: 'HS256' })
+        // Create JWT token with all required fields
+        const token = await new SignJWT({ 
+          openId: user.openId,
+          appId: ENV.appId,
+          name: user.name || user.email || 'User'
+        })
+          .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
           .setIssuedAt()
           .setExpirationTime('7d')
           .sign(JWT_SECRET);
@@ -149,18 +139,30 @@ export const appRouter = router({
       }),
     
     sync: protectedProcedure.mutation(async () => {
-      // Fetch all projects from Google Sheets
-      const sheetData = await fetchAllProjects();
-      
-      // Transform sheet data to project records
-      const projects = sheetData
-        .filter(row => {
-          // Filter out rows without essential data
-          const hasOpportunityName = row['Opportunity Name'] && row['Opportunity Name'].trim() !== '';
-          const hasEmail = row['email'] && row['email'].trim() !== '';
-          return hasOpportunityName || hasEmail;
-        })
-        .map(row => {
+      try {
+        console.log('[Sync] Starting Google Sheets sync...');
+        
+        // Clear existing projects first
+        const database = await db.getDb();
+        if (database) {
+          const { projects: projectsTable } = await import('../drizzle/schema');
+          await database.delete(projectsTable);
+          console.log('[Sync] Cleared existing projects');
+        }
+        
+        // Fetch all projects from Google Sheets
+        const sheetData = await fetchAllProjects();
+        console.log(`[Sync] Fetched ${sheetData.length} rows from Google Sheets`);
+        
+        // Transform sheet data to project records
+        const projects = sheetData
+          .filter(row => {
+            // Filter out rows without essential data
+            const hasOpportunityName = row['Opportunity Name'] && row['Opportunity Name'].trim() !== '';
+            const hasEmail = row['email'] && row['email'].trim() !== '';
+            return hasOpportunityName || hasEmail;
+          })
+          .map(row => {
           // Helper to safely parse dates
           const parseDate = (dateStr: string | undefined): Date | null => {
             if (!dateStr || dateStr.trim() === '') return null;
@@ -169,14 +171,16 @@ export const appRouter = router({
           };
 
           // Helper to safely get string value
-          const getString = (value: string | undefined): string => {
-            return value && value.trim() !== '' ? value.trim() : '';
+          const getString = (value: string | undefined, maxLength?: number): string => {
+            if (!value || value.trim() === '') return '';
+            const trimmed = value.trim();
+            return maxLength ? trimmed.substring(0, maxLength) : trimmed;
           };
 
           return {
             opportunityName: getString(row['Opportunity Name']),
             contactName: getString(row['Contact Name']),
-            phone: getString(row['phone']),
+            phone: getString(row['phone'], 50), // Limit to 50 chars
             email: getString(row['email']),
             pipeline: getString(row['pipeline']),
             stage: getString(row['stage']),
@@ -189,23 +193,36 @@ export const appRouter = router({
             lostReasonName: getString(row['lost reason name']),
             followers: getString(row['Followers']),
             notes: getString(row['Notes']),
-            tag: getString(row['tag']),
+            tag: getString(row['tags']),
             address: getString(row['Address'] || row['address']),
             subdivision: getString(row['Subdivision'] || row['subdivision']),
             lotNumber: getString(row['Lot #'] || row['lot']),
             permitNumber: getString(row['Permit #'] || row['permit']),
-            assignedPermitTech: getString(row['Assigned Permit Tech']),
-            assignedPlansExaminer: getString(row['Assigned Plans Examiner']),
-            assignedInspector: getString(row['Assigned Inspector']),
+            assignedPermitTech: getString(row['Assign Permit tech']),
+            assignedPlansExaminer: getString(row['Assign Plans Examiner']),
+            assignedInspector: getString(row['Assign Inspector']),
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           };
         });
       
-      // Sync to database
-      await db.syncAllProjects(projects);
-      
-      return { success: true, count: projects.length };
+        console.log(`[Sync] Filtered to ${projects.length} valid projects`);
+        
+        // Sync to database
+        await db.syncAllProjects(projects);
+        console.log('[Sync] Successfully synced to database');
+        
+        return {
+          success: true,
+          count: projects.length,
+        } as const;
+      } catch (error) {
+        console.error('[Sync] Error during sync:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Failed to sync projects',
+        });
+      }
     }),
   }),
 

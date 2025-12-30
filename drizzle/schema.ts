@@ -9,6 +9,7 @@ export const users = mysqlTable("users", {
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
+  password: varchar("password", { length: 255 }), // Hashed password
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -26,7 +27,7 @@ export const projects = mysqlTable("projects", {
   id: int("id").autoincrement().primaryKey(),
   opportunityName: text("opportunityName").notNull(),
   contactName: text("contactName"),
-  phone: varchar("phone", { length: 50 }),
+  phone: varchar("phone", { length: 100 }),
   email: varchar("email", { length: 320 }),
   pipeline: text("pipeline"),
   stage: text("stage"),

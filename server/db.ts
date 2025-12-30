@@ -88,16 +88,36 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getUserByEmail(email: string) {
+export async function getUserByEmail(email: string, loginMethod?: string) {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get user: database not available");
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  // Get all users with this email
+  const allResults = await db.select().from(users).where(eq(users.email, email));
+  
+  if (allResults.length === 0) {
+    return undefined;
+  }
+  
+  // If loginMethod specified, filter by that first
+  if (loginMethod) {
+    const filtered = allResults.filter(u => u.loginMethod === loginMethod);
+    if (filtered.length > 0) {
+      return filtered[0];
+    }
+  }
+  
+  // Prioritize users with passwords (local auth)
+  const withPassword = allResults.filter(u => u.password !== null);
+  if (withPassword.length > 0) {
+    return withPassword[0];
+  }
+  
+  // Fall back to first result
+  return allResults[0];
 }
 
 // Project queries
