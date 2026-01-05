@@ -414,6 +414,133 @@ export const appRouter = router({
       };
     }),
   }),
+
+  // Admin-only dashboard with advanced analytics
+  adminDashboard: router({
+    analytics: protectedProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        // Check if user is admin
+        if (ctx.user?.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Admin access required',
+          });
+        }
+
+        const db_instance = await db.getDb();
+        if (!db_instance) throw new Error("Database not available");
+
+        const { eq, gte, lte, and, sql } = await import("drizzle-orm");
+        const { inspections, projectFiles } = await import("../drizzle/schema");
+
+        // Parse date range
+        const now = new Date();
+        const startDate = input?.startDate ? new Date(input.startDate) : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        const endDate = input?.endDate ? new Date(input.endDate) : now;
+
+        // Get all projects
+        const allProjects = await db_instance.select().from(projects);
+
+        // Inspector workload - count projects per assigned inspector
+        const inspectorWorkload: Record<string, number> = {};
+        allProjects.forEach(p => {
+          const inspector = p.assignedInspector || 'Unassigned';
+          inspectorWorkload[inspector] = (inspectorWorkload[inspector] || 0) + 1;
+        });
+
+        // Permit tech workload
+        const permitTechWorkload: Record<string, number> = {};
+        allProjects.forEach(p => {
+          const tech = p.assignedPermitTech || 'Unassigned';
+          permitTechWorkload[tech] = (permitTechWorkload[tech] || 0) + 1;
+        });
+
+        // Plans examiner workload
+        const plansExaminerWorkload: Record<string, number> = {};
+        allProjects.forEach(p => {
+          const examiner = p.assignedPlansExaminer || 'Unassigned';
+          plansExaminerWorkload[examiner] = (plansExaminerWorkload[examiner] || 0) + 1;
+        });
+
+        // Projects by stage
+        const stageCount: Record<string, number> = {};
+        allProjects.forEach(p => {
+          const stage = p.stage || 'Unknown';
+          stageCount[stage] = (stageCount[stage] || 0) + 1;
+        });
+
+        // Calculate completion percentage (projects in 'COMPLETE INSPECTION' or similar stages)
+        const completedStages = ['COMPLETE INSPECTION', 'Completed', 'Complete', 'Done'];
+        const completedProjects = allProjects.filter(p => 
+          completedStages.some(s => p.stage?.toLowerCase().includes(s.toLowerCase()))
+        ).length;
+        const completionPercentage = allProjects.length > 0 
+          ? Math.round((completedProjects / allProjects.length) * 100) 
+          : 0;
+
+        // Get inspections within date range
+        const allInspections = await db_instance.select().from(inspections);
+        const inspectionsInRange = allInspections.filter(i => {
+          const createdAt = new Date(i.createdAt);
+          return createdAt >= startDate && createdAt <= endDate;
+        });
+
+        // Inspections by status
+        const inspectionsByStatus: Record<string, number> = {};
+        inspectionsInRange.forEach(i => {
+          const status = i.status || 'pending';
+          inspectionsByStatus[status] = (inspectionsByStatus[status] || 0) + 1;
+        });
+
+        // Inspections by type
+        const inspectionsByType: Record<string, number> = {};
+        inspectionsInRange.forEach(i => {
+          const type = i.inspectionType || 'Unknown';
+          inspectionsByType[type] = (inspectionsByType[type] || 0) + 1;
+        });
+
+        // Weekly inspection trend (last 4 weeks)
+        const weeklyTrend: { week: string; count: number }[] = [];
+        for (let i = 3; i >= 0; i--) {
+          const weekStart = new Date(now);
+          weekStart.setDate(now.getDate() - (i + 1) * 7);
+          const weekEnd = new Date(now);
+          weekEnd.setDate(now.getDate() - i * 7);
+          
+          const count = allInspections.filter(insp => {
+            const createdAt = new Date(insp.createdAt);
+            return createdAt >= weekStart && createdAt < weekEnd;
+          }).length;
+          
+          weeklyTrend.push({
+            week: `Week ${4 - i}`,
+            count,
+          });
+        }
+
+        return {
+          totalProjects: allProjects.length,
+          completedProjects,
+          completionPercentage,
+          projectsByStage: stageCount,
+          inspectorWorkload,
+          permitTechWorkload,
+          plansExaminerWorkload,
+          totalInspectionsInRange: inspectionsInRange.length,
+          inspectionsByStatus,
+          inspectionsByType,
+          weeklyTrend,
+          dateRange: {
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
+          },
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

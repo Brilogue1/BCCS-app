@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -51,6 +52,9 @@ function Router() {
       </Route>
       <Route path="/dashboard">
         <ProtectedRoute component={Dashboard} path="/dashboard" />
+      </Route>
+      <Route path="/admin">
+        <ProtectedRoute component={AdminDashboard} path="/admin" />
       </Route>
       <Route path="/">
         {isAuthenticated ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}

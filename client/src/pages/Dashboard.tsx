@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Loader2, CheckCircle2, Clock } from "lucide-react";
+import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -35,6 +35,14 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex gap-2">
+              {user?.role === "admin" && (
+                <Link href="/admin">
+                  <Button variant="outline" className="gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Admin Analytics
+                  </Button>
+                </Link>
+              )}
               <Link href="/projects">
                 <Button variant="outline">View Projects</Button>
               </Link>
