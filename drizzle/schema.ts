@@ -50,6 +50,8 @@ export const projects = mysqlTable("projects", {
   assignedPlansExaminer: text("assignedPlansExaminer"),
   assignedInspector: text("assignedInspector"),
   planningChecklist: text("planningChecklist"), // Column AC - task status for progress tracking
+  permittingChecklist: text("permittingChecklist"), // Column AD - permitting task status
+  inspectionChecklist: text("inspectionChecklist"), // Column AY - inspection task status
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });

@@ -50,6 +50,13 @@
       "when": 1767653821374,
       "tag": "0006_special_doctor_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767655574479,
+      "tag": "0007_next_maverick",
+      "breakpoints": true
     }
   ]
 }

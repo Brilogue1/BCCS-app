@@ -144,3 +144,11 @@
 - [x] Remove clickable Total Projects from regular Dashboard
 - [x] Add clickable Total Projects to Admin Analytics page
 - [x] Test changes work correctly
+
+
+## Add Permitting and Inspections Progress Checklists
+- [x] Identify Google Sheets columns for Permitting and Inspections checklists (AD and AY)
+- [x] Update database schema to store new checklist data
+- [x] Update Google Sheets sync to capture new columns
+- [x] Update AdminProjectsReport to display all three checklists
+- [x] Test all progress tracking works correctly
