@@ -339,6 +339,40 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+  
+  files: router({
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const files = await db.getProjectFiles(input.projectId);
+        return files;
+      }),
+    
+    upload: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        fileName: z.string(),
+        fileUrl: z.string(),
+        fileKey: z.string(),
+        fileSize: z.number().optional(),
+        mimeType: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await db.createProjectFile({
+          ...input,
+          uploadedBy: ctx.user.email || undefined,
+        });
+        
+        return { success: true };
+      }),
+    
+    delete: protectedProcedure
+      .input(z.object({ fileId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteProjectFile(input.fileId);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

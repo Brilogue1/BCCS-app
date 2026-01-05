@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Calendar, Loader2, Mail, Phone, Plus, User, X } from "lucide-react";
-import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { ArrowLeft, Calendar, Download, Loader2, Mail, Phone, Plus, Trash2, Upload, User, X } from "lucide-react";
+import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
@@ -420,7 +420,176 @@ export default function ProjectDetail() {
             )}
           </CardContent>
         </Card>
+
+        {/* Files */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Project Files</CardTitle>
+              <CardDescription>Uploaded documents and photos</CardDescription>
+            </div>
+            <FileUploadDialog projectId={projectId} projectName={project?.opportunityName} />
+          </CardHeader>
+          <CardContent>
+            <ProjectFilesList projectId={projectId} />
+          </CardContent>
+        </Card>
       </div>
+    </div>
+  );
+}
+
+// File Upload Dialog Component
+function FileUploadDialog({ projectId, projectName }: { projectId: number; projectName?: string }) {
+  const [open, setOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadMutation = trpc.files.upload.useMutation({
+    onSuccess: () => {
+      toast.success("File uploaded successfully");
+      setOpen(false);
+      utils.files.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to upload file");
+    },
+  });
+  const utils = trpc.useUtils();
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Upload to S3 via the built-in storage helper
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+      const { url, key } = await response.json();
+
+      // Save file reference to database
+      uploadMutation.mutate({
+        projectId,
+        fileName: file.name,
+        fileUrl: url,
+        fileKey: key,
+        fileSize: file.size,
+        mimeType: file.type,
+      });
+    } catch (error) {
+      toast.error("Failed to upload file");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Upload className="h-4 w-4 mr-2" />
+          Upload File
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Upload File</DialogTitle>
+          <DialogDescription>
+            Upload a document or photo for {projectName}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileSelect}
+            className="block w-full text-sm text-slate-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-50 file:text-blue-700
+              hover:file:bg-blue-100"
+          />
+          {uploadMutation.isPending && (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Uploading...</span>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Project Files List Component
+function ProjectFilesList({ projectId }: { projectId: number }) {
+  const { data: files, isLoading } = trpc.files.list.useQuery({ projectId });
+  const deleteMutation = trpc.files.delete.useMutation({
+    onSuccess: () => {
+      toast.success("File deleted");
+      utils.files.list.invalidate({ projectId });
+    },
+    onError: () => {
+      toast.error("Failed to delete file");
+    },
+  });
+  const utils = trpc.useUtils();
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading files...</div>;
+  }
+
+  if (!files || files.length === 0) {
+    return <p className="text-slate-500 text-center py-8">No files uploaded</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {files.map((file) => (
+        <div
+          key={file.id}
+          className="flex items-center justify-between p-3 border rounded-lg"
+        >
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <Upload className="h-4 w-4 text-slate-400 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <a
+                href={file.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 hover:underline truncate block"
+              >
+                {file.fileName}
+              </a>
+              <p className="text-xs text-slate-500">
+                {file.fileSize ? `${(file.fileSize / 1024).toFixed(2)} KB` : ""} • {new Date(file.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <a
+              href={file.fileUrl}
+              download
+              className="text-slate-400 hover:text-slate-600"
+            >
+              <Download className="h-4 w-4" />
+            </a>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => deleteMutation.mutate({ fileId: file.id })}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

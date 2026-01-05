@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, inspections, contactEmails, InsertProject, InsertInspection, InsertContactEmail } from "../drizzle/schema";
+import { InsertUser, users, projects, inspections, contactEmails, projectFiles, InsertProject, InsertInspection, InsertContactEmail, InsertProjectFile } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -209,4 +209,26 @@ export async function deleteContactEmail(id: number) {
   if (!db) throw new Error("Database not available");
 
   await db.delete(contactEmails).where(eq(contactEmails.id, id));
+}
+
+// Project Files Management
+export async function createProjectFile(file: InsertProjectFile) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(projectFiles).values(file);
+}
+
+export async function getProjectFiles(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(projectFiles).where(eq(projectFiles.projectId, projectId));
+}
+
+export async function deleteProjectFile(fileId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(projectFiles).where(eq(projectFiles.id, fileId));
 }

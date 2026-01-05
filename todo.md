@@ -94,3 +94,11 @@
 - [x] Add BCCS logo to portal header
 - [x] Copy logo file to public directory
 - [x] Update header component with logo
+
+## File Upload Feature
+- [x] Create database schema for project files
+- [x] Add file upload component to project detail page
+- [x] Implement file upload to S3 storage
+- [x] Display uploaded files list with download links
+- [x] Add file deletion functionality
+- [x] Test file upload and download

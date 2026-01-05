@@ -92,3 +92,21 @@ export const contactEmails = mysqlTable("contactEmails", {
 
 export type ContactEmail = typeof contactEmails.$inferSelect;
 export type InsertContactEmail = typeof contactEmails.$inferInsert;
+
+/**
+ * Project files table - stores uploaded files for projects
+ */
+export const projectFiles = mysqlTable("projectFiles", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  fileName: varchar("fileName", { length: 500 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(),
+  fileSize: int("fileSize"),
+  mimeType: varchar("mimeType", { length: 100 }),
+  uploadedBy: varchar("uploadedBy", { length: 320 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProjectFile = typeof projectFiles.$inferSelect;
+export type InsertProjectFile = typeof projectFiles.$inferInsert;
