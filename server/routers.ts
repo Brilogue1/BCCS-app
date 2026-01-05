@@ -214,6 +214,7 @@ export const appRouter = router({
             assignedPermitTech: getString(row['Assign Permit tech']),
             assignedPlansExaminer: getString(row['Assign Plans Examiner']),
             assignedInspector: getString(row['Assign Inspector']),
+            planningChecklist: getString(row['Planning Checklist']),
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           };

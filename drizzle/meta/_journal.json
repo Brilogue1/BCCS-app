@@ -43,6 +43,13 @@
       "when": 1767624492115,
       "tag": "0005_wide_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767653821374,
+      "tag": "0006_special_doctor_spectrum",
+      "breakpoints": true
     }
   ]
 }

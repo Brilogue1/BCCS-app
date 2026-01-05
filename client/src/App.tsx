@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminProjectsReport from "./pages/AdminProjectsReport";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -55,6 +56,9 @@ function Router() {
       </Route>
       <Route path="/admin">
         <ProtectedRoute component={AdminDashboard} path="/admin" />
+      </Route>
+      <Route path="/admin/projects">
+        <ProtectedRoute component={AdminProjectsReport} path="/admin/projects" />
       </Route>
       <Route path="/">
         {isAuthenticated ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}

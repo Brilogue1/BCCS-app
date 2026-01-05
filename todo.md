@@ -130,3 +130,11 @@
 ## Bug Fixes
 - [x] Fix duplicate/extra projects in database (showing 25 instead of 17)
 - [x] Improve Google Sheets sync to filter invalid rows
+
+
+## Admin Progress Reporting Feature
+- [x] Update Google Sheets sync to capture column AC task status
+- [x] Add progress percentage calculation based on task status
+- [x] Create admin projects view with progress bars and stage/task details
+- [x] Make Total Projects card clickable to open detailed view
+- [x] Test progress tracking with real data (column AC mostly empty in spreadsheet)
