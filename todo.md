@@ -163,3 +163,10 @@
 - [x] Update Google Sheets sync to capture staff assignment columns - ALREADY EXISTS
 - [x] Create staff workload page showing tasks completed and remaining per staff member
 - [x] Test workload tracking with real data
+
+
+## Clean Up Admin Analytics Dashboard
+- [x] Remove Top Inspection Types section
+- [x] Remove Weekly Inspection Trend section
+- [x] Remove Inspections (Range) card
+- [x] Remove Completion Rate card
