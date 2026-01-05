@@ -64,6 +64,11 @@ export default function Projects() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Link href="/dashboard">
+                <Button variant="outline" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 size="sm"

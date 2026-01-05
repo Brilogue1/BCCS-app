@@ -373,6 +373,47 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+  dashboard: router({
+    summary: protectedProcedure.query(async ({ ctx }) => {
+      const db_instance = await db.getDb();
+      if (!db_instance) throw new Error("Database not available");
+      
+      const { eq } = await import("drizzle-orm");
+      const { projects, inspections, projectFiles } = await import("../drizzle/schema");
+      
+      // Get all projects (or filtered by email if not admin)
+      let allProjects = await db_instance.select().from(projects);
+      if (ctx.user?.role !== 'admin') {
+        allProjects = allProjects.filter(p => p.email === ctx.user?.email);
+      }
+      
+      // Count projects by stage
+      const stageCount = allProjects.reduce((acc, p) => {
+        const stage = p.stage || 'Unknown';
+        acc[stage] = (acc[stage] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      // Get recent inspections (last 10)
+      const recentInspections = await db_instance
+        .select()
+        .from(inspections)
+        .limit(10);
+      
+      // Get recent files (last 10)
+      const recentFiles = await db_instance
+        .select()
+        .from(projectFiles)
+        .limit(10);
+      
+      return {
+        totalProjects: allProjects.length,
+        projectsByStage: stageCount,
+        upcomingInspections: recentInspections.filter(i => i.status === 'pending' || i.status === 'scheduled'),
+        recentFiles: recentFiles,
+      };
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

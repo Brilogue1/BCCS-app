@@ -5,6 +5,7 @@ import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -48,8 +49,11 @@ function Router() {
       <Route path="/projects">
         <ProtectedRoute component={Projects} path="/projects" />
       </Route>
+      <Route path="/dashboard">
+        <ProtectedRoute component={Dashboard} path="/dashboard" />
+      </Route>
       <Route path="/">
-        {isAuthenticated ? <Redirect to="/projects" /> : <Redirect to="/login" />}
+        {isAuthenticated ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

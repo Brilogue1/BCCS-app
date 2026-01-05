@@ -102,3 +102,13 @@
 - [x] Display uploaded files list with download links
 - [x] Add file deletion functionality
 - [x] Test file upload and download
+
+
+## Dashboard Feature
+- [x] Create dashboard page with analytics
+- [x] Add project count summary by stage
+- [x] Display upcoming inspections list
+- [x] Show recent file uploads
+- [x] Add navigation to dashboard from main menu
+- [x] Create tRPC queries for dashboard data
+- [x] Test dashboard functionality
