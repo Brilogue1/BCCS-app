@@ -125,3 +125,8 @@
 - [x] Restrict dashboard access to admin users only
 - [x] Add navigation link for admins
 - [x] Test admin dashboard with real data
+
+
+## Bug Fixes
+- [x] Fix duplicate/extra projects in database (showing 25 instead of 17)
+- [x] Improve Google Sheets sync to filter invalid rows

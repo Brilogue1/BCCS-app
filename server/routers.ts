@@ -161,9 +161,19 @@ export const appRouter = router({
         const projects = sheetData
           .filter(row => {
             // Filter out rows without essential data
-            const hasOpportunityName = row['Opportunity Name'] && row['Opportunity Name'].trim() !== '';
-            const hasEmail = row['email'] && row['email'].trim() !== '';
-            return hasOpportunityName || hasEmail;
+            const opportunityName = row['Opportunity Name']?.trim() || '';
+            const email = row['email']?.trim() || '';
+            
+            // Must have a valid opportunity name (not empty, not garbled)
+            const hasValidOpportunityName = opportunityName.length > 0 && 
+              !opportunityName.includes(',,') && 
+              opportunityName.length < 200;
+            
+            // Must have a valid email with @ symbol
+            const hasValidEmail = email.length > 0 && email.includes('@');
+            
+            // Require BOTH valid name and email
+            return hasValidOpportunityName && hasValidEmail;
           })
           .map(row => {
           // Helper to safely parse dates
