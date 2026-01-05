@@ -119,7 +119,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Link href="/admin/projects">
             <Card className="cursor-pointer hover:shadow-md transition-shadow hover:border-blue-300">
               <CardHeader className="pb-3">
@@ -181,6 +181,24 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+
+          <Link href="/admin/workload">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow hover:border-purple-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Staff Workload
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-purple-600">Tasks</div>
+                <p className="text-xs text-purple-600 mt-2 flex items-center gap-1">
+                  View detailed task tracking
+                  <ArrowRight className="h-3 w-3" />
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Workload Distribution */}

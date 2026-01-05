@@ -152,3 +152,14 @@
 - [x] Update Google Sheets sync to capture new columns
 - [x] Update AdminProjectsReport to display all three checklists
 - [x] Test all progress tracking works correctly
+
+
+## Staff Workload Tracking Feature
+- [x] Identify staff assignment columns (AL-AN) in Google Sheets
+  - AL: Assign Permit tech
+  - AM: Assign Plans Examiner
+  - AN: Assign Inspector
+- [x] Update database schema to store staff assignments (permit tech, plans examiner, inspector) - ALREADY EXISTS
+- [x] Update Google Sheets sync to capture staff assignment columns - ALREADY EXISTS
+- [x] Create staff workload page showing tasks completed and remaining per staff member
+- [x] Test workload tracking with real data
