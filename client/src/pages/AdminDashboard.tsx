@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Users, CheckCircle2, Clock, TrendingUp, Loader2, Calendar, BarChart3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Clock, TrendingUp, Loader2, Calendar, BarChart3 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
@@ -120,18 +120,23 @@ export default function AdminDashboard() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Total Projects
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">{analytics?.totalProjects || 0}</div>
-              <p className="text-xs text-slate-500 mt-2">All active projects</p>
-            </CardContent>
-          </Card>
+          <Link href="/admin/projects">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow hover:border-blue-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Total Projects
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-slate-900">{analytics?.totalProjects || 0}</div>
+                <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
+                  Click to view progress report
+                  <ArrowRight className="h-3 w-3" />
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Card>
             <CardHeader className="pb-3">

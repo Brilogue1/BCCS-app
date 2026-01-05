@@ -56,32 +56,17 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {user?.role === "admin" ? (
-            <Link href="/admin/projects">
-              <Card className="cursor-pointer hover:shadow-md transition-shadow hover:border-blue-300">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">Total Projects</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-slate-900">{summary?.totalProjects || 0}</div>
-                  <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
-                    Click to view progress report
-                    <ArrowRight className="h-3 w-3" />
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ) : (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-600">Total Projects</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-slate-900">{summary?.totalProjects || 0}</div>
-                <p className="text-xs text-slate-500 mt-2">Your projects</p>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-slate-600">Total Projects</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-slate-900">{summary?.totalProjects || 0}</div>
+              <p className="text-xs text-slate-500 mt-2">
+                {user?.role === "admin" ? "All projects" : "Your projects"}
+              </p>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader className="pb-3">

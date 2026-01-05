@@ -138,3 +138,9 @@
 - [x] Create admin projects view with progress bars and stage/task details
 - [x] Make Total Projects card clickable to open detailed view
 - [x] Test progress tracking with real data (column AC mostly empty in spreadsheet)
+
+
+## Move Progress Tracking to Admin Analytics Only
+- [x] Remove clickable Total Projects from regular Dashboard
+- [x] Add clickable Total Projects to Admin Analytics page
+- [x] Test changes work correctly
