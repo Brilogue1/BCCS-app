@@ -1,7 +1,7 @@
 import { Link, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -41,6 +41,8 @@ export default function AdminDashboard() {
   const stageEntries = Object.entries(analytics?.projectsByStage || {}).sort(
     ([, a], [, b]) => b - a
   );
+
+  const inspectionResults = analytics?.inspectionResultsTally || { approved: 0, denied: 0, partial: 0, total: 0 };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -120,6 +122,99 @@ export default function AdminDashboard() {
             </Card>
           </Link>
         </div>
+
+        {/* Inspection Results Tally */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Inspection Results</CardTitle>
+            <CardDescription>Pass/Fail totals from 1st, 2nd, and 3rd inspections</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <span className="text-sm font-medium text-green-700">Approved</span>
+                </div>
+                <div className="text-3xl font-bold text-green-600">{inspectionResults.approved}</div>
+                {inspectionResults.total > 0 && (
+                  <div className="text-xs text-green-600 mt-1">
+                    {Math.round((inspectionResults.approved / inspectionResults.total) * 100)}% of total
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                  <span className="text-sm font-medium text-red-700">Denied</span>
+                </div>
+                <div className="text-3xl font-bold text-red-600">{inspectionResults.denied}</div>
+                {inspectionResults.total > 0 && (
+                  <div className="text-xs text-red-600 mt-1">
+                    {Math.round((inspectionResults.denied / inspectionResults.total) * 100)}% of total
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                  <span className="text-sm font-medium text-yellow-700">Partial</span>
+                </div>
+                <div className="text-3xl font-bold text-yellow-600">{inspectionResults.partial}</div>
+                {inspectionResults.total > 0 && (
+                  <div className="text-xs text-yellow-600 mt-1">
+                    {Math.round((inspectionResults.partial / inspectionResults.total) * 100)}% of total
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="h-5 w-5 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">Total Inspections</span>
+                </div>
+                <div className="text-3xl font-bold text-slate-900">{inspectionResults.total}</div>
+                <div className="text-xs text-slate-500 mt-1">
+                  Across all projects
+                </div>
+              </div>
+            </div>
+            
+            {/* Progress bar showing distribution */}
+            {inspectionResults.total > 0 && (
+              <div className="mt-6">
+                <div className="text-sm font-medium text-slate-600 mb-2">Distribution</div>
+                <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden flex">
+                  <div 
+                    className="bg-green-500 h-full transition-all"
+                    style={{ width: `${(inspectionResults.approved / inspectionResults.total) * 100}%` }}
+                  />
+                  <div 
+                    className="bg-red-500 h-full transition-all"
+                    style={{ width: `${(inspectionResults.denied / inspectionResults.total) * 100}%` }}
+                  />
+                  <div 
+                    className="bg-yellow-500 h-full transition-all"
+                    style={{ width: `${(inspectionResults.partial / inspectionResults.total) * 100}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 bg-green-500 rounded-sm"></span> Approved
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 bg-red-500 rounded-sm"></span> Denied
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 bg-yellow-500 rounded-sm"></span> Partial
+                  </span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Workload Distribution */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

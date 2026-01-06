@@ -217,6 +217,9 @@ export const appRouter = router({
             planningChecklist: getString(row['Planning Checklist']),
             permittingChecklist: getString(row['PERMITTING INFORMATION']),
             inspectionChecklist: getString(row['Inspection Checklist']),
+            inspection1Result: getString(row['1st Inspection Results']),
+            inspection2Result: getString(row['2nd Inspection Results']),
+            inspection3Result: getString(row['3rd Inspection Results']),
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           };
@@ -535,6 +538,48 @@ export const appRouter = router({
           });
         }
 
+        // Count inspection results (Approved, Denied, Partial) from columns Z-AB
+        // Helper function to parse result from text (may contain additional info)
+        const parseResult = (text: string | null): 'approved' | 'denied' | 'partial' | null => {
+          if (!text) return null;
+          const lower = text.toLowerCase();
+          if (lower.includes('approved')) return 'approved';
+          if (lower.includes('denied')) return 'denied';
+          if (lower.includes('partial')) return 'partial';
+          return null;
+        };
+
+        // Tally results across all 3 inspection result columns
+        const inspectionResultsTally = {
+          approved: 0,
+          denied: 0,
+          partial: 0,
+          total: 0,
+        };
+
+        allProjects.forEach(p => {
+          // Check 1st inspection result
+          const result1 = parseResult(p.inspection1Result);
+          if (result1) {
+            inspectionResultsTally[result1]++;
+            inspectionResultsTally.total++;
+          }
+          
+          // Check 2nd inspection result
+          const result2 = parseResult(p.inspection2Result);
+          if (result2) {
+            inspectionResultsTally[result2]++;
+            inspectionResultsTally.total++;
+          }
+          
+          // Check 3rd inspection result
+          const result3 = parseResult(p.inspection3Result);
+          if (result3) {
+            inspectionResultsTally[result3]++;
+            inspectionResultsTally.total++;
+          }
+        });
+
         return {
           totalProjects: allProjects.length,
           completedProjects,
@@ -547,6 +592,7 @@ export const appRouter = router({
           inspectionsByStatus,
           inspectionsByType,
           weeklyTrend,
+          inspectionResultsTally,
           dateRange: {
             start: startDate.toISOString(),
             end: endDate.toISOString(),

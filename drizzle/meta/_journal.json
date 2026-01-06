@@ -57,6 +57,13 @@
       "when": 1767655574479,
       "tag": "0007_next_maverick",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1767657706364,
+      "tag": "0008_thin_rocket_racer",
+      "breakpoints": true
     }
   ]
 }

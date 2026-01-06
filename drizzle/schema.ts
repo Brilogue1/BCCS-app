@@ -52,6 +52,9 @@ export const projects = mysqlTable("projects", {
   planningChecklist: text("planningChecklist"), // Column AC - task status for progress tracking
   permittingChecklist: text("permittingChecklist"), // Column AD - permitting task status
   inspectionChecklist: text("inspectionChecklist"), // Column AY - inspection task status
+  inspection1Result: text("inspection1Result"), // Column Z - 1st Inspection Results (Approved/Denied/Partial)
+  inspection2Result: text("inspection2Result"), // Column AA - 2nd Inspection Results
+  inspection3Result: text("inspection3Result"), // Column AB - 3rd Inspection Results
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });

@@ -170,3 +170,13 @@
 - [x] Remove Weekly Inspection Trend section
 - [x] Remove Inspections (Range) card
 - [x] Remove Completion Rate card
+
+## Inspection Pass/Fail Totals
+- [x] Identify Google Sheets columns Z-AB for inspection results
+  - Z: 1st Inspection Results
+  - AA: 2nd Inspection Results
+  - AB: 3rd Inspection Results
+- [x] Update database schema to store inspection result fields (inspection1Result, inspection2Result, inspection3Result)
+- [x] Update Google Sheets sync to capture columns Z-AB (1st/2nd/3rd Inspection Results)
+- [x] Add inspection results tally to Admin Analytics dashboard
+- [x] Test and verify the inspection results display (3 Approved, 0 Denied, 1 Partial = 4 Total)
