@@ -28,7 +28,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/logo(1).png" alt="BCCS" className="h-10 w-10" />
+              <img src="/bccs-logo.png" alt="BCCS" className="h-10 w-10" />
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">BCCS Client Portal</h1>
                 <p className="text-sm text-slate-600">Welcome, {user?.name || "User"}</p>

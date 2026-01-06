@@ -195,3 +195,6 @@
 - [x] Add print/download buttons to Project Progress Report
 - [x] Add print/download buttons to Staff Workload page
 - [x] Test print and download functionality on all pages
+
+## Bug Fixes
+- [x] Fix broken logo on dashboard page
