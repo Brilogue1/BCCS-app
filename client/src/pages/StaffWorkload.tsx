@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
+import html2pdf from "html2pdf.js";
 
 // Task mappings for each checklist type
 const PLANNING_TASKS = [
@@ -238,60 +239,49 @@ export default function StaffWorkload() {
   };
 
   const handleDownload = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Staff Workload Report - ${new Date().toLocaleDateString()}</title>
-            <style>
-              body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
-              h1 { font-size: 24px; margin-bottom: 8px; }
-              h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
-              .stat { display: inline-block; margin-right: 40px; margin-bottom: 16px; }
-              .stat-value { font-size: 32px; font-weight: bold; }
-              .stat-label { font-size: 14px; color: #666; }
-              .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }
-              .green { color: #16a34a; }
-              .orange { color: #ea580c; }
-              .blue { color: #2563eb; }
-            </style>
-          </head>
-          <body>
-            <h1>Staff Workload Report</h1>
-            <p>Generated on ${new Date().toLocaleString()}</p>
-            
-            <div class="section">
-              <h2>Summary</h2>
-              <div class="stat"><div class="stat-value">${totalStaff}</div><div class="stat-label">Total Staff</div></div>
-              <div class="stat"><div class="stat-value green">${totalTasksCompleted}</div><div class="stat-label">Tasks Completed</div></div>
-              <div class="stat"><div class="stat-value orange">${totalTasksRemaining}</div><div class="stat-label">Tasks Remaining</div></div>
-              <div class="stat"><div class="stat-value blue">${avgTasksPerStaff}</div><div class="stat-label">Avg Tasks/Staff</div></div>
-            </div>
-            
-            <div class="section">
-              <h2>Staff Workload Details</h2>
-              <table>
-                <tr><th>Name</th><th>Role</th><th>Projects</th><th>Completed</th><th>Remaining</th></tr>
-                ${staffList.map(s => `
-                  <tr>
-                    <td>${s.name}</td>
-                    <td>${s.role}</td>
-                    <td>${s.totalProjects}</td>
-                    <td class="green">${s.totalCompletedTasks}</td>
-                    <td class="orange">${s.totalRemainingTasks}</td>
-                  </tr>
-                `).join('')}
-              </table>
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="font-family: system-ui, -apple-system, sans-serif; padding: 20px;">
+        <h1 style="font-size: 24px; margin-bottom: 8px;">Staff Workload Report</h1>
+        <p style="color: #666; margin-bottom: 24px;">Generated on ${new Date().toLocaleString()}</p>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Summary</h2>
+          <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+            <div><div style="font-size: 32px; font-weight: bold;">${totalStaff}</div><div style="font-size: 14px; color: #666;">Total Staff</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #16a34a;">${totalTasksCompleted}</div><div style="font-size: 14px; color: #666;">Tasks Completed</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #ea580c;">${totalTasksRemaining}</div><div style="font-size: 14px; color: #666;">Tasks Remaining</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #2563eb;">${avgTasksPerStaff}</div><div style="font-size: 14px; color: #666;">Avg Tasks/Staff</div></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Staff Workload Details</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e2e8f0;"><th style="text-align: left; padding: 8px;">Name</th><th style="text-align: left; padding: 8px;">Role</th><th style="text-align: left; padding: 8px;">Projects</th><th style="text-align: left; padding: 8px;">Completed</th><th style="text-align: left; padding: 8px;">Remaining</th></tr>
+            ${staffList.map(s => `
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 8px;">${s.name}</td>
+                <td style="padding: 8px;">${s.role}</td>
+                <td style="padding: 8px;">${s.totalProjects}</td>
+                <td style="padding: 8px; color: #16a34a;">${s.totalCompletedTasks}</td>
+                <td style="padding: 8px; color: #ea580c;">${s.totalRemainingTasks}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+      </div>
+    `;
+    
+    const opt = {
+      margin: 10,
+      filename: `staff-workload-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+    };
+    
+    html2pdf().set(opt).from(element).save();
   };
 
   return (

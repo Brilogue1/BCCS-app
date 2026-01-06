@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Building2, CheckCircle2, Clock, AlertCircle, Clipbo
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
+import html2pdf from "html2pdf.js";
 
 // Planning Checklist task status to percentage mapping (Column AC)
 const PLANNING_PROGRESS_MAP: Record<string, number> = {
@@ -238,63 +239,49 @@ export default function AdminProjectsReport() {
   };
 
   const handleDownload = () => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Project Progress Report - ${getTabLabel(activeTab)} - ${new Date().toLocaleDateString()}</title>
-            <style>
-              body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
-              h1 { font-size: 24px; margin-bottom: 8px; }
-              h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
-              .stat { display: inline-block; margin-right: 40px; margin-bottom: 16px; }
-              .stat-value { font-size: 32px; font-weight: bold; }
-              .stat-label { font-size: 14px; color: #666; }
-              .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }
-              .progress-bar { width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px; display: inline-block; }
-              .progress-fill { height: 100%; border-radius: 4px; }
-              .green { background: #16a34a; }
-              .blue { background: #2563eb; }
-              .yellow { background: #eab308; }
-              .orange { background: #ea580c; }
-            </style>
-          </head>
-          <body>
-            <h1>Project Progress Report - ${getTabLabel(activeTab)} Checklist</h1>
-            <p>Generated on ${new Date().toLocaleString()}</p>
-            
-            <div class="section">
-              <h2>Summary</h2>
-              <div class="stat"><div class="stat-value">${totalProjects}</div><div class="stat-label">Total Projects</div></div>
-              <div class="stat"><div class="stat-value" style="color:#16a34a">${completedProjects}</div><div class="stat-label">Completed</div></div>
-              <div class="stat"><div class="stat-value" style="color:#2563eb">${inProgressProjects}</div><div class="stat-label">In Progress</div></div>
-              <div class="stat"><div class="stat-value" style="color:#64748b">${notStartedProjects}</div><div class="stat-label">Not Started</div></div>
-              <div class="stat"><div class="stat-value">${averageProgress}%</div><div class="stat-label">Avg Progress</div></div>
-            </div>
-            
-            <div class="section">
-              <h2>All Projects</h2>
-              <table>
-                <tr><th>Project</th><th>Stage</th><th>Current Task</th><th>Progress</th></tr>
-                ${projectsWithProgress.map(p => `
-                  <tr>
-                    <td>${p.opportunityName || 'Unnamed'}</td>
-                    <td>${p.stage || 'N/A'}</td>
-                    <td>${p.currentChecklist || 'Not Started'}</td>
-                    <td>${p.currentProgress}%</td>
-                  </tr>
-                `).join('')}
-              </table>
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="font-family: system-ui, -apple-system, sans-serif; padding: 20px;">
+        <h1 style="font-size: 24px; margin-bottom: 8px;">Project Progress Report - ${getTabLabel(activeTab)} Checklist</h1>
+        <p style="color: #666; margin-bottom: 24px;">Generated on ${new Date().toLocaleString()}</p>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Summary</h2>
+          <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+            <div><div style="font-size: 32px; font-weight: bold;">${totalProjects}</div><div style="font-size: 14px; color: #666;">Total Projects</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #16a34a;">${completedProjects}</div><div style="font-size: 14px; color: #666;">Completed</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #2563eb;">${inProgressProjects}</div><div style="font-size: 14px; color: #666;">In Progress</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #64748b;">${notStartedProjects}</div><div style="font-size: 14px; color: #666;">Not Started</div></div>
+            <div><div style="font-size: 32px; font-weight: bold;">${averageProgress}%</div><div style="font-size: 14px; color: #666;">Avg Progress</div></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">All Projects</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e2e8f0;"><th style="text-align: left; padding: 8px;">Project</th><th style="text-align: left; padding: 8px;">Stage</th><th style="text-align: left; padding: 8px;">Current Task</th><th style="text-align: left; padding: 8px;">Progress</th></tr>
+            ${projectsWithProgress.map(p => `
+              <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 8px;">${p.opportunityName || 'Unnamed'}</td>
+                <td style="padding: 8px;">${p.stage || 'N/A'}</td>
+                <td style="padding: 8px;">${p.currentChecklist || 'Not Started'}</td>
+                <td style="padding: 8px;">${p.currentProgress}%</td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+      </div>
+    `;
+    
+    const opt = {
+      margin: 10,
+      filename: `project-progress-${getTabLabel(activeTab).toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+    };
+    
+    html2pdf().set(opt).from(element).save();
   };
 
   return (
@@ -304,7 +291,7 @@ export default function AdminProjectsReport() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/logo(1).png" alt="BCCS" className="h-10 w-10" />
+              <img src="/bccs-logo.png" alt="BCCS" className="h-10 w-10" />
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">Project Progress Report</h1>
                 <p className="text-sm text-slate-600">Track progress across all project checklists</p>

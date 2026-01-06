@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useRef } from "react";
+import html2pdf from "html2pdf.js";
 
 export default function AdminDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -50,89 +52,79 @@ export default function AdminDashboard() {
   };
 
   const handleDownload = () => {
-    // Create a printable version and trigger download
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      const content = document.querySelector('.max-w-7xl');
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Admin Analytics Dashboard - ${new Date().toLocaleDateString()}</title>
-            <style>
-              body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
-              h1 { font-size: 24px; margin-bottom: 8px; }
-              h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
-              .stat { display: inline-block; margin-right: 40px; margin-bottom: 16px; }
-              .stat-value { font-size: 32px; font-weight: bold; }
-              .stat-label { font-size: 14px; color: #666; }
-              .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }
-              .green { color: #16a34a; }
-              .red { color: #dc2626; }
-              .yellow { color: #ca8a04; }
-              .blue { color: #2563eb; }
-              .orange { color: #ea580c; }
-            </style>
-          </head>
-          <body>
-            <h1>Admin Analytics Dashboard</h1>
-            <p>Generated on ${new Date().toLocaleString()}</p>
-            
-            <div class="section">
-              <h2>Summary</h2>
-              <div class="stat"><div class="stat-value">${analytics?.totalProjects || 0}</div><div class="stat-label">Total Projects</div></div>
-              <div class="stat"><div class="stat-value green">${analytics?.completedProjects || 0}</div><div class="stat-label">Completed</div></div>
-            </div>
-            
-            <div class="section">
-              <h2>Inspection Results</h2>
-              <div class="stat"><div class="stat-value green">${inspectionResults.approved}</div><div class="stat-label">Approved</div></div>
-              <div class="stat"><div class="stat-value red">${inspectionResults.denied}</div><div class="stat-label">Denied</div></div>
-              <div class="stat"><div class="stat-value yellow">${inspectionResults.partial}</div><div class="stat-label">Partial</div></div>
-              <div class="stat"><div class="stat-value">${inspectionResults.total}</div><div class="stat-label">Total</div></div>
-            </div>
-            
-            <div class="section">
-              <h2>Proposal Status</h2>
-              <div class="stat"><div class="stat-value blue">${proposalsTally.totalInProposalStage}</div><div class="stat-label">In Proposal Stage</div></div>
-              <div class="stat"><div class="stat-value">${proposalsTally.proposalsSent}</div><div class="stat-label">Sent</div></div>
-              <div class="stat"><div class="stat-value green">${proposalsTally.proposalsSigned}</div><div class="stat-label">Signed</div></div>
-              <div class="stat"><div class="stat-value orange">${proposalsTally.stuck}</div><div class="stat-label">Stuck</div></div>
-            </div>
-            
-            <div class="section">
-              <h2>Projects by Stage</h2>
-              <table>
-                <tr><th>Stage</th><th>Count</th></tr>
-                ${stageEntries.map(([stage, count]) => `<tr><td>${stage}</td><td>${count}</td></tr>`).join('')}
-              </table>
-            </div>
-            
-            <div class="section">
-              <h2>Staff Workload</h2>
-              <h3>Inspectors</h3>
-              <table>
-                <tr><th>Name</th><th>Projects</th></tr>
-                ${inspectorEntries.map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join('')}
-              </table>
-              <h3>Permit Techs</h3>
-              <table>
-                <tr><th>Name</th><th>Projects</th></tr>
-                ${permitTechEntries.map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join('')}
-              </table>
-              <h3>Plans Examiners</h3>
-              <table>
-                <tr><th>Name</th><th>Projects</th></tr>
-                ${plansExaminerEntries.map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join('')}
-              </table>
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    // Create a temporary element with the report content
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="font-family: system-ui, -apple-system, sans-serif; padding: 20px;">
+        <h1 style="font-size: 24px; margin-bottom: 8px;">Admin Analytics Dashboard</h1>
+        <p style="color: #666; margin-bottom: 24px;">Generated on ${new Date().toLocaleString()}</p>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Summary</h2>
+          <div style="display: flex; gap: 40px;">
+            <div><div style="font-size: 32px; font-weight: bold;">${analytics?.totalProjects || 0}</div><div style="font-size: 14px; color: #666;">Total Projects</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #16a34a;">${analytics?.completedProjects || 0}</div><div style="font-size: 14px; color: #666;">Completed</div></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Inspection Results</h2>
+          <div style="display: flex; gap: 40px;">
+            <div><div style="font-size: 32px; font-weight: bold; color: #16a34a;">${inspectionResults.approved}</div><div style="font-size: 14px; color: #666;">Approved</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #dc2626;">${inspectionResults.denied}</div><div style="font-size: 14px; color: #666;">Denied</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #ca8a04;">${inspectionResults.partial}</div><div style="font-size: 14px; color: #666;">Partial</div></div>
+            <div><div style="font-size: 32px; font-weight: bold;">${inspectionResults.total}</div><div style="font-size: 14px; color: #666;">Total</div></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Proposal Status</h2>
+          <div style="display: flex; gap: 40px;">
+            <div><div style="font-size: 32px; font-weight: bold; color: #2563eb;">${proposalsTally.totalInProposalStage}</div><div style="font-size: 14px; color: #666;">In Proposal Stage</div></div>
+            <div><div style="font-size: 32px; font-weight: bold;">${proposalsTally.proposalsSent}</div><div style="font-size: 14px; color: #666;">Sent</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #16a34a;">${proposalsTally.proposalsSigned}</div><div style="font-size: 14px; color: #666;">Signed</div></div>
+            <div><div style="font-size: 32px; font-weight: bold; color: #ea580c;">${proposalsTally.stuck}</div><div style="font-size: 14px; color: #666;">Stuck</div></div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Projects by Stage</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e2e8f0;"><th style="text-align: left; padding: 8px;">Stage</th><th style="text-align: left; padding: 8px;">Count</th></tr>
+            ${stageEntries.map(([stage, count]) => `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px;">${stage}</td><td style="padding: 8px;">${count}</td></tr>`).join('')}
+          </table>
+        </div>
+        
+        <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="font-size: 18px; margin-bottom: 12px;">Staff Workload</h2>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0;">Inspectors</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+            <tr style="border-bottom: 1px solid #e2e8f0;"><th style="text-align: left; padding: 8px;">Name</th><th style="text-align: left; padding: 8px;">Projects</th></tr>
+            ${inspectorEntries.map(([name, count]) => `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px;">${name}</td><td style="padding: 8px;">${count}</td></tr>`).join('')}
+          </table>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0;">Permit Techs</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+            <tr style="border-bottom: 1px solid #e2e8f0;"><th style="text-align: left; padding: 8px;">Name</th><th style="text-align: left; padding: 8px;">Projects</th></tr>
+            ${permitTechEntries.map(([name, count]) => `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px;">${name}</td><td style="padding: 8px;">${count}</td></tr>`).join('')}
+          </table>
+          <h3 style="font-size: 16px; margin: 12px 0 8px 0;">Plans Examiners</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e2e8f0;"><th style="text-align: left; padding: 8px;">Name</th><th style="text-align: left; padding: 8px;">Projects</th></tr>
+            ${plansExaminerEntries.map(([name, count]) => `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px;">${name}</td><td style="padding: 8px;">${count}</td></tr>`).join('')}
+          </table>
+        </div>
+      </div>
+    `;
+    
+    const opt = {
+      margin: 10,
+      filename: `admin-analytics-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+    };
+    
+    html2pdf().set(opt).from(element).save();
   };
 
   return (

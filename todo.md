@@ -198,3 +198,4 @@
 
 ## Bug Fixes
 - [x] Fix broken logo on dashboard page
+- [x] Update Download button to generate PDF directly instead of print dialog
