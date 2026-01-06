@@ -2,7 +2,7 @@ import { Link, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 // Using custom tabs instead of Radix Tabs for better control
-import { ArrowLeft, Loader2, Building2, CheckCircle2, Clock, AlertCircle, ClipboardList, FileCheck, Search } from "lucide-react";
+import { ArrowLeft, Loader2, Building2, CheckCircle2, Clock, AlertCircle, ClipboardList, FileCheck, Search, Printer, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useState } from "react";
@@ -233,6 +233,70 @@ export default function AdminProjectsReport() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Project Progress Report - ${getTabLabel(activeTab)} - ${new Date().toLocaleDateString()}</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+              h1 { font-size: 24px; margin-bottom: 8px; }
+              h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
+              .stat { display: inline-block; margin-right: 40px; margin-bottom: 16px; }
+              .stat-value { font-size: 32px; font-weight: bold; }
+              .stat-label { font-size: 14px; color: #666; }
+              .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }
+              .progress-bar { width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px; display: inline-block; }
+              .progress-fill { height: 100%; border-radius: 4px; }
+              .green { background: #16a34a; }
+              .blue { background: #2563eb; }
+              .yellow { background: #eab308; }
+              .orange { background: #ea580c; }
+            </style>
+          </head>
+          <body>
+            <h1>Project Progress Report - ${getTabLabel(activeTab)} Checklist</h1>
+            <p>Generated on ${new Date().toLocaleString()}</p>
+            
+            <div class="section">
+              <h2>Summary</h2>
+              <div class="stat"><div class="stat-value">${totalProjects}</div><div class="stat-label">Total Projects</div></div>
+              <div class="stat"><div class="stat-value" style="color:#16a34a">${completedProjects}</div><div class="stat-label">Completed</div></div>
+              <div class="stat"><div class="stat-value" style="color:#2563eb">${inProgressProjects}</div><div class="stat-label">In Progress</div></div>
+              <div class="stat"><div class="stat-value" style="color:#64748b">${notStartedProjects}</div><div class="stat-label">Not Started</div></div>
+              <div class="stat"><div class="stat-value">${averageProgress}%</div><div class="stat-label">Avg Progress</div></div>
+            </div>
+            
+            <div class="section">
+              <h2>All Projects</h2>
+              <table>
+                <tr><th>Project</th><th>Stage</th><th>Current Task</th><th>Progress</th></tr>
+                ${projectsWithProgress.map(p => `
+                  <tr>
+                    <td>${p.opportunityName || 'Unnamed'}</td>
+                    <td>${p.stage || 'N/A'}</td>
+                    <td>${p.currentChecklist || 'Not Started'}</td>
+                    <td>${p.currentProgress}%</td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -247,8 +311,16 @@ export default function AdminProjectsReport() {
               </div>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" onClick={handlePrint} className="print:hidden">
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Button variant="outline" onClick={handleDownload} className="print:hidden">
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
               <Link href="/admin">
-                <Button variant="outline">
+                <Button variant="outline" className="print:hidden">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Analytics
                 </Button>

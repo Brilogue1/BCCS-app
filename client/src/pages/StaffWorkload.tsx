@@ -1,4 +1,4 @@
-import { ArrowLeft, Users, CheckCircle, Clock, AlertCircle, Briefcase } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle, Clock, Briefcase, ChevronDown, ChevronUp, Printer, Download, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -233,17 +233,94 @@ export default function StaffWorkload() {
 
   const selectedStaffData = selectedStaff ? staffMap.get(selectedStaff) : null;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = () => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Staff Workload Report - ${new Date().toLocaleDateString()}</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+              h1 { font-size: 24px; margin-bottom: 8px; }
+              h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
+              .stat { display: inline-block; margin-right: 40px; margin-bottom: 16px; }
+              .stat-value { font-size: 32px; font-weight: bold; }
+              .stat-label { font-size: 14px; color: #666; }
+              .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }
+              .green { color: #16a34a; }
+              .orange { color: #ea580c; }
+              .blue { color: #2563eb; }
+            </style>
+          </head>
+          <body>
+            <h1>Staff Workload Report</h1>
+            <p>Generated on ${new Date().toLocaleString()}</p>
+            
+            <div class="section">
+              <h2>Summary</h2>
+              <div class="stat"><div class="stat-value">${totalStaff}</div><div class="stat-label">Total Staff</div></div>
+              <div class="stat"><div class="stat-value green">${totalTasksCompleted}</div><div class="stat-label">Tasks Completed</div></div>
+              <div class="stat"><div class="stat-value orange">${totalTasksRemaining}</div><div class="stat-label">Tasks Remaining</div></div>
+              <div class="stat"><div class="stat-value blue">${avgTasksPerStaff}</div><div class="stat-label">Avg Tasks/Staff</div></div>
+            </div>
+            
+            <div class="section">
+              <h2>Staff Workload Details</h2>
+              <table>
+                <tr><th>Name</th><th>Role</th><th>Projects</th><th>Completed</th><th>Remaining</th></tr>
+                ${staffList.map(s => `
+                  <tr>
+                    <td>${s.name}</td>
+                    <td>${s.role}</td>
+                    <td>${s.totalProjects}</td>
+                    <td class="green">${s.totalCompletedTasks}</td>
+                    <td class="orange">${s.totalRemainingTasks}</td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center justify-between gap-4 mb-8">
           <Link href="/admin">
-            <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors print:hidden">
               <ArrowLeft className="h-5 w-5" />
               Back to Admin Analytics
             </button>
           </Link>
+          <div className="flex gap-2 print:hidden">
+            <button 
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Printer className="h-4 w-4" />
+              Print
+            </button>
+            <button 
+              onClick={handleDownload}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 mb-8">

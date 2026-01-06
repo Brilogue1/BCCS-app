@@ -189,3 +189,9 @@
 - [x] Update Google Sheets sync to capture columns AZ and BA (Proposals Sent, Proposal Signed)
 - [x] Add proposal tracking section to Admin Analytics dashboard
 - [x] Test and verify the proposal tracking display (4 In Proposal, 2 Sent, 1 Signed, 4 Stuck, 50% conversion)
+
+## Print/Download Functionality for Admin Pages
+- [x] Add print/download buttons to Admin Analytics Dashboard
+- [x] Add print/download buttons to Project Progress Report
+- [x] Add print/download buttons to Staff Workload page
+- [x] Test print and download functionality on all pages

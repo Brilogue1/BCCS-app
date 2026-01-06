@@ -1,7 +1,7 @@
 import { Link, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -45,6 +45,96 @@ export default function AdminDashboard() {
   const inspectionResults = analytics?.inspectionResultsTally || { approved: 0, denied: 0, partial: 0, total: 0 };
   const proposalsTally = analytics?.proposalsTally || { totalInProposalStage: 0, proposalsSent: 0, proposalsSigned: 0, stuck: 0 };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = () => {
+    // Create a printable version and trigger download
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const content = document.querySelector('.max-w-7xl');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Admin Analytics Dashboard - ${new Date().toLocaleDateString()}</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+              h1 { font-size: 24px; margin-bottom: 8px; }
+              h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; }
+              .stat { display: inline-block; margin-right: 40px; margin-bottom: 16px; }
+              .stat-value { font-size: 32px; font-weight: bold; }
+              .stat-label { font-size: 14px; color: #666; }
+              .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+              th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e2e8f0; }
+              .green { color: #16a34a; }
+              .red { color: #dc2626; }
+              .yellow { color: #ca8a04; }
+              .blue { color: #2563eb; }
+              .orange { color: #ea580c; }
+            </style>
+          </head>
+          <body>
+            <h1>Admin Analytics Dashboard</h1>
+            <p>Generated on ${new Date().toLocaleString()}</p>
+            
+            <div class="section">
+              <h2>Summary</h2>
+              <div class="stat"><div class="stat-value">${analytics?.totalProjects || 0}</div><div class="stat-label">Total Projects</div></div>
+              <div class="stat"><div class="stat-value green">${analytics?.completedProjects || 0}</div><div class="stat-label">Completed</div></div>
+            </div>
+            
+            <div class="section">
+              <h2>Inspection Results</h2>
+              <div class="stat"><div class="stat-value green">${inspectionResults.approved}</div><div class="stat-label">Approved</div></div>
+              <div class="stat"><div class="stat-value red">${inspectionResults.denied}</div><div class="stat-label">Denied</div></div>
+              <div class="stat"><div class="stat-value yellow">${inspectionResults.partial}</div><div class="stat-label">Partial</div></div>
+              <div class="stat"><div class="stat-value">${inspectionResults.total}</div><div class="stat-label">Total</div></div>
+            </div>
+            
+            <div class="section">
+              <h2>Proposal Status</h2>
+              <div class="stat"><div class="stat-value blue">${proposalsTally.totalInProposalStage}</div><div class="stat-label">In Proposal Stage</div></div>
+              <div class="stat"><div class="stat-value">${proposalsTally.proposalsSent}</div><div class="stat-label">Sent</div></div>
+              <div class="stat"><div class="stat-value green">${proposalsTally.proposalsSigned}</div><div class="stat-label">Signed</div></div>
+              <div class="stat"><div class="stat-value orange">${proposalsTally.stuck}</div><div class="stat-label">Stuck</div></div>
+            </div>
+            
+            <div class="section">
+              <h2>Projects by Stage</h2>
+              <table>
+                <tr><th>Stage</th><th>Count</th></tr>
+                ${stageEntries.map(([stage, count]) => `<tr><td>${stage}</td><td>${count}</td></tr>`).join('')}
+              </table>
+            </div>
+            
+            <div class="section">
+              <h2>Staff Workload</h2>
+              <h3>Inspectors</h3>
+              <table>
+                <tr><th>Name</th><th>Projects</th></tr>
+                ${inspectorEntries.map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join('')}
+              </table>
+              <h3>Permit Techs</h3>
+              <table>
+                <tr><th>Name</th><th>Projects</th></tr>
+                ${permitTechEntries.map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join('')}
+              </table>
+              <h3>Plans Examiners</h3>
+              <table>
+                <tr><th>Name</th><th>Projects</th></tr>
+                ${plansExaminerEntries.map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join('')}
+              </table>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -59,8 +149,16 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" onClick={handlePrint} className="print:hidden">
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+              <Button variant="outline" onClick={handleDownload} className="print:hidden">
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
               <Link href="/dashboard">
-                <Button variant="outline">
+                <Button variant="outline" className="print:hidden">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Dashboard
                 </Button>
