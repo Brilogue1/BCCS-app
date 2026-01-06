@@ -64,6 +64,13 @@
       "when": 1767657706364,
       "tag": "0008_thin_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1767720463152,
+      "tag": "0009_right_wolfsbane",
+      "breakpoints": true
     }
   ]
 }

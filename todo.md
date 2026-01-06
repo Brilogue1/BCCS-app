@@ -180,3 +180,12 @@
 - [x] Update Google Sheets sync to capture columns Z-AB (1st/2nd/3rd Inspection Results)
 - [x] Add inspection results tally to Admin Analytics dashboard
 - [x] Test and verify the inspection results display (3 Approved, 0 Denied, 1 Partial = 4 Total)
+
+## Proposal Tracking Feature
+- [x] Identify Google Sheets columns AZ and BA for proposal status
+  - AZ: Proposals Sent (Yes/empty)
+  - BA: Proposal Signed (Yes/No/empty)
+- [x] Update database schema to store proposal status fields (proposalSent, proposalSigned)
+- [x] Update Google Sheets sync to capture columns AZ and BA (Proposals Sent, Proposal Signed)
+- [x] Add proposal tracking section to Admin Analytics dashboard
+- [x] Test and verify the proposal tracking display (4 In Proposal, 2 Sent, 1 Signed, 4 Stuck, 50% conversion)

@@ -55,6 +55,8 @@ export const projects = mysqlTable("projects", {
   inspection1Result: text("inspection1Result"), // Column Z - 1st Inspection Results (Approved/Denied/Partial)
   inspection2Result: text("inspection2Result"), // Column AA - 2nd Inspection Results
   inspection3Result: text("inspection3Result"), // Column AB - 3rd Inspection Results
+  proposalSent: text("proposalSent"), // Column AZ - Proposals Sent (Yes/empty)
+  proposalSigned: text("proposalSigned"), // Column BA - Proposal Signed (Yes/No/empty)
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });

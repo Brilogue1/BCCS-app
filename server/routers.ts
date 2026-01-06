@@ -220,6 +220,8 @@ export const appRouter = router({
             inspection1Result: getString(row['1st Inspection Results']),
             inspection2Result: getString(row['2nd Inspection Results']),
             inspection3Result: getString(row['3rd Inspection Results']),
+            proposalSent: getString(row['Proposals Sent']),
+            proposalSigned: getString(row['Proposal Signed']),
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           };
@@ -580,6 +582,28 @@ export const appRouter = router({
           }
         });
 
+        // Proposal tracking metrics
+        const proposalProjects = allProjects.filter(p => 
+          p.stage?.toLowerCase().includes('proposal')
+        );
+        
+        const proposalsTally = {
+          totalInProposalStage: proposalProjects.length,
+          proposalsSent: allProjects.filter(p => 
+            p.proposalSent?.toLowerCase() === 'yes'
+          ).length,
+          proposalsSigned: allProjects.filter(p => 
+            p.proposalSigned?.toLowerCase() === 'yes'
+          ).length,
+          // Stuck = in Proposal stage AND (proposal sent but not signed, OR proposal not sent at all)
+          stuck: proposalProjects.filter(p => {
+            const sent = p.proposalSent?.toLowerCase() === 'yes';
+            const signed = p.proposalSigned?.toLowerCase() === 'yes';
+            // Stuck if: sent but not signed, OR not sent at all
+            return (sent && !signed) || !sent;
+          }).length,
+        };
+
         return {
           totalProjects: allProjects.length,
           completedProjects,
@@ -593,6 +617,7 @@ export const appRouter = router({
           inspectionsByType,
           weeklyTrend,
           inspectionResultsTally,
+          proposalsTally,
           dateRange: {
             start: startDate.toISOString(),
             end: endDate.toISOString(),
