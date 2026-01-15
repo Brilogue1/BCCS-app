@@ -107,7 +107,7 @@ export async function fetchLoginCredentials(): Promise<SheetRow[]> {
 /**
  * Validate user credentials against Google Sheets
  */
-export async function validateCredentials(email: string, password: string): Promise<{ valid: boolean; role?: string }> {
+export async function validateCredentials(email: string, password: string): Promise<{ valid: boolean; role?: string; company?: string }> {
   try {
     const credentials = await fetchLoginCredentials();
     const user = credentials.find(row => 
@@ -123,7 +123,10 @@ export async function validateCredentials(email: string, password: string): Prom
     const isAdmin = user['Admin?']?.toUpperCase() === 'YES';
     const role = isAdmin ? 'admin' : 'user';
     
-    return { valid: true, role };
+    // Get company assignment from Column C
+    const company = user['Company'] || 'ALL';
+    
+    return { valid: true, role, company };
   } catch (error) {
     console.error('Error validating credentials:', error);
     return { valid: false };

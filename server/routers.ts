@@ -46,6 +46,7 @@ export const appRouter = router({
           name: email.split('@')[0] || 'User',
           loginMethod: 'local',
           role: validation.role as 'admin' | 'user',
+          company: validation.company || 'ALL', // Store company assignment
           lastSignedIn: new Date(),
         });
         
@@ -97,25 +98,27 @@ export const appRouter = router({
 
   projects: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      // If user is admin, return all projects
-      if (ctx.user.role === 'admin') {
-        const dbInstance = await db.getDb();
-        if (!dbInstance) return [];
+      const dbInstance = await db.getDb();
+      if (!dbInstance) return [];
+      
+      // If user is admin or has "ALL" company access, return all projects
+      if (ctx.user.role === 'admin' || ctx.user.company === 'ALL') {
         const allProjects = await dbInstance.select().from(projects);
         return allProjects;
       }
       
-      // Otherwise, filter by user email
-      const userEmail = ctx.user.email;
-      if (!userEmail) {
+      // Otherwise, filter by user's company
+      const userCompany = ctx.user.company;
+      if (!userCompany) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: 'User email not found',
+          message: 'User company not found',
         });
       }
       
-      const userProjects = await db.getProjectsByEmail(userEmail);
-      return userProjects;
+      const { eq } = await import('drizzle-orm');
+      const userProjects = await dbInstance.select().from(projects).where(eq(projects.company, userCompany));
+      return userProjects
     }),
     
     getById: protectedProcedure
@@ -222,6 +225,7 @@ export const appRouter = router({
             inspection3Result: getString(row['3rd Inspection Results']),
             proposalSent: getString(row['Proposals Sent']),
             proposalSigned: getString(row['Proposal Signed']),
+            company: getString(row['Company']), // Column BB - company assignment for filtering
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           };

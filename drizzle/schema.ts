@@ -12,6 +12,7 @@ export const users = mysqlTable("users", {
   password: varchar("password", { length: 255 }), // Hashed password
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  company: text("company"), // Company assignment ("ALL" for admin access to all, or specific company name)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -57,6 +58,7 @@ export const projects = mysqlTable("projects", {
   inspection3Result: text("inspection3Result"), // Column AB - 3rd Inspection Results
   proposalSent: text("proposalSent"), // Column AZ - Proposals Sent (Yes/empty)
   proposalSigned: text("proposalSigned"), // Column BA - Proposal Signed (Yes/No/empty)
+  company: text("company"), // Column BB - company assignment for filtering
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });

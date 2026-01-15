@@ -71,6 +71,20 @@
       "when": 1767720463152,
       "tag": "0009_right_wolfsbane",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1768500017780,
+      "tag": "0010_amusing_wilson_fisk",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1768500190275,
+      "tag": "0011_pink_pepper_potts",
+      "breakpoints": true
     }
   ]
 }

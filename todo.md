@@ -199,3 +199,14 @@
 ## Bug Fixes
 - [x] Fix broken logo on dashboard page
 - [x] Update Download button to generate PDF directly instead of print dialog
+
+
+## Company-Based Filtering Feature
+- [x] Identify company column locations in Google Sheets
+  - App: Logins sheet, Column C: Company
+  - Need to check main app data sheet for company column
+- [x] Update database schema to store company field
+- [x] Update Google Sheets sync to capture company data
+- [x] Update all queries to filter by user's company
+- [x] Update UI to display company-filtered data (backend filtering applied, UI will automatically show filtered data)
+- [x] Test company-based filtering with multiple users
