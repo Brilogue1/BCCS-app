@@ -409,7 +409,7 @@ export default function ProjectDetail() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => deleteContactMutation.mutate({ id: contact.id })}
+                      onClick={() => deleteContactMutation.mutate({ projectId, contactId: contact.id })}
                       disabled={deleteContactMutation.isPending}
                     >
                       <X className="h-4 w-4" />
@@ -582,7 +582,7 @@ function ProjectFilesList({ projectId }: { projectId: number }) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => deleteMutation.mutate({ fileId: file.id })}
+              onClick={() => deleteMutation.mutate({ projectId, fileId: file.id })}
               disabled={deleteMutation.isPending}
             >
               <Trash2 className="h-4 w-4" />

@@ -1,0 +1,38 @@
+{
+  "query": "SELECT email, company FROM users WHERE email LIKE '%emartinez%'; SELECT email, company FROM users LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT email, company FROM users WHERE email LIKE '%emartinez%'; SELECT email, company FROM users LIMIT 5;",
+  "rows": [
+    {
+      "email": "emartinez@kbhome.com",
+      "company": "KB Homes"
+    },
+    {
+      "email": "email",
+      "company": "company"
+    },
+    {
+      "email": "bri@investorplug.io",
+      "company": "NULL"
+    },
+    {
+      "email": "bccsflatv@gmail.com",
+      "company": "NULL"
+    },
+    {
+      "email": "bccsflatv@gmail.com",
+      "company": "NULL"
+    },
+    {
+      "email": "bri@investorplug.io",
+      "company": "ALL"
+    },
+    {
+      "email": "emartinez@kbhome.com",
+      "company": "KB Homes"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tcompany\nemartinez@kbhome.com\tKB Homes\nemail\tcompany\nbri@investorplug.io\tNULL\nbccsflatv@gmail.com\tNULL\nbccsflatv@gmail.com\tNULL\nbri@investorplug.io\tALL\nemartinez@kbhome.com\tKB Homes\n",
+  "stderr": "",
+  "execution_time_ms": 120
+}

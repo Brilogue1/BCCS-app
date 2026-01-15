@@ -221,3 +221,15 @@
 
 ## Bug Fixes
 - [x] Fix client projects not loading when clicking View Projects (fixed column header mapping from 'Company' to 'COMPANY')
+
+- [x] Fix project detail page showing "not found" for company-filtered users (updated access control checks to use company-based filtering)
+- [x] Fix dashboard showing 3 projects instead of 6 for company-filtered users (access control checks now use company instead of email)
+
+
+## Case-Insensitive Company Comparison Fix
+- [x] Implement case-insensitive company comparison in access control checks
+- [x] Update projects.list query to use .toLowerCase() for company filtering
+- [x] Update projects.getById query to use .toLowerCase() for access verification
+- [x] Update inspections, contacts, and files queries to use case-insensitive comparison
+- [x] Test project detail page access with case mismatch (KB Homes vs kb homes)
+- [x] Verify users can now access their company's projects

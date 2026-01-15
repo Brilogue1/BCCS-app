@@ -1,4 +1,3 @@
-import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -19,6 +18,11 @@ export const appRouter = router({
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    logout: publicProcedure.mutation(async ({ ctx }) => {
+      ctx.res.setHeader('Set-Cookie', 'session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+      return { success: true };
+    }),
     
     login: publicProcedure
       .input(z.object({
@@ -68,33 +72,17 @@ export const appRouter = router({
         })
           .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
           .setIssuedAt()
-          .setExpirationTime('7d')
+          .setExpirationTime('30d')
           .sign(JWT_SECRET);
-        
-        // Set session cookie
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, token, {
-          ...cookieOptions,
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
+
+        ctx.res.setHeader('Set-Cookie', `session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`);
         
         return {
-          success: true,
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          },
-        };
+          appId: ENV.appId,
+          name: user.name || user.email || 'User',
+          company: user.company || 'ALL'
+        } as const;
       }),
-    
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
-    }),
   }),
 
   projects: router({
@@ -108,7 +96,7 @@ export const appRouter = router({
         return allProjects;
       }
       
-      // Otherwise, filter by user's company
+      // Otherwise, filter by user's company (case-insensitive)
       const userCompany = ctx.user.company;
       if (!userCompany) {
         throw new TRPCError({
@@ -117,9 +105,12 @@ export const appRouter = router({
         });
       }
       
-      const { eq } = await import('drizzle-orm');
-      const userProjects = await dbInstance.select().from(projects).where(eq(projects.company, userCompany));
-      return userProjects
+      // Get all projects and filter by company (case-insensitive)
+      const allProjects = await dbInstance.select().from(projects);
+      const userProjects = allProjects.filter(p => 
+        p.company?.toLowerCase() === userCompany.toLowerCase()
+      );
+      return userProjects;
     }),
     
     getById: protectedProcedure
@@ -134,8 +125,8 @@ export const appRouter = router({
           });
         }
         
-        // Verify user has access to this project (admins can see all)
-        if (ctx.user.role !== 'admin' && project.email !== ctx.user.email) {
+        // Verify user has access to this project (admins and ALL company users can see all)
+        if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase()) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -157,64 +148,65 @@ export const appRouter = router({
           console.log('[Sync] Cleared existing projects');
         }
         
-        // Fetch all projects from Google Sheets
-        const sheetData = await fetchAllProjects();
-        console.log(`[Sync] Fetched ${sheetData.length} rows from Google Sheets`);
+        // Fetch projects from Google Sheets
+        const rows = await fetchAllProjects();
+        console.log(`[Sync] Fetched ${rows.length} rows from Google Sheets`);
         
-        // Transform sheet data to project records
-        const projects = sheetData
+        const db_instance = await db.getDb();
+        if (!db_instance) {
+          throw new Error('Database not available');
+        }
+        
+        // Helper to safely get string value
+        const getString = (value: string | undefined, maxLength?: number): string => {
+          if (!value || value.trim() === '') return '';
+          const trimmed = value.trim();
+          return maxLength ? trimmed.substring(0, maxLength) : trimmed;
+        };
+        
+        // Helper to parse date
+        const parseDate = (value: string | undefined): Date | undefined => {
+          if (!value || value.trim() === '') return undefined;
+          const date = new Date(value.trim());
+          return isNaN(date.getTime()) ? undefined : date;
+        };
+        
+        // Process and insert projects
+        const validProjects = rows
           .filter(row => {
-            // Filter out rows without essential data
-            const opportunityName = row['Opportunity Name']?.trim() || '';
-            const email = row['email']?.trim() || '';
+            // Validate required fields
+            const opportunityName = getString(row['Opportunity Name']);
+            const email = getString(row['Email']);
             
-            // Must have a valid opportunity name (not empty, not garbled)
-            const hasValidOpportunityName = opportunityName.length > 0 && 
-              !opportunityName.includes(',,') && 
-              opportunityName.length < 200;
+            // Check if opportunity name is valid (not garbled with commas, under 200 chars)
+            if (!opportunityName || opportunityName.length > 200) return false;
             
-            // Must have a valid email with @ symbol
-            const hasValidEmail = email.length > 0 && email.includes('@');
+            // Check if email is valid (contains @)
+            if (!email || !email.includes('@')) return false;
             
-            // Require BOTH valid name and email
-            return hasValidOpportunityName && hasValidEmail;
+            return true;
           })
-          .map(row => {
-          // Helper to safely parse dates
-          const parseDate = (dateStr: string | undefined): Date | null => {
-            if (!dateStr || dateStr.trim() === '') return null;
-            const parsed = new Date(dateStr);
-            return isNaN(parsed.getTime()) ? null : parsed;
-          };
-
-          // Helper to safely get string value
-          const getString = (value: string | undefined, maxLength?: number): string => {
-            if (!value || value.trim() === '') return '';
-            const trimmed = value.trim();
-            return maxLength ? trimmed.substring(0, maxLength) : trimmed;
-          };
-
-          return {
-            opportunityName: getString(row['Opportunity Name']),
+          .map(row => ({
+            opportunityName: getString(row['Opportunity Name'], 500),
             contactName: getString(row['Contact Name']),
-            phone: getString(row['phone'], 50), // Limit to 50 chars
-            email: getString(row['email']),
-            pipeline: getString(row['pipeline']),
-            stage: getString(row['stage']),
+            phone: getString(row['Phone'], 100),
+            email: getString(row['Email'], 320),
+            pipeline: getString(row['Pipeline']),
+            stage: getString(row['Stage']),
             leadValue: getString(row['Lead Value']),
-            source: getString(row['source']),
-            assigned: getString(row['assigned']),
+            source: getString(row['Source']),
+            assigned: getString(row['Assigned']),
             createdOn: getString(row['Created on']),
             updatedOn: getString(row['Updated on']),
-            lostReasonId: getString(row['lost reason ID']),
-            lostReasonName: getString(row['lost reason name']),
+            lostReasonId: getString(row['Lost Reason ID']),
+            lostReasonName: getString(row['Lost Reason']),
             followers: getString(row['Followers']),
             notes: getString(row['Notes']),
-            tag: getString(row['tags']),
-            address: getString(row['Address'] || row['address']),
-            subdivision: getString(row['Subdivision'] || row['subdivision']),
-            lotNumber: getString(row['Lot #'] || row['lot']),
-            permitNumber: getString(row['Permit #'] || row['permit']),
+            tag: getString(row['Tag']),
+            address: getString(row['Address']),
+            subdivision: getString(row['Subdivision']),
+            lotNumber: getString(row['Lot Number']),
+            permitNumber: getString(row['Permit Number']),
             assignedPermitTech: getString(row['Assign Permit tech']),
             assignedPlansExaminer: getString(row['Assign Plans Examiner']),
             assignedInspector: getString(row['Assign Inspector']),
@@ -230,24 +222,21 @@ export const appRouter = router({
             completionStatus: getString(row['Completed']), // Column F - Completed/Active status
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
-          };
-        });
-      
-        console.log(`[Sync] Filtered to ${projects.length} valid projects`);
+          }));
         
-        // Sync to database
-        await db.syncAllProjects(projects);
-        console.log('[Sync] Successfully synced to database');
+        console.log(`[Sync] Inserting ${validProjects.length} valid projects`);
         
-        return {
-          success: true,
-          count: projects.length,
-        } as const;
+        if (validProjects.length > 0) {
+          await db_instance.insert(projects).values(validProjects);
+        }
+        
+        console.log('[Sync] Sync completed successfully');
+        return { count: validProjects.length };
       } catch (error) {
         console.error('[Sync] Error during sync:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: error instanceof Error ? error.message : 'Failed to sync projects',
+          message: error instanceof Error ? error.message : 'Sync failed',
         });
       }
     }),
@@ -257,9 +246,9 @@ export const appRouter = router({
     list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
-        // Verify user has access to this project (admins can see all)
+        // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -276,9 +265,9 @@ export const appRouter = router({
         notes: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Verify user has access to this project (admins can see all)
+        // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -310,9 +299,9 @@ export const appRouter = router({
     list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
-        // Verify user has access to this project (admins can see all)
+        // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -329,9 +318,9 @@ export const appRouter = router({
         name: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Verify user has access to this project (admins can see all)
+        // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && project.email !== ctx.user.email)) {
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -339,11 +328,13 @@ export const appRouter = router({
         }
         
         await db.createContactEmail({
-          ...input,
+          projectId: input.projectId,
+          email: input.email,
+          name: input.name,
           ghlSynced: 0,
         });
         
-        // Attempt to sync to GHL in background
+        // Sync to GHL if configured
         if (isGHLConfigured()) {
           syncContactToGHL({
             projectId: input.projectId,
@@ -357,19 +348,38 @@ export const appRouter = router({
       }),
     
     delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await db.deleteContactEmail(input.id);
+      .input(z.object({
+        projectId: z.number(),
+        contactId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Verify user has access to this project (admins and ALL company users can see all)
+        const project = await db.getProjectById(input.projectId);
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You do not have access to this project',
+          });
+        }
+        
+        await db.deleteContactEmail(input.contactId);
         return { success: true };
       }),
   }),
-  
+
   files: router({
     list: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
-        const files = await db.getProjectFiles(input.projectId);
-        return files;
+        const project = await db.getProjectById(input.projectId);
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You do not have access to this project',
+          });
+        }
+        
+        return await db.getProjectFiles(input.projectId);
       }),
     
     upload: protectedProcedure
@@ -382,6 +392,14 @@ export const appRouter = router({
         mimeType: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You do not have access to this project',
+          });
+        }
+        
         await db.createProjectFile({
           ...input,
           uploadedBy: ctx.user.email || undefined,
@@ -391,50 +409,86 @@ export const appRouter = router({
       }),
     
     delete: protectedProcedure
-      .input(z.object({ fileId: z.number() }))
-      .mutation(async ({ input }) => {
+      .input(z.object({
+        projectId: z.number(),
+        fileId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && project.company?.toLowerCase() !== ctx.user.company?.toLowerCase())) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You do not have access to this project',
+          });
+        }
+        
         await db.deleteProjectFile(input.fileId);
         return { success: true };
       }),
   }),
+
+  // User dashboard with basic summary
   dashboard: router({
     summary: protectedProcedure.query(async ({ ctx }) => {
-      const db_instance = await db.getDb();
-      if (!db_instance) throw new Error("Database not available");
-      
-      const { eq } = await import("drizzle-orm");
-      const { projects, inspections, projectFiles } = await import("../drizzle/schema");
-      
-      // Get all projects (or filtered by email if not admin)
-      let allProjects = await db_instance.select().from(projects);
-      if (ctx.user?.role !== 'admin') {
-        allProjects = allProjects.filter(p => p.email === ctx.user?.email);
+      const dbInstance = await db.getDb();
+      if (!dbInstance) {
+        return {
+          totalProjects: 0,
+          activeProjects: 0,
+          completedProjects: 0,
+          projectsByStage: {},
+          recentFiles: [],
+          upcomingInspections: [],
+        };
       }
-      
-      // Count projects by stage
-      const stageCount = allProjects.reduce((acc, p) => {
+
+      const { inspections, projectFiles } = await import('../drizzle/schema');
+
+      // Get user's projects (or all projects if admin/ALL company)
+      let userProjects = await dbInstance.select().from(projects);
+      if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL') {
+        userProjects = userProjects.filter(p => 
+          p.company?.toLowerCase() === ctx.user.company?.toLowerCase()
+        );
+      }
+
+      // Count active vs completed
+      const activeProjects = userProjects.filter(p => 
+        !p.completionStatus || p.completionStatus.toLowerCase() !== 'completed'
+      ).length;
+      const completedProjects = userProjects.filter(p => 
+        p.completionStatus && p.completionStatus.toLowerCase() === 'completed'
+      ).length;
+
+      // Projects by stage
+      const projectsByStage: Record<string, number> = {};
+      userProjects.forEach(p => {
         const stage = p.stage || 'Unknown';
-        acc[stage] = (acc[stage] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      
-      // Get recent inspections (last 10)
-      const recentInspections = await db_instance
-        .select()
-        .from(inspections)
-        .limit(10);
-      
-      // Get recent files (last 10)
-      const recentFiles = await db_instance
-        .select()
-        .from(projectFiles)
-        .limit(10);
-      
+        projectsByStage[stage] = (projectsByStage[stage] || 0) + 1;
+      });
+
+      // Get recent files
+      const allFiles = await dbInstance.select().from(projectFiles);
+      const userProjectIds = new Set(userProjects.map(p => p.id));
+      const recentFiles = allFiles
+        .filter(f => userProjectIds.has(f.projectId))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 5);
+
+      // Get upcoming inspections
+      const allInspections = await dbInstance.select().from(inspections);
+      const upcomingInspections = allInspections
+        .filter(i => userProjectIds.has(i.projectId))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 10);
+
       return {
-        totalProjects: allProjects.length,
-        projectsByStage: stageCount,
-        upcomingInspections: recentInspections.filter(i => i.status === 'pending' || i.status === 'scheduled'),
-        recentFiles: recentFiles,
+        totalProjects: userProjects.length,
+        activeProjects,
+        completedProjects,
+        projectsByStage,
+        recentFiles,
+        upcomingInspections,
       };
     }),
   }),

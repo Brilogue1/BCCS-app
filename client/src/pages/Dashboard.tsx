@@ -18,7 +18,7 @@ export default function Dashboard() {
   }
 
   const stageEntries = Object.entries(summary?.projectsByStage || {}).sort(
-    ([, a], [, b]) => b - a
+    ([, a], [, b]) => (b as number) - (a as number)
   );
 
   return (
@@ -107,13 +107,13 @@ export default function Dashboard() {
                     <div key={stage}>
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-sm font-medium text-slate-700">{stage}</span>
-                        <span className="text-sm font-semibold text-slate-900">{count}</span>
+                        <span className="text-sm font-semibold text-slate-900">{count as number}</span>
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full"
                           style={{
-                            width: `${(count / (summary?.totalProjects || 1)) * 100}%`,
+                            width: `${((count as number) / (summary?.totalProjects || 1)) * 100}%`,
                           }}
                         />
                       </div>
