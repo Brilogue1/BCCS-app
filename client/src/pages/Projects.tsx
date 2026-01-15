@@ -12,6 +12,7 @@ export default function Projects() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
 
   const { data: projects, isLoading, refetch } = trpc.projects.list.useQuery();
   const syncMutation = trpc.projects.sync.useMutation({
@@ -35,11 +36,17 @@ export default function Projects() {
 
   const filteredProjects = projects?.filter((project) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       project.opportunityName?.toLowerCase().includes(query) ||
       project.address?.toLowerCase().includes(query) ||
       project.contactName?.toLowerCase().includes(query)
     );
+    
+    // Filter by completion status
+    const isCompleted = project.completionStatus?.toLowerCase() === 'completed';
+    const matchesTab = activeTab === 'completed' ? isCompleted : !isCompleted;
+    
+    return matchesSearch && matchesTab;
   });
 
   if (isLoading) {
@@ -89,8 +96,25 @@ export default function Projects() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Search Bar */}
-        <div className="mb-6">
+        {/* Tabs and Search */}
+        <div className="mb-6 space-y-4">
+          {/* Tabs */}
+          <div className="flex gap-2">
+            <Button
+              variant={activeTab === 'active' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('active')}
+            >
+              Active Projects
+            </Button>
+            <Button
+              variant={activeTab === 'completed' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('completed')}
+            >
+              Completed Projects
+            </Button>
+          </div>
+          
+          {/* Search Bar */}
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input

@@ -226,6 +226,7 @@ export const appRouter = router({
             proposalSent: getString(row['Proposals Sent']),
             proposalSigned: getString(row['Proposal Signed']),
             company: getString(row['Company']), // Column BB - company assignment for filtering
+            completionStatus: getString(row['Completed']), // Column F - Completed/Active status
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           };

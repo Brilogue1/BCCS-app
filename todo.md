@@ -210,3 +210,10 @@
 - [x] Update all queries to filter by user's company
 - [x] Update UI to display company-filtered data (backend filtering applied, UI will automatically show filtered data)
 - [x] Test company-based filtering with multiple users
+
+
+## Completed Projects Tab Feature
+- [x] Update database schema to store completion status
+- [x] Update Google Sheets sync to capture column F (completion status)
+- [x] Add Active/Completed tabs to client dashboard
+- [x] Test completed projects filtering (tabs working correctly, no completed projects yet)

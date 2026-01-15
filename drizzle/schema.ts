@@ -59,6 +59,7 @@ export const projects = mysqlTable("projects", {
   proposalSent: text("proposalSent"), // Column AZ - Proposals Sent (Yes/empty)
   proposalSigned: text("proposalSigned"), // Column BA - Proposal Signed (Yes/No/empty)
   company: text("company"), // Column BB - company assignment for filtering
+  completionStatus: text("completionStatus"), // Column F - Completed/Active status for filtering
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });
