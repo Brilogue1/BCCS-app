@@ -63,7 +63,8 @@ export const appRouter = router({
         const token = await new SignJWT({ 
           openId: user.openId,
           appId: ENV.appId,
-          name: user.name || user.email || 'User'
+          name: user.name || user.email || 'User',
+          company: user.company || 'ALL'
         })
           .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
           .setIssuedAt()
@@ -225,7 +226,7 @@ export const appRouter = router({
             inspection3Result: getString(row['3rd Inspection Results']),
             proposalSent: getString(row['Proposals Sent']),
             proposalSigned: getString(row['Proposal Signed']),
-            company: getString(row['Company']), // Column BB - company assignment for filtering
+            company: getString(row['COMPANY']), // Column BB - company assignment for filtering
             completionStatus: getString(row['Completed']), // Column F - Completed/Active status
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),

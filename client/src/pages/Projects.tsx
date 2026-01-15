@@ -1,8 +1,8 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Building2, Loader2, LogOut, MapPin, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";

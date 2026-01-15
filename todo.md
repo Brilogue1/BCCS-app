@@ -217,3 +217,7 @@
 - [x] Update Google Sheets sync to capture column F (completion status)
 - [x] Add Active/Completed tabs to client dashboard
 - [x] Test completed projects filtering (tabs working correctly, no completed projects yet)
+
+
+## Bug Fixes
+- [x] Fix client projects not loading when clicking View Projects (fixed column header mapping from 'Company' to 'COMPANY')

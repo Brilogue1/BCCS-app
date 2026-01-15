@@ -1,0 +1,16 @@
+{
+  "query": "SELECT DISTINCT company FROM projects WHERE company IS NOT NULL AND company != '';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT DISTINCT company FROM projects WHERE company IS NOT NULL AND company != '';",
+  "rows": [
+    {
+      "company": "TEST"
+    },
+    {
+      "company": "kb homes"
+    }
+  ],
+  "messages": [],
+  "stdout": "company\nTEST\nkb homes\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}
