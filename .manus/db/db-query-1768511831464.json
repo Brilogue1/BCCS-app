@@ -1,0 +1,26 @@
+{
+  "query": "SELECT DISTINCT company, COUNT(*) as count FROM projects GROUP BY company;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT DISTINCT company, COUNT(*) as count FROM projects GROUP BY company;",
+  "rows": [
+    {
+      "company": "",
+      "count": "1"
+    },
+    {
+      "company": "TEST",
+      "count": "9"
+    },
+    {
+      "company": "BMI Construction",
+      "count": "3"
+    },
+    {
+      "company": "kb homes",
+      "count": "6"
+    }
+  ],
+  "messages": [],
+  "stdout": "company\tcount\n\t1\nTEST\t9\nBMI Construction\t3\nkb homes\t6\n",
+  "stderr": "",
+  "execution_time_ms": 64
+}

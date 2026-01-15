@@ -1,0 +1,38 @@
+{
+  "query": "SELECT email, company FROM users WHERE email LIKE '%emartinez%' LIMIT 1; SELECT opportunityName, company FROM projects LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT email, company FROM users WHERE email LIKE '%emartinez%' LIMIT 1; SELECT opportunityName, company FROM projects LIMIT 5;",
+  "rows": [
+    {
+      "email": "emartinez@kbhome.com",
+      "company": "NULL"
+    },
+    {
+      "email": "opportunityName",
+      "company": "company"
+    },
+    {
+      "email": "KB Home",
+      "company": "kb homes"
+    },
+    {
+      "email": "Kb Home",
+      "company": "kb homes"
+    },
+    {
+      "email": "Kb Home",
+      "company": "kb homes"
+    },
+    {
+      "email": "Kb Home - Project 1",
+      "company": "kb homes"
+    },
+    {
+      "email": "Bri Logue",
+      "company": "kb homes"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tcompany\nemartinez@kbhome.com\tNULL\nopportunityName\tcompany\nKB Home\tkb homes\nKb Home\tkb homes\nKb Home\tkb homes\nKb Home - Project 1\tkb homes\nBri Logue\tkb homes\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

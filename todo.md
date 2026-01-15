@@ -233,3 +233,10 @@
 - [x] Update inspections, contacts, and files queries to use case-insensitive comparison
 - [x] Test project detail page access with case mismatch (KB Homes vs kb homes)
 - [x] Verify users can now access their company's projects
+
+
+## Google Sheets Sync - Company Column Issue
+- [x] Moved COMPANY column to column G so it's included in CSV export
+- [x] Updated sync logic to handle case-insensitive column names
+- [ ] Verify user's company matches synced projects' companies (PENDING: Check if "KB Homes" matches projects' company values)
+- [ ] Test that users can see their company's projects after sync

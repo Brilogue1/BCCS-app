@@ -140,17 +140,32 @@ export const appRouter = router({
       try {
         console.log('[Sync] Starting Google Sheets sync...');
         
-        // Clear existing projects first
+        // Fetch projects from Google Sheets FIRST (before deleting)
+        const rows = await fetchAllProjects();
+        console.log(`[Sync] Fetched ${rows.length} rows from Google Sheets`);
+        if (rows.length > 0) {
+          console.log('[Sync] First row sample:', JSON.stringify(rows[0], null, 2));
+          console.log('[Sync] Available columns:', Object.keys(rows[0]).slice(0, 20).join(', '));
+          console.log('[Sync] Total columns:', Object.keys(rows[0]).length);
+          console.log('[Sync] Company column value:', rows[0]['company'] || rows[0]['COMPANY'] || 'NOT FOUND');
+        }
+        
+        // If fetch returns 0 rows, don't proceed with sync
+        if (rows.length === 0) {
+          console.log('[Sync] No rows fetched from Google Sheets, aborting sync');
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'No data fetched from Google Sheets. Please check the sheet is accessible and has data.',
+          });
+        }
+        
+        // Clear existing projects only after successful fetch
         const database = await db.getDb();
         if (database) {
           const { projects: projectsTable } = await import('../drizzle/schema');
           await database.delete(projectsTable);
           console.log('[Sync] Cleared existing projects');
         }
-        
-        // Fetch projects from Google Sheets
-        const rows = await fetchAllProjects();
-        console.log(`[Sync] Fetched ${rows.length} rows from Google Sheets`);
         
         const db_instance = await db.getDb();
         if (!db_instance) {
@@ -174,9 +189,9 @@ export const appRouter = router({
         // Process and insert projects
         const validProjects = rows
           .filter(row => {
-            // Validate required fields
-            const opportunityName = getString(row['Opportunity Name']);
-            const email = getString(row['Email']);
+            // Validate required fields (use lowercase for case-insensitive lookup)
+            const opportunityName = getString(row['opportunity name'] || row['Opportunity Name']);
+            const email = getString(row['email'] || row['Email']);
             
             // Check if opportunity name is valid (not garbled with commas, under 200 chars)
             if (!opportunityName || opportunityName.length > 200) return false;
@@ -187,39 +202,39 @@ export const appRouter = router({
             return true;
           })
           .map(row => ({
-            opportunityName: getString(row['Opportunity Name'], 500),
-            contactName: getString(row['Contact Name']),
-            phone: getString(row['Phone'], 100),
-            email: getString(row['Email'], 320),
-            pipeline: getString(row['Pipeline']),
-            stage: getString(row['Stage']),
-            leadValue: getString(row['Lead Value']),
-            source: getString(row['Source']),
-            assigned: getString(row['Assigned']),
-            createdOn: getString(row['Created on']),
-            updatedOn: getString(row['Updated on']),
-            lostReasonId: getString(row['Lost Reason ID']),
-            lostReasonName: getString(row['Lost Reason']),
-            followers: getString(row['Followers']),
-            notes: getString(row['Notes']),
-            tag: getString(row['Tag']),
-            address: getString(row['Address']),
-            subdivision: getString(row['Subdivision']),
-            lotNumber: getString(row['Lot Number']),
-            permitNumber: getString(row['Permit Number']),
-            assignedPermitTech: getString(row['Assign Permit tech']),
-            assignedPlansExaminer: getString(row['Assign Plans Examiner']),
-            assignedInspector: getString(row['Assign Inspector']),
-            planningChecklist: getString(row['Planning Checklist']),
-            permittingChecklist: getString(row['PERMITTING INFORMATION']),
-            inspectionChecklist: getString(row['Inspection Checklist']),
-            inspection1Result: getString(row['1st Inspection Results']),
-            inspection2Result: getString(row['2nd Inspection Results']),
-            inspection3Result: getString(row['3rd Inspection Results']),
-            proposalSent: getString(row['Proposals Sent']),
-            proposalSigned: getString(row['Proposal Signed']),
-            company: getString(row['COMPANY']), // Column BB - company assignment for filtering
-            completionStatus: getString(row['Completed']), // Column F - Completed/Active status
+            opportunityName: getString(row['opportunity name'] || row['Opportunity Name'], 500),
+            contactName: getString(row['contact name'] || row['Contact Name']),
+            phone: getString(row['phone'] || row['Phone'], 100),
+            email: getString(row['email'] || row['Email'], 320),
+            pipeline: getString(row['pipeline'] || row['Pipeline']),
+            stage: getString(row['stage'] || row['Stage']),
+            leadValue: getString(row['lead value'] || row['Lead Value']),
+            source: getString(row['source'] || row['Source']),
+            assigned: getString(row['assigned'] || row['Assigned']),
+            createdOn: getString(row['created on'] || row['Created on']),
+            updatedOn: getString(row['updated on'] || row['Updated on']),
+            lostReasonId: getString(row['lost reason id'] || row['Lost Reason ID']),
+            lostReasonName: getString(row['lost reason'] || row['Lost Reason']),
+            followers: getString(row['followers'] || row['Followers']),
+            notes: getString(row['notes'] || row['Notes']),
+            tag: getString(row['tag'] || row['Tag'] || row['tags']),
+            address: getString(row['address'] || row['Address']),
+            subdivision: getString(row['subdivision'] || row['Subdivision']),
+            lotNumber: getString(row['lot number'] || row['Lot Number']),
+            permitNumber: getString(row['permit number'] || row['Permit Number']),
+            assignedPermitTech: getString(row['assign permit tech'] || row['Assign Permit tech']),
+            assignedPlansExaminer: getString(row['assign plans examiner'] || row['Assign Plans Examiner']),
+            assignedInspector: getString(row['assign inspector'] || row['Assign Inspector']),
+            planningChecklist: getString(row['planning checklist'] || row['Planning Checklist']),
+            permittingChecklist: getString(row['permitting information'] || row['PERMITTING INFORMATION']),
+            inspectionChecklist: getString(row['inspection checklist'] || row['Inspection Checklist']),
+            inspection1Result: getString(row['1st inspection results'] || row['1st Inspection Results']),
+            inspection2Result: getString(row['2nd inspection results'] || row['2nd Inspection Results']),
+            inspection3Result: getString(row['3rd inspection results'] || row['3rd Inspection Results']),
+            proposalSent: getString(row['proposals sent'] || row['Proposals Sent']),
+            proposalSigned: getString(row['proposal signed'] || row['Proposal Signed']),
+            company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
+            completionStatus: getString(row['engagement status'] || row['completed'] || row['Completed']), // Column F - Completed/Active status
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           }));

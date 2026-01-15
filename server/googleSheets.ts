@@ -39,6 +39,8 @@ function parseCSV(csv: string): SheetRow[] {
     
     headers.forEach((header, index) => {
       row[header] = values[index]?.trim() || '';
+      // Also add lowercase version for case-insensitive lookups
+      row[header.toLowerCase()] = values[index]?.trim() || '';
     });
     
     rows.push(row);
