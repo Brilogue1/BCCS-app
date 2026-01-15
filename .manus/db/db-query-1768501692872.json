@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, email, company FROM users WHERE email = 'emartinez@kbhome.com' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, email, company FROM users WHERE email = 'emartinez@kbhome.com' LIMIT 1;",
+  "rows": [
+    {
+      "id": "120238",
+      "email": "emartinez@kbhome.com",
+      "company": "KB Homes"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tcompany\n120238\temartinez@kbhome.com\tKB Homes\n",
+  "stderr": "",
+  "execution_time_ms": 1779
+}

@@ -1,0 +1,156 @@
+{
+  "query": "SELECT id, opportunityName, email, stage FROM projects ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, email, stage FROM projects ORDER BY id;",
+  "rows": [
+    {
+      "id": "30001",
+      "opportunityName": "KB Home",
+      "email": "emartinez@kbhome.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30002",
+      "opportunityName": "Kb Home",
+      "email": "bccsflatv@gmail.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30003",
+      "opportunityName": "Kb Home",
+      "email": "bccsflatv@gmail.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30004",
+      "opportunityName": "Kb Home - Project 1",
+      "email": "bccsflatv@gmail.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30005",
+      "opportunityName": "Tim Miller,,,0,open,,,,,,,NOTIFICATION TO PERMIT TECH",
+      "email": "",
+      "stage": ""
+    },
+    {
+      "id": "30006",
+      "opportunityName": "Bri Logue",
+      "email": "brittanymlogue@gmail.com",
+      "stage": "Plans Examining"
+    },
+    {
+      "id": "30007",
+      "opportunityName": "Bri's HOP - Lot 451",
+      "email": "bri@webuysadhouses.com",
+      "stage": "Proposal"
+    },
+    {
+      "id": "30009",
+      "opportunityName": "KINSLEY - 102",
+      "email": "bri@webuysadhouses.com",
+      "stage": "Permitting"
+    },
+    {
+      "id": "30010",
+      "opportunityName": "Tim Miller,Notes for this project only",
+      "email": "",
+      "stage": ""
+    },
+    {
+      "id": "30011",
+      "opportunityName": "notes",
+      "email": "",
+      "stage": ""
+    },
+    {
+      "id": "30012",
+      "opportunityName": ",,0,open,,,,,,,CLIENT NOTIFICATION FOR INSPECTION – SEE LIST",
+      "email": "SITE CONTACT INFORMATION",
+      "stage": "COMPLETE INSPECTION"
+    },
+    {
+      "id": "30013",
+      "opportunityName": "Liberte - Lot 105",
+      "email": "bri@webuysadhouses.com",
+      "stage": "Closeout"
+    },
+    {
+      "id": "30014",
+      "opportunityName": "Tim Miller,notes",
+      "email": "",
+      "stage": ""
+    },
+    {
+      "id": "30015",
+      "opportunityName": ",,0,open,,,,,,,,,,,,,,Libete - San Antonio,105,Bri Logue - 6037939845,123456,Bexar,PERMITTING",
+      "email": "",
+      "stage": ""
+    },
+    {
+      "id": "30016",
+      "opportunityName": "PROJECT NAME",
+      "email": "brittanymlogue@gmail.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30017",
+      "opportunityName": ",high priority",
+      "email": "PLAN REVIEW",
+      "stage": ""
+    },
+    {
+      "id": "30018",
+      "opportunityName": "Test Company",
+      "email": "test@testcompany.com",
+      "stage": "Plans Examining"
+    },
+    {
+      "id": "30019",
+      "opportunityName": "Test Company - 123 Main St. - Lot 105",
+      "email": "brittanymlogue@gmail.com",
+      "stage": "Plans Examining"
+    },
+    {
+      "id": "30020",
+      "opportunityName": "Reserve at Forest Lake 2025-01218",
+      "email": "bccsflatv@gmail.com",
+      "stage": "Proposal"
+    },
+    {
+      "id": "30021",
+      "opportunityName": "KB Home",
+      "email": "emartinez@kbhome.com",
+      "stage": "Proposal"
+    },
+    {
+      "id": "30022",
+      "opportunityName": "ACTS KB Home Reserve at Forest LakeACTS KB Home Reserve at Forest Lake",
+      "email": "bccsflatv@gmail.com, bccsflatv@gmail.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30023",
+      "opportunityName": "Dalton Test",
+      "email": "bccsfladtm@gmail.com",
+      "stage": "Proposal"
+    },
+    {
+      "id": "30024",
+      "opportunityName": "KB Home",
+      "email": "emartinez@kbhome.com",
+      "stage": "Inspections"
+    },
+    {
+      "id": "30025",
+      "opportunityName": "Investor Plug",
+      "email": "ky@investorplug.io",
+      "stage": "Permitting"
+    }
+  ],
+  "messages": [
+    "30008\t,,0,open,,,,,,BLDG INSULATION CEILING\t- 5,INSPECTOR NOTIFICATION\tPLAN REVIEW\t"
+  ],
+  "stdout": "id\topportunityName\temail\tstage\n30001\tKB Home\temartinez@kbhome.com\tInspections\n30002\tKb Home\tbccsflatv@gmail.com\tInspections\n30003\tKb Home\tbccsflatv@gmail.com\tInspections\n30004\tKb Home - Project 1\tbccsflatv@gmail.com\tInspections\n30005\tTim Miller,,,0,open,,,,,,,NOTIFICATION TO PERMIT TECH\t\t\n30006\tBri Logue\tbrittanymlogue@gmail.com\tPlans Examining\n30007\tBri's HOP - Lot 451\tbri@webuysadhouses.com\tProposal\n30008\t,,0,open,,,,,,BLDG INSULATION CEILING\t- 5,INSPECTOR NOTIFICATION\tPLAN REVIEW\t\n30009\tKINSLEY - 102\tbri@webuysadhouses.com\tPermitting\n30010\tTim Miller,Notes for this project only\t\t\n30011\tnotes\t\t\n30012\t,,0,open,,,,,,,CLIENT NOTIFICATION FOR INSPECTION – SEE LIST\tSITE CONTACT INFORMATION\tCOMPLETE INSPECTION\n30013\tLiberte - Lot 105\tbri@webuysadhouses.com\tCloseout\n30014\tTim Miller,notes\t\t\n30015\t,,0,open,,,,,,,,,,,,,,Libete - San Antonio,105,Bri Logue - 6037939845,123456,Bexar,PERMITTING\t\t\n30016\tPROJECT NAME\tbrittanymlogue@gmail.com\tInspections\n30017\t,high priority\tPLAN REVIEW\t\n30018\tTest Company\ttest@testcompany.com\tPlans Examining\n30019\tTest Company - 123 Main St. - Lot 105\tbrittanymlogue@gmail.com\tPlans Examining\n30020\tReserve at Forest Lake 2025-01218\tbccsflatv@gmail.com\tProposal\n30021\tKB Home\temartinez@kbhome.com\tProposal\n30022\tACTS KB Home Reserve at Forest LakeACTS KB Home Reserve at Forest Lake\tbccsflatv@gmail.com, bccsflatv@gmail.com\tInspections\n30023\tDalton Test\tbccsfladtm@gmail.com\tProposal\n30024\tKB Home\temartinez@kbhome.com\tInspections\n30025\tInvestor Plug\tky@investorplug.io\tPermitting\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

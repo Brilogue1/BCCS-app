@@ -1,0 +1,21 @@
+{
+  "query": "SELECT id, opportunityName, company FROM projects WHERE id = 270191; SELECT DISTINCT company FROM projects; SELECT COUNT(*) as total_projects FROM projects;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, company FROM projects WHERE id = 270191; SELECT DISTINCT company FROM projects; SELECT COUNT(*) as total_projects FROM projects;",
+  "rows": [
+    {
+      "id": "270191",
+      "opportunityName": "KB Home",
+      "company": "kb homes"
+    }
+  ],
+  "messages": [
+    "company",
+    "kb homes",
+    "TEST",
+    "total_projects",
+    "19"
+  ],
+  "stdout": "id\topportunityName\tcompany\n270191\tKB Home\tkb homes\ncompany\nkb homes\nTEST\n\ntotal_projects\n19\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}
