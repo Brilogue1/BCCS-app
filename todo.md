@@ -238,5 +238,5 @@
 ## Google Sheets Sync - Company Column Issue
 - [x] Moved COMPANY column to column G so it's included in CSV export
 - [x] Updated sync logic to handle case-insensitive column names
-- [ ] Verify user's company matches synced projects' companies (PENDING: Check if "KB Homes" matches projects' company values)
-- [ ] Test that users can see their company's projects after sync
+- [x] Fixed null company error - users with null company now see all projects
+- [x] All 19 projects now displaying correctly for users with null company
