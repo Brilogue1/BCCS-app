@@ -90,20 +90,28 @@ export const appRouter = router({
       const dbInstance = await db.getDb();
       if (!dbInstance) return [];
       
+      console.log('[DEBUG] projects.list - user:', { role: ctx.user.role, company: ctx.user.company });
       // If user is admin or has "ALL" company access, return all projects
-      if (ctx.user.role === 'admin' || ctx.user.company === 'ALL' || !ctx.user.company) {
+      if (ctx.user.role === 'admin' || ctx.user.company === 'ALL') {
         const allProjects = await dbInstance.select().from(projects);
         return allProjects;
       }
       
       // Otherwise, filter by user's company (case-insensitive)
       const userCompany = ctx.user.company;
+      if (!userCompany) {
+        return []; // No projects if user has no company assigned
+      }
       
       // Get all projects and filter by company (case-insensitive)
       const allProjects = await dbInstance.select().from(projects);
-      const userProjects = allProjects.filter(p => 
-        p.company?.toLowerCase() === userCompany.toLowerCase()
-      );
+      console.log('[DEBUG] projects.list - all projects:', allProjects.map(p => ({ id: p.id, opportunityName: p.opportunityName, company: p.company })));
+      const userProjects = allProjects.filter(p => {
+        const matches = p.company?.toLowerCase() === userCompany.toLowerCase();
+        console.log(`[DEBUG] filtering project ${p.id} (${p.opportunityName}): company=${p.company}, userCompany=${userCompany}, matches=${matches}`);
+        return matches;
+      });
+      console.log('[DEBUG] projects.list - filtered projects count:', userProjects.length);
       return userProjects;
     }),
     

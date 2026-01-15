@@ -240,3 +240,7 @@
 - [x] Updated sync logic to handle case-insensitive column names
 - [x] Fixed null company error - users with null company now see all projects
 - [x] All 19 projects now displaying correctly for users with null company
+
+- [x] Added company field to JWT token for better session management
+- [x] Updated access control to use case-insensitive company comparison
+- [ ] PENDING: Verify company-based filtering is working correctly for non-admin users - emartinez should see only 4 KB Home projects, not 6 mixed projects

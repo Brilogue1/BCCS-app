@@ -1,0 +1,25 @@
+{
+  "query": "SELECT DISTINCT company FROM projects ORDER BY company; SELECT company FROM users WHERE email = 'emartinez@kbhome.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT DISTINCT company FROM projects ORDER BY company; SELECT company FROM users WHERE email = 'emartinez@kbhome.com';",
+  "rows": [
+    {
+      "company": "BMI Construction"
+    },
+    {
+      "company": "Kb Home"
+    },
+    {
+      "company": "TEST"
+    },
+    {
+      "company": "company"
+    },
+    {
+      "company": "Kb Home"
+    }
+  ],
+  "messages": [],
+  "stdout": "company\n\nBMI Construction\nKb Home\nTEST\ncompany\nKb Home\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

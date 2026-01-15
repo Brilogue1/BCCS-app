@@ -1,0 +1,105 @@
+{
+  "query": "SELECT id, opportunityName, company FROM projects LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, company FROM projects LIMIT 20;",
+  "rows": [
+    {
+      "id": "58",
+      "opportunityName": "KB Home",
+      "company": "Kb Home"
+    },
+    {
+      "id": "59",
+      "opportunityName": "Kb Home",
+      "company": "Kb Home"
+    },
+    {
+      "id": "60",
+      "opportunityName": "Kb Home",
+      "company": "Kb Home"
+    },
+    {
+      "id": "61",
+      "opportunityName": "Kb Home - Project 1",
+      "company": "Kb Home"
+    },
+    {
+      "id": "62",
+      "opportunityName": "Bri Logue",
+      "company": "Kb Home"
+    },
+    {
+      "id": "63",
+      "opportunityName": "Bri's HOP - Lot 451",
+      "company": "BMI Construction"
+    },
+    {
+      "id": "64",
+      "opportunityName": "KINSLEY - 102",
+      "company": "BMI Construction"
+    },
+    {
+      "id": "65",
+      "opportunityName": "Liberte - Lot 105",
+      "company": "BMI Construction"
+    },
+    {
+      "id": "66",
+      "opportunityName": "PROJECT NAME",
+      "company": "TEST"
+    },
+    {
+      "id": "67",
+      "opportunityName": "Test Company",
+      "company": "TEST"
+    },
+    {
+      "id": "68",
+      "opportunityName": "Test Company - 123 Main St. - Lot 105",
+      "company": "test"
+    },
+    {
+      "id": "69",
+      "opportunityName": "Reserve at Forest Lake 2025-01218",
+      "company": "test"
+    },
+    {
+      "id": "70",
+      "opportunityName": "KB Home",
+      "company": "test"
+    },
+    {
+      "id": "71",
+      "opportunityName": "ACTS KB Home Reserve at Forest LakeACTS KB Home Reserve at Forest Lake",
+      "company": "test"
+    },
+    {
+      "id": "72",
+      "opportunityName": "Dalton Test",
+      "company": "test"
+    },
+    {
+      "id": "73",
+      "opportunityName": "KB Home",
+      "company": "test"
+    },
+    {
+      "id": "74",
+      "opportunityName": "Investor Plug",
+      "company": "test"
+    },
+    {
+      "id": "75",
+      "opportunityName": "PROPOSAL 123PROPOSAL 123",
+      "company": ""
+    },
+    {
+      "id": "76",
+      "opportunityName": "Cedar Crossing Lot #1",
+      "company": "Kb Home"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\tcompany\n58\tKB Home\tKb Home\n59\tKb Home\tKb Home\n60\tKb Home\tKb Home\n61\tKb Home - Project 1\tKb Home\n62\tBri Logue\tKb Home\n63\tBri's HOP - Lot 451\tBMI Construction\n64\tKINSLEY - 102\tBMI Construction\n65\tLiberte - Lot 105\tBMI Construction\n66\tPROJECT NAME\tTEST\n67\tTest Company\tTEST\n68\tTest Company - 123 Main St. - Lot 105\ttest\n69\tReserve at Forest Lake 2025-01218\ttest\n70\tKB Home\ttest\n71\tACTS KB Home Reserve at Forest LakeACTS KB Home Reserve at Forest Lake\ttest\n72\tDalton Test\ttest\n73\tKB Home\ttest\n74\tInvestor Plug\ttest\n75\tPROPOSAL 123PROPOSAL 123\t\n76\tCedar Crossing Lot #1\tKb Home\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}
