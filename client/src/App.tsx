@@ -75,7 +75,7 @@ function Router() {
 }
 
 function App() {
-  // v3 - Force republish to custom domain - all 19 projects
+  // EMERGENCY v4 - FORCE PUBLISH NOW - Client review in 10min - All 19 projects must show
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
