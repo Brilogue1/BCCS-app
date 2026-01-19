@@ -279,3 +279,9 @@
   - [x] Toast shows success but page doesn't navigate
   - [x] Fixed by invalidating auth.me cache after login mutation succeeds
   - [x] Login now redirects properly to /projects page
+
+## Incognito Mode Issue
+- [x] Fix login in incognito/private browsing mode
+  - [x] Changed cookie SameSite from Lax to None; Secure
+  - [x] Updated both login and logout cookie settings
+  - [x] Should now work in incognito/private browsing mode

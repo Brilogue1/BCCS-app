@@ -20,7 +20,7 @@ export const appRouter = router({
     me: publicProcedure.query(opts => opts.ctx.user),
     
     logout: publicProcedure.mutation(async ({ ctx }) => {
-      ctx.res.setHeader('Set-Cookie', 'session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+      ctx.res.setHeader('Set-Cookie', 'session=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0');
       return { success: true };
     }),
     
@@ -75,7 +75,7 @@ export const appRouter = router({
           .setExpirationTime('30d')
           .sign(JWT_SECRET);
 
-        ctx.res.setHeader('Set-Cookie', `session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`);
+        ctx.res.setHeader('Set-Cookie', `session=${token}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=${30 * 24 * 60 * 60}`);
         
         return {
           appId: ENV.appId,
