@@ -75,6 +75,7 @@ function Router() {
 }
 
 function App() {
+  // v2 - Force republish with latest login fixes
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
