@@ -138,27 +138,40 @@ export async function validateCredentials(email: string, password: string): Prom
 
 
 /**
- * Append inspection data to the Inspection Requests sheet
- * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name
- * Note: Google Sheets CSV export is read-only. For writing, we need to use Google Sheets API or Apps Script.
- * This function logs the inspection request for now and stores it in the database.
+ * Append inspection data to the Inspection Requests sheet using Google Sheets API
+ * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name, F=Approved
  */
 export async function appendInspectionRequest(
   projectName: string,
   userEmail: string,
   inspectionType: string,
   scheduledDateTime: string,
-  inspectorName: string
+  inspectorName: string,
+  approved: string = 'pending'
 ): Promise<boolean> {
   try {
-    // Log the inspection request
-    console.log(`[Inspection Request] Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}`);
+    // Send data to Google Apps Script webhook
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
     
-    // TODO: Implement Google Sheets API write using Apps Script or direct API call
-    // For now, the inspection is stored in the database and this logs it
-    return true;
+    const response = await axios.post(webhookUrl, {
+      projectName,
+      userEmail,
+      inspectionType,
+      scheduledDateTime,
+      inspectorName,
+      approved,
+    });
+    
+    if (response.data.success) {
+      console.log(`[Inspection Request] Successfully logged to Google Sheets: Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Approved: ${approved}`);
+      return true;
+    } else {
+      console.error('[Error] Google Apps Script returned error:', response.data.error);
+      return false;
+    }
   } catch (error) {
-    console.error('[Error] Failed to append inspection request:', error);
+    console.error('[Error] Failed to append inspection request to Google Sheets:', error);
+    console.log(`[Inspection Request - Fallback] Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Approved: ${approved}`);
     return false;
   }
 }

@@ -306,7 +306,8 @@ export const appRouter = router({
           ctx.user.email || '',
           input.inspectionType,
           scheduledDateTime,
-          inspectorName
+          inspectorName,
+          'pending'
         ).catch(err => console.error('[Google Sheets] Failed to log inspection:', err));
         
         // Sync to GHL if configured

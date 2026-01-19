@@ -252,3 +252,16 @@
 - [x] Map inspection data to columns A-E (Project Name, User Email, Inspection Type, Scheduled Date/Time, Inspector Name)
 - [x] Add error handling for Google Sheets write failures
 - [x] Test inspection logging - VERIFIED: Inspection logged successfully to Google Sheets
+
+
+## Bug: Google Sheets Inspection Logging Not Working
+- [ ] Debug why inspection data is not being written to Google Sheets
+- [ ] Check if appendInspectionRequest function is being called
+- [ ] Verify Google Sheets API credentials are working
+- [ ] Check for errors in server logs
+- [ ] Fix the issue and test again
+
+- [ ] Add "Approved" column (F) to Inspection Requests sheet
+- [ ] Update appendInspectionRequest to include approval status (default: "pending")
+- [ ] Update inspection form to show pending status
+- [ ] Test that inspections are logged with pending status
