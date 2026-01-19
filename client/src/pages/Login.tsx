@@ -12,9 +12,11 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const utils = trpc.useUtils();
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.auth.me.invalidate();
       toast.success("Login successful!");
       setLocation("/projects");
     },

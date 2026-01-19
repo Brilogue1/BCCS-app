@@ -272,3 +272,10 @@
   - [x] User redirected to projects list instead of admin dashboard
   - [x] Role is correctly set to 'admin' in database
   - [x] Added Admin Analytics button to Projects component header for admin users
+
+## Login Issue
+- [x] Fix login stuck - shows "login successful" but doesn't redirect to dashboard
+  - [x] User stuck on login page after successful authentication
+  - [x] Toast shows success but page doesn't navigate
+  - [x] Fixed by invalidating auth.me cache after login mutation succeeds
+  - [x] Login now redirects properly to /projects page
