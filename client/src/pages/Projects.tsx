@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Building2, Loader2, LogOut, MapPin, RefreshCw, Search } from "lucide-react";
+import { Building2, Loader2, LogOut, MapPin, RefreshCw, Search, BarChart3 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
+
 
 export default function Projects() {
   const { user, logout } = useAuth();
@@ -71,6 +72,14 @@ export default function Projects() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {user?.role === "admin" && (
+                <Link href="/admin">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Admin Analytics
+                  </Button>
+                </Link>
+              )}
               <Link href="/dashboard">
                 <Button variant="outline" size="sm">
                   Dashboard

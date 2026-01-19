@@ -265,3 +265,10 @@
 - [ ] Update appendInspectionRequest to include approval status (default: "pending")
 - [ ] Update inspection form to show pending status
 - [ ] Test that inspections are logged with pending status
+
+## Admin Access Control Issue
+- [x] Fix admin access - bri@investorplug.io not seeing admin stats
+  - [x] Admin Analytics button not visible in header after login
+  - [x] User redirected to projects list instead of admin dashboard
+  - [x] Role is correctly set to 'admin' in database
+  - [x] Added Admin Analytics button to Projects component header for admin users
