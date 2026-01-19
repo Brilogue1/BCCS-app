@@ -18,6 +18,7 @@ export default function Login() {
     onSuccess: async () => {
       await utils.auth.me.invalidate();
       toast.success("Login successful!");
+      await new Promise(resolve => setTimeout(resolve, 500));
       setLocation("/projects");
     },
     onError: (error) => {
