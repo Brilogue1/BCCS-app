@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+// Updated: Force publish latest version with admin access fixes
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, Redirect } from "wouter";

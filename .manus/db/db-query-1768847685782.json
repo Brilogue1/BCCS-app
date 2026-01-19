@@ -1,0 +1,22 @@
+{
+  "query": "SELECT id, email, role, company FROM users WHERE email = 'bri@investorplug.io';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, email, role, company FROM users WHERE email = 'bri@investorplug.io';",
+  "rows": [
+    {
+      "id": "1",
+      "email": "bri@investorplug.io",
+      "role": "admin",
+      "company": "ALL"
+    },
+    {
+      "id": "120051",
+      "email": "bri@investorplug.io",
+      "role": "admin",
+      "company": "ALL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\trole\tcompany\n1\tbri@investorplug.io\tadmin\tALL\n120051\tbri@investorplug.io\tadmin\tALL\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}
