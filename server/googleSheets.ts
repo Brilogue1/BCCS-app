@@ -113,12 +113,20 @@ export async function fetchLoginCredentials(): Promise<SheetRow[]> {
 export async function validateCredentials(email: string, password: string): Promise<{ valid: boolean; role?: string; company?: string }> {
   try {
     const credentials = await fetchLoginCredentials();
-    const user = credentials.find(row => 
-      row['Email']?.toLowerCase() === email.toLowerCase() &&
-      row['Password:'] === password
-    );
+    console.log('[DEBUG] Credentials fetched, count:', credentials.length);
+    console.log('[DEBUG] Looking for email:', email);
+    
+    const user = credentials.find(row => {
+      const emailMatch = row['Email']?.toLowerCase() === email.toLowerCase();
+      const passwordMatch = row['Password:'] === password;
+      if (emailMatch) {
+        console.log('[DEBUG] Email matched:', row['Email'], 'Password in sheet:', row['Password:'], 'Provided:', password);
+      }
+      return emailMatch && passwordMatch;
+    });
     
     if (!user) {
+      console.log('[DEBUG] No matching user found');
       return { valid: false };
     }
     

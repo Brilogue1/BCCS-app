@@ -75,7 +75,7 @@ function Router() {
 }
 
 function App() {
-  // v2 - Force republish with latest login fixes
+  // v3 - Force republish to custom domain - all 19 projects
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
