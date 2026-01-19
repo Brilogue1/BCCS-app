@@ -300,3 +300,9 @@
   - [x] Updated adminDashboard.analytics router to check company='ALL'
   - [x] Set all admin users to company='ALL' in database
   - [x] Verified all 19 projects now load for admin users
+
+## Brave Browser Compatibility Issue
+- [ ] Fix login in Brave browser
+  - Brave blocks third-party cookies and cross-site tracking by default
+  - Session cookie not being set properly in Brave
+  - Need to adjust cookie settings or add fallback authentication method
