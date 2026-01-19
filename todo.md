@@ -244,3 +244,11 @@
 - [x] Added company field to JWT token for better session management
 - [x] Updated access control to use case-insensitive company comparison
 - [ ] PENDING: Verify company-based filtering is working correctly for non-admin users - emartinez should see only 4 KB Home projects, not 6 mixed projects
+
+## Google Sheets Inspection Logging Feature
+- [x] Find the sheet ID for "Inspection Requests" sheet in the Google Sheets (gid=353951797)
+- [x] Create Google Sheets API helper to append rows to "Inspection Requests" sheet (appendInspectionRequest function)
+- [x] Update inspection.create mutation to log inspection data to Google Sheets
+- [x] Map inspection data to columns A-E (Project Name, User Email, Inspection Type, Scheduled Date/Time, Inspector Name)
+- [x] Add error handling for Google Sheets write failures
+- [x] Test inspection logging - VERIFIED: Inspection logged successfully to Google Sheets

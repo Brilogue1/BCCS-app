@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest } from "./googleSheets";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -298,7 +298,18 @@ export const appRouter = router({
           ghlSynced: 0,
         }, project);
         
-        // At        // Sync to GHL if configured
+        // Log inspection to Google Sheets
+        const scheduledDateTime = new Date().toISOString();
+        const inspectorName = ctx.user.name || 'Unassigned';
+        await appendInspectionRequest(
+          project.opportunityName || '',
+          ctx.user.email || '',
+          input.inspectionType,
+          scheduledDateTime,
+          inspectorName
+        ).catch(err => console.error('[Google Sheets] Failed to log inspection:', err));
+        
+        // Sync to GHL if configured
         if (isGHLConfigured()) {
           syncInspectionToGHL({
             projectId: input.projectId,
