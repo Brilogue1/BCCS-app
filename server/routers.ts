@@ -90,28 +90,28 @@ export const appRouter = router({
       const dbInstance = await db.getDb();
       if (!dbInstance) return [];
       
-      console.log('[DEBUG] projects.list - user:', { role: ctx.user.role, company: ctx.user.company });
-      // If user is admin or has "ALL" company access, return all projects
-      if (ctx.user.role === 'admin' || ctx.user.company === 'ALL') {
+      const userCompany = ctx.user.company;
+      console.log('[DEBUG] projects.list - user company:', userCompany);
+      
+      // If user has "ALL" company access, return all projects
+      if (userCompany === 'ALL') {
         const allProjects = await dbInstance.select().from(projects);
+        console.log('[DEBUG] projects.list - returning all projects for ALL access:', allProjects.length);
         return allProjects;
       }
       
       // Otherwise, filter by user's company (case-insensitive)
-      const userCompany = ctx.user.company;
       if (!userCompany) {
         return []; // No projects if user has no company assigned
       }
       
       // Get all projects and filter by company (case-insensitive)
       const allProjects = await dbInstance.select().from(projects);
-      console.log('[DEBUG] projects.list - all projects:', allProjects.map(p => ({ id: p.id, opportunityName: p.opportunityName, company: p.company })));
       const userProjects = allProjects.filter(p => {
         const matches = p.company?.toLowerCase() === userCompany.toLowerCase();
-        console.log(`[DEBUG] filtering project ${p.id} (${p.opportunityName}): company=${p.company}, userCompany=${userCompany}, matches=${matches}`);
         return matches;
       });
-      console.log('[DEBUG] projects.list - filtered projects count:', userProjects.length);
+      console.log('[DEBUG] projects.list - filtered projects for company', userCompany, ':', userProjects.length);
       return userProjects;
     }),
     
@@ -530,8 +530,8 @@ export const appRouter = router({
         endDate: z.string().optional(),
       }).optional())
       .query(async ({ ctx, input }) => {
-        // Check if user is admin
-        if (ctx.user?.role !== 'admin') {
+        // Check if user has ALL company access
+        if (ctx.user?.company !== 'ALL') {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Admin access required',

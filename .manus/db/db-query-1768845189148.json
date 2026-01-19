@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, email, role, company FROM users WHERE role = 'admin';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, email, role, company FROM users WHERE role = 'admin';",
+  "rows": [
+    {
+      "id": "1",
+      "email": "bri@investorplug.io",
+      "role": "admin",
+      "company": "NULL"
+    },
+    {
+      "id": "120050",
+      "email": "bccsflatv@gmail.com",
+      "role": "admin",
+      "company": "ALL"
+    },
+    {
+      "id": "120051",
+      "email": "bri@investorplug.io",
+      "role": "admin",
+      "company": "ALL"
+    },
+    {
+      "id": "930001",
+      "email": "bccsfladtm@gmail.com",
+      "role": "admin",
+      "company": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\trole\tcompany\n1\tbri@investorplug.io\tadmin\tNULL\n120050\tbccsflatv@gmail.com\tadmin\tALL\n120051\tbri@investorplug.io\tadmin\tALL\n930001\tbccsfladtm@gmail.com\tadmin\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 716
+}

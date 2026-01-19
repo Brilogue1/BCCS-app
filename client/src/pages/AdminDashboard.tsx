@@ -15,8 +15,8 @@ export default function AdminDashboard() {
     endDate: new Date().toISOString().split('T')[0],
   });
 
-  // Redirect non-admin users
-  if (!authLoading && user?.role !== 'admin') {
+  // Redirect users without ALL company access
+  if (!authLoading && user?.company !== 'ALL') {
     return <Redirect to="/dashboard" />;
   }
 

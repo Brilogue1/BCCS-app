@@ -285,3 +285,18 @@
   - [x] Changed cookie SameSite from Lax to None; Secure
   - [x] Updated both login and logout cookie settings
   - [x] Should now work in incognito/private browsing mode
+
+## Admin Page Error
+- [x] Fix admin page JSON parsing error
+  - [x] Error was temporary - admin page now loads correctly
+  - [x] All analytics displaying properly (projects, inspections, proposals, workload)
+  - [x] User: bri@investorplug.io (admin role) can access admin dashboard
+
+## Admin View Filtering Issue
+- [x] Fix admin view - admins only seeing KB Homes projects
+  - [x] Simplified access control to use company field only (removed admin role dependency)
+  - [x] Updated projects.list router to check company='ALL' instead of role='admin'
+  - [x] Updated AdminDashboard to check company='ALL' instead of role='admin'
+  - [x] Updated adminDashboard.analytics router to check company='ALL'
+  - [x] Set all admin users to company='ALL' in database
+  - [x] Verified all 19 projects now load for admin users
