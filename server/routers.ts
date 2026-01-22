@@ -5,7 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, fetchPastInspections } from "./googleSheets";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -255,6 +255,38 @@ export const appRouter = router({
           code: 'INTERNAL_SERVER_ERROR',
           message: error instanceof Error ? error.message : 'Sync failed',
         });
+      }
+    }),
+  }),
+
+  pastInspections: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      try {
+        const rows = await fetchPastInspections();
+        const userCompany = ctx.user.company;
+        
+        const pastInspections = rows
+          .filter(row => {
+            const projectName = row['project name'] || row['Project Name'];
+            if (!projectName || projectName.toLowerCase() === 'project name') return false;
+            const company = row['company'] || row['COMPANY'];
+            if (userCompany === 'ALL') return true;
+            if (!userCompany || !company) return false;
+            return company.toLowerCase() === userCompany.toLowerCase();
+          })
+          .map((row, index) => ({
+            id: index,
+            projectName: row['project name'] || row['Project Name'] || '',
+            inspectionType: row['inspection type'] || row['Inspection Type'] || '',
+            approvedStatus: row['approved status'] || row['Approved Status'] || row['approved'] || row['Approved'] || '',
+            dateApproved: row['date approved'] || row['Date Approved'] || '',
+            company: row['company'] || row['COMPANY'] || '',
+          }));
+        
+        return pastInspections;
+      } catch (error) {
+        console.error('[Past Inspections] Error fetching past inspections:', error);
+        return [];
       }
     }),
   }),

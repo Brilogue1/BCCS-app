@@ -306,3 +306,10 @@
   - Brave blocks third-party cookies and cross-site tracking by default
   - Session cookie not being set properly in Brave
   - Need to adjust cookie settings or add fallback authentication method
+
+## Past Inspections Feature (Completed Projects Tab)
+- [x] Create pastInspections tRPC procedure to fetch data from "Past Inspections" sheet
+- [x] Implement company-based access control for past inspections (company='ALL' sees all, others see their company only)
+- [x] Update Projects component to display past inspections in "Completed Projects" tab
+- [x] Show columns: Project Name, Inspection Type, Approved Status, Date Approved
+- [x] Test past inspections display with company-based filtering

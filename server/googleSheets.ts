@@ -4,6 +4,7 @@ const SHEET_ID = '1by8YXY2Ra63K6XrT2y0w-o7Wb7gFNN1ICzVYntTNagU';
 const ALL_SHEET_GID = '0';
 const LOGINS_SHEET_GID = '5432432';
 const INSPECTION_REQUESTS_SHEET_GID = '353951797';
+const PAST_INSPECTIONS_SHEET_GID = '1544581649'; // Past Inspections sheet
 
 interface SheetRow {
   [key: string]: string | undefined;
@@ -144,6 +145,19 @@ export async function validateCredentials(email: string, password: string): Prom
   }
 }
 
+
+/**
+ * Fetch past inspections from the Past Inspections sheet
+ */
+export async function fetchPastInspections(): Promise<SheetRow[]> {
+  try {
+    const csv = await fetchSheetAsCSV(PAST_INSPECTIONS_SHEET_GID);
+    return parseCSV(csv);
+  } catch (error) {
+    console.error('Error fetching past inspections from Google Sheets:', error);
+    throw new Error('Failed to fetch past inspections from Google Sheets');
+  }
+}
 
 /**
  * Append inspection data to the Inspection Requests sheet using Google Sheets API
