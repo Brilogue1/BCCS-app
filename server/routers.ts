@@ -262,9 +262,33 @@ export const appRouter = router({
   pastInspections: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       try {
-        const rows = await fetchPastInspections();
         const userCompany = ctx.user.company;
         
+        // Fetch completed projects from Active Projects sheet (Stage = Complete)
+        const database = await db.getDb();
+        let completedProjects: any[] = [];
+        if (database) {
+          const allProjects = await database.select().from(projects);
+          completedProjects = allProjects
+            .filter(p => p.stage?.toLowerCase() === 'complete')
+            .filter(p => {
+              if (userCompany === 'ALL') return true;
+              if (!userCompany || !p.company) return false;
+              return p.company.toLowerCase() === userCompany.toLowerCase();
+            })
+            .map((p, index) => ({
+              id: `active-${p.id}`,
+              projectName: p.opportunityName || '',
+              inspectionType: 'Completed Project',
+              approvedStatus: 'Complete',
+              dateApproved: '',
+              company: p.company || '',
+              source: 'active',
+            }));
+        }
+        
+        // Fetch past inspections from Past Inspections sheet
+        const rows = await fetchPastInspections();
         const pastInspections = rows
           .filter(row => {
             const projectName = row['project name'] || row['Project Name'];
@@ -275,17 +299,22 @@ export const appRouter = router({
             return company.toLowerCase() === userCompany.toLowerCase();
           })
           .map((row, index) => ({
-            id: index,
+            id: `past-${index}`,
             projectName: row['project name'] || row['Project Name'] || '',
             inspectionType: row['inspection type'] || row['Inspection Type'] || '',
             approvedStatus: row['approved status'] || row['Approved Status'] || row['approved'] || row['Approved'] || '',
             dateApproved: row['date approved'] || row['Date Approved'] || '',
             company: row['company'] || row['COMPANY'] || '',
+            source: 'past',
           }));
         
-        return pastInspections;
+        // Combine both sources
+        const combined = [...completedProjects, ...pastInspections];
+        console.log(`[Completed Projects] Found ${completedProjects.length} completed projects and ${pastInspections.length} past inspections`);
+        
+        return combined;
       } catch (error) {
-        console.error('[Past Inspections] Error fetching past inspections:', error);
+        console.error('[Past Inspections] Error fetching completed projects:', error);
         return [];
       }
     }),

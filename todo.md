@@ -313,3 +313,8 @@
 - [x] Update Projects component to display past inspections in "Completed Projects" tab
 - [x] Show columns: Project Name, Inspection Type, Approved Status, Date Approved
 - [x] Test past inspections display with company-based filtering
+
+## Completed Projects Enhancement
+- [x] Update completedProjects procedure to fetch from both Active Projects (Stage=Complete) and Past Inspections sheet
+- [x] Combine and display both sources in Completed Projects tab
+- [x] Test combined completed projects display
