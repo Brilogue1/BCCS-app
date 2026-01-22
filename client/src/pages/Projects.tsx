@@ -186,7 +186,7 @@ export default function Projects() {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-3 text-sm">
                           {project.stage && (
                             <div className="flex justify-between">
                               <span className="text-slate-600">Stage:</span>
@@ -197,6 +197,45 @@ export default function Projects() {
                             <div className="flex justify-between">
                               <span className="text-slate-600">Contact:</span>
                               <span className="font-medium">{project.contactName}</span>
+                            </div>
+                          )}
+                          
+                          {/* In Progress Inspections */}
+                          {(project.inspection1Type || project.inspection2Type || project.inspection3Type || project.inspection4Type || project.inspection5Type) && (
+                            <div className="pt-2 border-t">
+                              <p className="text-xs font-semibold text-slate-600 mb-2">In Progress Inspections:</p>
+                              <div className="space-y-1">
+                                {project.inspection1Type && (
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-600">{project.inspection1Type}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">In Progress</span>
+                                  </div>
+                                )}
+                                {project.inspection2Type && (
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-600">{project.inspection2Type}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">In Progress</span>
+                                  </div>
+                                )}
+                                {project.inspection3Type && (
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-600">{project.inspection3Type}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">In Progress</span>
+                                  </div>
+                                )}
+                                {project.inspection4Type && (
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-600">{project.inspection4Type}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">In Progress</span>
+                                  </div>
+                                )}
+                                {project.inspection5Type && (
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-slate-600">{project.inspection5Type}</span>
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">In Progress</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>

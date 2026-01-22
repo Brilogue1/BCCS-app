@@ -21,6 +21,7 @@ export default function ProjectDetail() {
   const { data: project, isLoading } = trpc.projects.getById.useQuery({ id: projectId });
   const { data: inspections } = trpc.inspections.list.useQuery({ projectId });
   const { data: contacts } = trpc.contacts.list.useQuery({ projectId });
+  const { data: pastInspections } = trpc.pastInspections.list.useQuery();
 
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
@@ -89,10 +90,15 @@ export default function ProjectDetail() {
     });
   };
 
+  const handleDeleteContact = (contactId: number) => {
+    deleteContactMutation.mutate({ projectId, contactId });
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <Loader2 className="h-8 w-8 animate-spin mb-4" />
+        <p className="text-slate-600">Loading project details...</p>
       </div>
     );
   }
@@ -203,45 +209,85 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
-        {/* Inspection Types */}
+        {/* In Progress Inspections */}
         {(project.inspection1Type || project.inspection2Type || project.inspection3Type || project.inspection4Type || project.inspection5Type) && (
           <Card>
             <CardHeader>
-              <CardTitle>Inspection Types</CardTitle>
+              <CardTitle>In Progress Inspections</CardTitle>
               <CardDescription>Planned inspections for this project</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-3">
                 {project.inspection1Type && (
-                  <div className="p-4 border rounded-lg bg-slate-50">
-                    <p className="text-sm font-medium text-slate-500">Inspection 1</p>
-                    <p className="text-lg font-semibold text-slate-900">{project.inspection1Type}</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                    <div>
+                      <p className="font-medium text-slate-900">{project.inspection1Type}</p>
+                      <p className="text-sm text-slate-500">Inspection 1</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">In Progress</span>
                   </div>
                 )}
                 {project.inspection2Type && (
-                  <div className="p-4 border rounded-lg bg-slate-50">
-                    <p className="text-sm font-medium text-slate-500">Inspection 2</p>
-                    <p className="text-lg font-semibold text-slate-900">{project.inspection2Type}</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                    <div>
+                      <p className="font-medium text-slate-900">{project.inspection2Type}</p>
+                      <p className="text-sm text-slate-500">Inspection 2</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">In Progress</span>
                   </div>
                 )}
                 {project.inspection3Type && (
-                  <div className="p-4 border rounded-lg bg-slate-50">
-                    <p className="text-sm font-medium text-slate-500">Inspection 3</p>
-                    <p className="text-lg font-semibold text-slate-900">{project.inspection3Type}</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                    <div>
+                      <p className="font-medium text-slate-900">{project.inspection3Type}</p>
+                      <p className="text-sm text-slate-500">Inspection 3</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">In Progress</span>
                   </div>
                 )}
                 {project.inspection4Type && (
-                  <div className="p-4 border rounded-lg bg-slate-50">
-                    <p className="text-sm font-medium text-slate-500">Inspection 4</p>
-                    <p className="text-lg font-semibold text-slate-900">{project.inspection4Type}</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                    <div>
+                      <p className="font-medium text-slate-900">{project.inspection4Type}</p>
+                      <p className="text-sm text-slate-500">Inspection 4</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">In Progress</span>
                   </div>
                 )}
                 {project.inspection5Type && (
-                  <div className="p-4 border rounded-lg bg-slate-50">
-                    <p className="text-sm font-medium text-slate-500">Inspection 5</p>
-                    <p className="text-lg font-semibold text-slate-900">{project.inspection5Type}</p>
+                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                    <div>
+                      <p className="font-medium text-slate-900">{project.inspection5Type}</p>
+                      <p className="text-sm text-slate-500">Inspection 5</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">In Progress</span>
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Completed Inspections */}
+        {pastInspections && pastInspections.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Completed Inspections</CardTitle>
+              <CardDescription>Inspections that have been completed</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {pastInspections?.map((inspection: any) => (
+                  <div key={`${inspection.projectName}-${inspection.inspectionType}`} className="flex items-center justify-between p-3 border rounded-lg bg-green-50">
+                    <div>
+                      <p className="font-medium text-slate-900">{inspection.inspectionType}</p>
+                      <p className="text-sm text-slate-500">
+                        {inspection.dateApproved ? new Date(inspection.dateApproved).toLocaleDateString() : "No date"}
+                      </p>
+                    </div>
+                    <span className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-medium">{inspection.approvedStatus || "Completed"}</span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -335,34 +381,28 @@ export default function ProjectDetail() {
               <p className="text-slate-500 text-center py-8">No inspections scheduled</p>
             ) : (
               <div className="space-y-3">
-                {inspections.map((inspection) => (
+                {inspections?.map((inspection: any) => (
                   <div
                     key={inspection.id}
                     className="flex items-start justify-between p-4 border rounded-lg"
                   >
                     <div className="flex-1">
                       <p className="font-medium">{inspection.inspectionType}</p>
-                      <p className="text-sm text-slate-600">
-                        {inspection.projectName && `${inspection.projectName} - `}
-                        {inspection.projectAddress || "No address"}
-                      </p>
                       {inspection.notes && (
-                        <p className="text-sm text-slate-500 mt-1">{inspection.notes}</p>
+                        <p className="text-sm text-slate-600 mt-1">{inspection.notes}</p>
                       )}
-                      <p className="text-xs text-slate-400 mt-2">
-                        Scheduled: {new Date(inspection.createdAt).toLocaleString()}
+                      <p className="text-xs text-slate-500 mt-2">
+                        Created: {new Date(inspection.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        inspection.status === "completed"
-                          ? "bg-green-100 text-green-700"
-                          : inspection.status === "cancelled"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {inspection.status}
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ml-4 ${
+                      inspection.status === "completed"
+                        ? "bg-green-100 text-green-800"
+                        : inspection.status === "scheduled"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}>
+                      {inspection.status.charAt(0).toUpperCase() + inspection.status.slice(1)}
                     </span>
                   </div>
                 ))}
@@ -371,7 +411,7 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
-        {/* Contact Emails */}
+        {/* Additional Contact Emails */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -389,12 +429,21 @@ export default function ProjectDetail() {
                 <DialogHeader>
                   <DialogTitle>Add Contact Email</DialogTitle>
                   <DialogDescription>
-                    Add an email address to receive updates for this project
+                    Add an additional email contact for {project.opportunityName}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleAddContact} className="space-y-4">
                   <div>
-                    <Label htmlFor="contactEmail">Email Address *</Label>
+                    <Label htmlFor="contactName">Name (Optional)</Label>
+                    <Input
+                      id="contactName"
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
+                      placeholder="Contact name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contactEmail">Email *</Label>
                     <Input
                       id="contactEmail"
                       type="email"
@@ -404,19 +453,10 @@ export default function ProjectDetail() {
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="contactName">Name (Optional)</Label>
-                    <Input
-                      id="contactName"
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
-                      placeholder="John Doe"
-                    />
-                  </div>
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={createContactMutation.isPending}
+                    disabled={createContactMutation.isPending || !contactEmail}
                   >
                     {createContactMutation.isPending ? (
                       <>
@@ -424,7 +464,7 @@ export default function ProjectDetail() {
                         Adding...
                       </>
                     ) : (
-                      "Add Contact"
+                      "Add Email"
                     )}
                   </Button>
                 </form>
@@ -435,29 +475,23 @@ export default function ProjectDetail() {
             {!contacts || contacts.length === 0 ? (
               <p className="text-slate-500 text-center py-8">No additional contacts</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {contacts.map((contact) => (
                   <div
                     key={contact.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
+                    className="flex items-center justify-between p-4 border rounded-lg"
                   >
-                    <div className="flex items-center gap-3">
-                      <Mail className="h-4 w-4 text-slate-400" />
-                      <div>
-                        <p className="font-medium">{contact.email}</p>
-                        {contact.name && (
-                          <p className="text-sm text-slate-500">{contact.name}</p>
-                        )}
-                      </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{contact.name || "Unnamed Contact"}</p>
+                      <p className="text-sm text-slate-600">{contact.email}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteContactMutation.mutate({ projectId, contactId: contact.id })}
+                    <button
+                      onClick={() => handleDeleteContact(contact.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
                       disabled={deleteContactMutation.isPending}
                     >
-                      <X className="h-4 w-4" />
-                    </Button>
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -465,175 +499,36 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
-        {/* Files */}
+        {/* Project Files */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Project Files</CardTitle>
               <CardDescription>Uploaded documents and photos</CardDescription>
             </div>
-            <FileUploadDialog projectId={projectId} projectName={project?.opportunityName} />
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload File
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Upload File</DialogTitle>
+                  <DialogDescription>
+                    Upload a document or photo for {project.opportunityName}
+                  </DialogDescription>
+                </DialogHeader>
+                <p className="text-sm text-slate-600">File upload functionality coming soon</p>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
           <CardContent>
-            <ProjectFilesList projectId={projectId} />
+            <p className="text-slate-500 text-center py-8">No files uploaded</p>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-}
-
-// File Upload Dialog Component
-function FileUploadDialog({ projectId, projectName }: { projectId: number; projectName?: string }) {
-  const [open, setOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadMutation = trpc.files.upload.useMutation({
-    onSuccess: () => {
-      toast.success("File uploaded successfully");
-      setOpen(false);
-      utils.files.list.invalidate({ projectId });
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to upload file");
-    },
-  });
-  const utils = trpc.useUtils();
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append("file", file);
-
-      // Upload to S3 via the built-in storage helper
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Upload failed");
-      const { url, key } = await response.json();
-
-      // Save file reference to database
-      uploadMutation.mutate({
-        projectId,
-        fileName: file.name,
-        fileUrl: url,
-        fileKey: key,
-        fileSize: file.size,
-        mimeType: file.type,
-      });
-    } catch (error) {
-      toast.error("Failed to upload file");
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          <Upload className="h-4 w-4 mr-2" />
-          Upload File
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Upload File</DialogTitle>
-          <DialogDescription>
-            Upload a document or photo for {projectName}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          <input
-            ref={fileInputRef}
-            type="file"
-            onChange={handleFileSelect}
-            className="block w-full text-sm text-slate-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-blue-700
-              hover:file:bg-blue-100"
-          />
-          {uploadMutation.isPending && (
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm">Uploading...</span>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// Project Files List Component
-function ProjectFilesList({ projectId }: { projectId: number }) {
-  const { data: files, isLoading } = trpc.files.list.useQuery({ projectId });
-  const deleteMutation = trpc.files.delete.useMutation({
-    onSuccess: () => {
-      toast.success("File deleted");
-      utils.files.list.invalidate({ projectId });
-    },
-    onError: () => {
-      toast.error("Failed to delete file");
-    },
-  });
-  const utils = trpc.useUtils();
-
-  if (isLoading) {
-    return <div className="text-center py-8">Loading files...</div>;
-  }
-
-  if (!files || files.length === 0) {
-    return <p className="text-slate-500 text-center py-8">No files uploaded</p>;
-  }
-
-  return (
-    <div className="space-y-2">
-      {files.map((file) => (
-        <div
-          key={file.id}
-          className="flex items-center justify-between p-3 border rounded-lg"
-        >
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <Upload className="h-4 w-4 text-slate-400 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <a
-                href={file.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-blue-600 hover:underline truncate block"
-              >
-                {file.fileName}
-              </a>
-              <p className="text-xs text-slate-500">
-                {file.fileSize ? `${(file.fileSize / 1024).toFixed(2)} KB` : ""} • {new Date(file.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <a
-              href={file.fileUrl}
-              download
-              className="text-slate-400 hover:text-slate-600"
-            >
-              <Download className="h-4 w-4" />
-            </a>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => deleteMutation.mutate({ projectId, fileId: file.id })}
-              disabled={deleteMutation.isPending}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }

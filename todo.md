@@ -324,3 +324,9 @@
 - [x] Update Google Sheets sync to capture columns U, V, X, Z, AA (Inspection Type 1-5)
 - [x] Display inspection types on project detail page before scheduling section
 - [x] Test inspection types display
+
+## Inspection Display Updates
+- [x] Update ProjectDetail to show inspection types 1-5 as "In Progress" status
+- [x] Add past inspections section to ProjectDetail showing completed inspections
+- [x] Update Projects list to show inspection types 1-5 inline on project cards with "In Progress" status
+- [x] Test inspection display on both list and detail pages
