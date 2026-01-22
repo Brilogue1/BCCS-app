@@ -203,6 +203,50 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
+        {/* Inspection Types */}
+        {(project.inspection1Type || project.inspection2Type || project.inspection3Type || project.inspection4Type || project.inspection5Type) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Inspection Types</CardTitle>
+              <CardDescription>Planned inspections for this project</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                {project.inspection1Type && (
+                  <div className="p-4 border rounded-lg bg-slate-50">
+                    <p className="text-sm font-medium text-slate-500">Inspection 1</p>
+                    <p className="text-lg font-semibold text-slate-900">{project.inspection1Type}</p>
+                  </div>
+                )}
+                {project.inspection2Type && (
+                  <div className="p-4 border rounded-lg bg-slate-50">
+                    <p className="text-sm font-medium text-slate-500">Inspection 2</p>
+                    <p className="text-lg font-semibold text-slate-900">{project.inspection2Type}</p>
+                  </div>
+                )}
+                {project.inspection3Type && (
+                  <div className="p-4 border rounded-lg bg-slate-50">
+                    <p className="text-sm font-medium text-slate-500">Inspection 3</p>
+                    <p className="text-lg font-semibold text-slate-900">{project.inspection3Type}</p>
+                  </div>
+                )}
+                {project.inspection4Type && (
+                  <div className="p-4 border rounded-lg bg-slate-50">
+                    <p className="text-sm font-medium text-slate-500">Inspection 4</p>
+                    <p className="text-lg font-semibold text-slate-900">{project.inspection4Type}</p>
+                  </div>
+                )}
+                {project.inspection5Type && (
+                  <div className="p-4 border rounded-lg bg-slate-50">
+                    <p className="text-sm font-medium text-slate-500">Inspection 5</p>
+                    <p className="text-lg font-semibold text-slate-900">{project.inspection5Type}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Inspections */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">

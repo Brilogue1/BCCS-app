@@ -318,3 +318,9 @@
 - [x] Update completedProjects procedure to fetch from both Active Projects (Stage=Complete) and Past Inspections sheet
 - [x] Combine and display both sources in Completed Projects tab
 - [x] Test combined completed projects display
+
+## Inspection Types Display Feature (5 Inspections per Project)
+- [x] Update database schema to store 5 inspection type fields (inspection1Type, inspection2Type, etc.)
+- [x] Update Google Sheets sync to capture columns U, V, X, Z, AA (Inspection Type 1-5)
+- [x] Display inspection types on project detail page before scheduling section
+- [x] Test inspection types display

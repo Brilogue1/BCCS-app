@@ -233,6 +233,11 @@ export const appRouter = router({
             inspection1Result: getString(row['1st inspection results'] || row['1st Inspection Results']),
             inspection2Result: getString(row['2nd inspection results'] || row['2nd Inspection Results']),
             inspection3Result: getString(row['3rd inspection results'] || row['3rd Inspection Results']),
+            inspection1Type: getString(row['inspection type 1'] || row['Inspection Type 1']), // Column U
+            inspection2Type: getString(row['inspection type 2'] || row['Inspection Type 2']), // Column V
+            inspection3Type: getString(row['inspection type 3'] || row['Inspection Type 3']), // Column X
+            inspection4Type: getString(row['inspection type 4'] || row['Inspection Type 4']), // Column Z
+            inspection5Type: getString(row['inspection type 5'] || row['Inspection Type 5']), // Column AA
             proposalSent: getString(row['proposals sent'] || row['Proposals Sent']),
             proposalSigned: getString(row['proposal signed'] || row['Proposal Signed']),
             company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
