@@ -33,11 +33,54 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  
+  // Add CORS headers for custom domains
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    // Allow requests from custom domain and localhost
+    if (origin && (origin.includes('bccsfl.com') || origin.includes('localhost') || origin.includes('manus.computer'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    }
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    
+    next();
+  });
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
-  // tRPC API
+  
+  // Ensure CORS headers are set for tRPC responses
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('bccsfl.com') || origin.includes('localhost') || origin.includes('manus.computer'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    next();
+  });
+  // tRPC API with CORS
   app.use(
     "/api/trpc",
+    (req, res, next) => {
+      const origin = req.headers.origin;
+      if (origin && (origin.includes('bccsfl.com') || origin.includes('localhost') || origin.includes('manus.computer'))) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Content-Type', 'application/json');
+      }
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
+      next();
+    },
     createExpressMiddleware({
       router: appRouter,
       createContext,
