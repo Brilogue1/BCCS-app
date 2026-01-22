@@ -16,19 +16,41 @@ export default function Login() {
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: async () => {
-      await utils.auth.me.invalidate();
-      toast.success("Login successful!");
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setLocation("/projects");
+      try {
+        await utils.auth.me.invalidate();
+        toast.success("Login successful!");
+        // Use a longer delay and ensure redirect happens even if other scripts error
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Force redirect by directly manipulating window.location as fallback
+        setTimeout(() => {
+          setLocation("/projects");
+          // Fallback: if wouter doesn't work, use window.location
+          setTimeout(() => {
+            if (window.location.pathname === '/login') {
+              window.location.href = '/projects';
+            }
+          }, 500);
+        }, 0);
+      } catch (error) {
+        console.error('Login redirect error:', error);
+        // Still try to redirect even if there's an error
+        window.location.href = '/projects';
+      }
     },
     onError: (error) => {
+      console.error('Login error:', error);
       toast.error(error.message || "Login failed");
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loginMutation.mutate({ email, password });
+    try {
+      loginMutation.mutate({ email, password });
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast.error("An error occurred. Please try again.");
+    }
   };
 
   return (
