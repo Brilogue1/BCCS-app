@@ -113,6 +113,20 @@
       "when": 1769115610545,
       "tag": "0015_aspiring_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1769117481303,
+      "tag": "0016_chilly_owl",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1769117530876,
+      "tag": "0017_sleepy_hawkeye",
+      "breakpoints": true
     }
   ]
 }

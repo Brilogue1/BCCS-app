@@ -331,3 +331,10 @@
 - [x] Filter completed inspections by project name on detail page
 - [x] Update Projects list to show inspection types 1-5 inline on project cards with "In Progress" status
 - [x] Test inspection display on both list and detail pages
+
+## Opportunity ID Integration for Inspection Requests
+- [x] Update database schema to store opportunityId in inspections table
+- [x] Update database schema to store opportunityId in projects table
+- [x] Update inspection scheduling to capture Opportunity ID from project
+- [x] Update Google Sheets sync to write Opportunity ID to Inspection Requests sheet column G
+- [x] Test inspection request includes Opportunity ID for system integration

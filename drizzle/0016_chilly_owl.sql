@@ -1,0 +1,1 @@
+ALTER TABLE `inspections` ADD `opportunityId` varchar(100);

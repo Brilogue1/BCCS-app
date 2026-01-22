@@ -65,6 +65,7 @@ export const projects = mysqlTable("projects", {
   inspection3Type: text("inspection3Type"), // Column W - Inspection Type 3
   inspection4Type: text("inspection4Type"), // Column X - Inspection Type 4
   inspection5Type: text("inspection5Type"), // Column Y - Inspection Type 5
+  opportunityId: varchar("opportunityId", { length: 100 }), // Column AQ - Opportunity ID for system integration
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });
@@ -80,6 +81,7 @@ export const inspections = mysqlTable("inspections", {
   projectId: int("projectId").notNull(),
   projectName: varchar("projectName", { length: 500 }),
   projectAddress: varchar("projectAddress", { length: 500 }),
+  opportunityId: varchar("opportunityId", { length: 100 }),
   inspectionType: varchar("inspectionType", { length: 255 }).notNull(),
   notes: text("notes"),
   status: mysqlEnum("status", ["pending", "scheduled", "completed", "cancelled"]).default("pending").notNull(),

@@ -169,7 +169,8 @@ export async function appendInspectionRequest(
   inspectionType: string,
   scheduledDateTime: string,
   inspectorName: string,
-  approved: string = 'pending'
+  approved: string = 'pending',
+  opportunityId: string = ''
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
@@ -182,6 +183,7 @@ export async function appendInspectionRequest(
       scheduledDateTime,
       inspectorName,
       approved,
+      opportunityId,
     });
     
     if (response.data.success) {

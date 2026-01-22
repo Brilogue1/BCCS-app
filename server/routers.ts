@@ -359,6 +359,7 @@ export const appRouter = router({
         
         await db.createInspection({
           ...input,
+          opportunityId: project.opportunityId || '',
           createdBy: ctx.user.email || '',
           status: 'pending',
           ghlSynced: 0,
@@ -373,7 +374,8 @@ export const appRouter = router({
           input.inspectionType,
           scheduledDateTime,
           inspectorName,
-          'pending'
+          'pending',
+          project.opportunityId || ''
         ).catch(err => console.error('[Google Sheets] Failed to log inspection:', err));
         
         // Sync to GHL if configured
