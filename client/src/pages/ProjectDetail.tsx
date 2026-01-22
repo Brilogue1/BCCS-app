@@ -269,7 +269,7 @@ export default function ProjectDetail() {
         )}
 
         {/* Completed Inspections */}
-        {pastInspections && pastInspections.length > 0 && (
+        {pastInspections && pastInspections.filter((i: any) => i.projectName === project.opportunityName).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>Completed Inspections</CardTitle>
@@ -277,7 +277,7 @@ export default function ProjectDetail() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {pastInspections?.map((inspection: any) => (
+                {pastInspections?.filter((i: any) => i.projectName === project.opportunityName).map((inspection: any) => (
                   <div key={`${inspection.projectName}-${inspection.inspectionType}`} className="flex items-center justify-between p-3 border rounded-lg bg-green-50">
                     <div>
                       <p className="font-medium text-slate-900">{inspection.inspectionType}</p>

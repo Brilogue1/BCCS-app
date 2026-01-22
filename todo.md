@@ -328,5 +328,6 @@
 ## Inspection Display Updates
 - [x] Update ProjectDetail to show inspection types 1-5 as "In Progress" status
 - [x] Add past inspections section to ProjectDetail showing completed inspections
+- [x] Filter completed inspections by project name on detail page
 - [x] Update Projects list to show inspection types 1-5 inline on project cards with "In Progress" status
 - [x] Test inspection display on both list and detail pages
