@@ -339,10 +339,11 @@
 - [x] Update Google Sheets sync to write Opportunity ID to Inspection Requests sheet column G
 - [x] Test inspection request includes Opportunity ID for system integration
 
-## CRITICAL: Production Deployment Issue (Monday Launch Blocker)
+## CRITICAL: Production Deployment Issue (Monday Launch Blocker) - RESOLVED
 - [x] Investigate login redirect failure on published version
 - [x] Check environment variables and secrets for production
-- [x] Verify CORS headers and API communication on published version - FOUND ISSUE: CORS was too restrictive
-- [x] Test and deploy fix - CORS fix allows all origins, login now redirects successfully
-- [ ] Contact Manus support with technical findings
-- [ ] Get production URL working for Monday client launch
+- [x] Verify CORS headers and API communication on published version
+- [x] ROOT CAUSE FOUND: Cookie name mismatch - login set 'session' but SDK expected 'app_session_id'
+- [x] Fix applied: Changed cookie name from 'session' to 'app_session_id' in routers.ts line 78
+- [x] Test and deploy fix - Login now redirects successfully to projects page
+- [ ] Publish to production for Monday client launch

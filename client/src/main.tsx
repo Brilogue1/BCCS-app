@@ -37,6 +37,17 @@ queryClient.getMutationCache().subscribe(event => {
   }
 });
 
+// Add global error handler to suppress third-party script errors
+if (typeof window !== 'undefined') {
+  window.addEventListener('error', (event) => {
+    // Suppress errors from third-party scripts like share-modal.js
+    if (event.filename && event.filename.includes('share-modal')) {
+      event.preventDefault();
+      return false;
+    }
+  }, true);
+}
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({

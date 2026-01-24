@@ -17,24 +17,31 @@ export default function Login() {
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: async () => {
       try {
-        await utils.auth.me.invalidate();
         toast.success("Login successful!");
-        // Use a longer delay and ensure redirect happens even if other scripts error
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // Force redirect by directly manipulating window.location as fallback
+        
+        // Immediately redirect using window.location as the primary method
+        // This bypasses any issues with wouter or other scripts
+        window.location.href = "/projects";
+        
+        // Also try wouter as a fallback in case window.location doesn't work
         setTimeout(() => {
-          setLocation("/projects");
-          // Fallback: if wouter doesn't work, use window.location
-          setTimeout(() => {
-            if (window.location.pathname === '/login') {
-              window.location.href = '/projects';
-            }
-          }, 500);
-        }, 0);
+          try {
+            setLocation("/projects");
+          } catch (e) {
+            console.error('Wouter redirect failed:', e);
+          }
+        }, 100);
+        
+        // Invalidate cache after redirect is initiated
+        try {
+          await utils.auth.me.invalidate();
+        } catch (e) {
+          console.error('Cache invalidation failed:', e);
+        }
       } catch (error) {
         console.error('Login redirect error:', error);
         // Still try to redirect even if there's an error
-        window.location.href = '/projects';
+        window.location.href = "/projects";
       }
     },
     onError: (error) => {
