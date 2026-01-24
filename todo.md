@@ -338,3 +338,11 @@
 - [x] Update inspection scheduling to capture Opportunity ID from project
 - [x] Update Google Sheets sync to write Opportunity ID to Inspection Requests sheet column G
 - [x] Test inspection request includes Opportunity ID for system integration
+
+## CRITICAL: Production Deployment Issue (Monday Launch Blocker)
+- [x] Investigate login redirect failure on published version
+- [x] Check environment variables and secrets for production
+- [x] Verify CORS headers and API communication on published version - FOUND ISSUE: CORS was too restrictive
+- [x] Test and deploy fix - CORS fix allows all origins, login now redirects successfully
+- [ ] Contact Manus support with technical findings
+- [ ] Get production URL working for Monday client launch

@@ -37,8 +37,8 @@ async function startServer() {
   // Add CORS headers for custom domains
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    // Allow requests from custom domain and localhost
-    if (origin && (origin.includes('bccsfl.com') || origin.includes('localhost') || origin.includes('manus.computer'))) {
+    // Allow requests from any origin
+    if (origin) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -58,7 +58,7 @@ async function startServer() {
   // Ensure CORS headers are set for tRPC responses
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin && (origin.includes('bccsfl.com') || origin.includes('localhost') || origin.includes('manus.computer'))) {
+    if (origin) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
@@ -69,7 +69,7 @@ async function startServer() {
     "/api/trpc",
     (req, res, next) => {
       const origin = req.headers.origin;
-      if (origin && (origin.includes('bccsfl.com') || origin.includes('localhost') || origin.includes('manus.computer'))) {
+      if (origin) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
