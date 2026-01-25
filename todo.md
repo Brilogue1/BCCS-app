@@ -377,3 +377,9 @@
 - [x] Fix additional emails going to wrong sheet - changed action to 'additionalContactEmail' for Google Apps Script routing
 - [x] Fix file upload error - added URL fallback and better error handling
 - [x] Add new project inspection request button with project name and address fields
+
+## Bug Fixes Round 2 - Jan 25
+- [x] Debug: Inspection notes - Updated webhook URL, verified working (notes now go to column H)
+- [x] Debug: Additional emails - Updated sheet name to "Additional Contact Emails", added contactName field
+- [x] Updated webhook URL to new deployment: AKfycbxNxpCKHxrIE5YdR6BxFnHQYYUgzM91ZGLuJPanXbRtFzmwuS2X7Jl--RcV4ketwAFW
+- [ ] File uploads - Need to test on published site (backend working, may be S3/CORS issue on frontend)

@@ -462,11 +462,12 @@ export const appRouter = router({
           ghlSynced: 0,
         });
         
-        // Log to Google Sheets New Project Emails tab
+        // Log to Google Sheets Additional Contact Emails tab
         const projectName = project.opportunityName || 'Unknown Project';
         const company = project.company || 'Unknown';
-        await appendNewProjectEmail(input.email, projectName, company)
-          .catch(err => console.error('[Google Sheets] Failed to log new project email:', err));
+        const contactName = input.name || '';
+        await appendNewProjectEmail(input.email, projectName, company, contactName)
+          .catch(err => console.error('[Google Sheets] Failed to log additional contact email:', err));
         
         // Sync to GHL if configured
         if (isGHLConfigured()) {

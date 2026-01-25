@@ -161,26 +161,31 @@ export async function fetchPastInspections(): Promise<SheetRow[]> {
 
 /**
  * Append additional contact email to the "Additional Contact Emails" sheet
- * Columns: A=Additional Contact Emails, B=Project Name, C=Company
+ * Columns: A=Additional Contact Emails, B=Project Name, C=Company, D=Contact Name
  */
 export async function appendNewProjectEmail(
   email: string,
   projectName: string,
-  company: string
+  company: string,
+  contactName: string = ''
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxNxpCKHxrIE5YdR6BxFnHQYYUgzM91ZGLuJPanXbRtFzmwuS2X7Jl--RcV4ketwAFW/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
       email,
       projectName,
       company,
+      contactName,
+    }, {
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      maxRedirects: 5,
     });
     
     if (response.data.success) {
-      console.log(`[Additional Contact Email] Successfully logged to Google Sheets: Email: ${email}, Project: ${projectName}, Company: ${company}`);
+      console.log(`[Additional Contact Email] Successfully logged to Google Sheets: Email: ${email}, Project: ${projectName}, Company: ${company}, Contact: ${contactName}`);
       return true;
     } else {
       console.error('[Error] Google Apps Script returned error:', response.data.error);
@@ -188,7 +193,7 @@ export async function appendNewProjectEmail(
     }
   } catch (error) {
     console.error('[Error] Failed to append additional contact email to Google Sheets:', error);
-    console.log(`[Additional Contact Email - Fallback] Email: ${email}, Project: ${projectName}, Company: ${company}`);
+    console.log(`[Additional Contact Email - Fallback] Email: ${email}, Project: ${projectName}, Company: ${company}, Contact: ${contactName}`);
     return false;
   }
 }
@@ -205,7 +210,7 @@ export async function appendClientUpload(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxNxpCKHxrIE5YdR6BxFnHQYYUgzM91ZGLuJPanXbRtFzmwuS2X7Jl--RcV4ketwAFW/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
@@ -213,6 +218,9 @@ export async function appendClientUpload(
       projectName,
       email,
       uploadLink,
+    }, {
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      maxRedirects: 5,
     });
     
     if (response.data.success) {
@@ -245,7 +253,7 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxNxpCKHxrIE5YdR6BxFnHQYYUgzM91ZGLuJPanXbRtFzmwuS2X7Jl--RcV4ketwAFW/exec';
     
     const response = await axios.post(webhookUrl, {
       projectName,
@@ -256,6 +264,9 @@ export async function appendInspectionRequest(
       approved,
       opportunityId,
       notes,
+    }, {
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      maxRedirects: 5,
     });
     
     if (response.data.success) {
