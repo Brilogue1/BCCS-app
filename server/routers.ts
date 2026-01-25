@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { desc } from "drizzle-orm";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -95,7 +96,7 @@ export const appRouter = router({
       
       // If user has "ALL" company access, return all projects
       if (userCompany === 'ALL') {
-        const allProjects = await dbInstance.select().from(projects);
+        const allProjects = await dbInstance.select().from(projects).orderBy(desc(projects.id));
         console.log('[DEBUG] projects.list - returning all projects for ALL access:', allProjects.length);
         return allProjects;
       }
@@ -105,8 +106,8 @@ export const appRouter = router({
         return []; // No projects if user has no company assigned
       }
       
-      // Get all projects and filter by company (case-insensitive)
-      const allProjects = await dbInstance.select().from(projects);
+      // Get all projects and filter by company (case-insensitive), sorted by newest first
+      const allProjects = await dbInstance.select().from(projects).orderBy(desc(projects.id));
       const userProjects = allProjects.filter(p => {
         const matches = p.company?.toLowerCase() === userCompany.toLowerCase();
         return matches;

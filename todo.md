@@ -359,3 +359,5 @@
 - [x] Keep "Completed Inspections" section showing past inspections from Past Inspections sheet filtered by project name
 - [x] Test reorganized inspection sections
 
+## Projects Sorting
+- [x] Sort projects list with newest on top and oldest on bottom
