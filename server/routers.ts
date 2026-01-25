@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, fetchPastInspections } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, fetchPastInspections, appendClientUpload } from "./googleSheets";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -502,6 +502,13 @@ export const appRouter = router({
           ...input,
           uploadedBy: ctx.user.email || undefined,
         });
+        
+        // Log upload to Google Sheets Client Uploads tab
+        const company = project.company || 'Unknown';
+        const projectName = project.opportunityName || 'Unknown Project';
+        const email = ctx.user.email || 'Unknown';
+        await appendClientUpload(company, projectName, email, input.fileUrl)
+          .catch(err => console.error('[Google Sheets] Failed to log client upload:', err));
         
         return { success: true };
       }),

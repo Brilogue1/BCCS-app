@@ -160,6 +160,42 @@ export async function fetchPastInspections(): Promise<SheetRow[]> {
 }
 
 /**
+ * Append client upload data to the Client Uploads sheet
+ * Columns: A=Company, B=Project Name, C=Email, D=Upload Link
+ */
+export async function appendClientUpload(
+  company: string,
+  projectName: string,
+  email: string,
+  uploadLink: string
+): Promise<boolean> {
+  try {
+    // Send data to Google Apps Script webhook
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
+    
+    const response = await axios.post(webhookUrl, {
+      action: 'clientUpload',
+      company,
+      projectName,
+      email,
+      uploadLink,
+    });
+    
+    if (response.data.success) {
+      console.log(`[Client Upload] Successfully logged to Google Sheets: Company: ${company}, Project: ${projectName}, Email: ${email}, Link: ${uploadLink}`);
+      return true;
+    } else {
+      console.error('[Error] Google Apps Script returned error:', response.data.error);
+      return false;
+    }
+  } catch (error) {
+    console.error('[Error] Failed to append client upload to Google Sheets:', error);
+    console.log(`[Client Upload - Fallback] Company: ${company}, Project: ${projectName}, Email: ${email}, Link: ${uploadLink}`);
+    return false;
+  }
+}
+
+/**
  * Append inspection data to the Inspection Requests sheet using Google Sheets API
  * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name, F=Approved
  */

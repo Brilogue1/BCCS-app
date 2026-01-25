@@ -7,11 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { ArrowLeft, Calendar, Download, Loader2, Mail, Phone, Plus, Trash2, Upload, User, X } from "lucide-react";
+import { ArrowLeft, Calendar, Download, FileText, Loader2, Mail, Phone, Plus, Trash2, Upload, User, X } from "lucide-react";
 import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
+
+// Frontend API URL for file uploads
+const FORGE_API_URL = import.meta.env.VITE_FRONTEND_FORGE_API_URL;
+const FORGE_API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -22,9 +26,11 @@ export default function ProjectDetail() {
   const { data: inspections } = trpc.inspections.list.useQuery({ projectId });
   const { data: contacts } = trpc.contacts.list.useQuery({ projectId });
   const { data: pastInspections } = trpc.pastInspections.list.useQuery();
+  const { data: files, refetch: refetchFiles } = trpc.files.list.useQuery({ projectId });
 
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   // Inspection form state
   const [inspectionType, setInspectionType] = useState("");
@@ -33,6 +39,11 @@ export default function ProjectDetail() {
   // Contact form state
   const [contactEmail, setContactEmail] = useState("");
   const [contactName, setContactName] = useState("");
+
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const utils = trpc.useUtils();
 
@@ -72,6 +83,29 @@ export default function ProjectDetail() {
     },
   });
 
+  const uploadFileMutation = trpc.files.upload.useMutation({
+    onSuccess: () => {
+      toast.success("File uploaded successfully");
+      setUploadDialogOpen(false);
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      refetchFiles();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to upload file");
+    },
+  });
+
+  const deleteFileMutation = trpc.files.delete.useMutation({
+    onSuccess: () => {
+      toast.success("File deleted");
+      refetchFiles();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete file");
+    },
+  });
+
   const handleScheduleInspection = (e: React.FormEvent) => {
     e.preventDefault();
     createInspectionMutation.mutate({
@@ -92,6 +126,74 @@ export default function ProjectDetail() {
 
   const handleDeleteContact = (contactId: number) => {
     deleteContactMutation.mutate({ projectId, contactId });
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File size must be less than 10MB");
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile || !project) return;
+
+    setUploading(true);
+    try {
+      // Generate unique file key
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      const sanitizedFileName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileKey = `bccs-uploads/${projectId}/${timestamp}-${randomSuffix}-${sanitizedFileName}`;
+
+      // Upload to S3 via Forge API
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const uploadUrl = new URL('v1/storage/upload', FORGE_API_URL);
+      uploadUrl.searchParams.set('path', fileKey);
+
+      const response = await fetch(uploadUrl.toString(), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${FORGE_API_KEY}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file to storage');
+      }
+
+      const result = await response.json();
+      const fileUrl = result.url;
+
+      // Save file record to database (which also logs to Google Sheets)
+      uploadFileMutation.mutate({
+        projectId,
+        fileName: selectedFile.name,
+        fileUrl,
+        fileKey,
+        fileSize: selectedFile.size,
+        mimeType: selectedFile.type,
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error("Failed to upload file. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteFile = (fileId: number) => {
+    if (confirm("Are you sure you want to delete this file?")) {
+      deleteFileMutation.mutate({ projectId, fileId });
+    }
   };
 
   if (isLoading) {
@@ -272,12 +374,12 @@ export default function ProjectDetail() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="inspectionType">Inspection Type *</Label>
-                    <Select value={inspectionType} onValueChange={setInspectionType} required>
+                    <Label htmlFor="inspectionType">Inspection Type</Label>
+                    <Select value={inspectionType} onValueChange={setInspectionType}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select inspection type" />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
+                      <SelectContent className="max-h-60">
                         {inspectionTypes.map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
@@ -287,19 +389,18 @@ export default function ProjectDetail() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="inspectionNotes">Notes (Optional)</Label>
+                    <Label htmlFor="notes">Notes (optional)</Label>
                     <Textarea
-                      id="inspectionNotes"
+                      id="notes"
                       value={inspectionNotes}
                       onChange={(e) => setInspectionNotes(e.target.value)}
-                      placeholder="Any additional notes..."
-                      rows={4}
+                      placeholder="Any additional notes for the inspector..."
                     />
                   </div>
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={createInspectionMutation.isPending || !inspectionType}
+                    disabled={!inspectionType || createInspectionMutation.isPending}
                   >
                     {createInspectionMutation.isPending ? (
                       <>
@@ -316,79 +417,96 @@ export default function ProjectDetail() {
           </CardHeader>
           <CardContent>
             {!hasScheduledInspections ? (
-              <p className="text-slate-500 text-center py-8">No inspections scheduled</p>
+              <p className="text-slate-500 text-center py-8">No scheduled inspections</p>
             ) : (
               <div className="space-y-3">
-                {/* Inspection types from Google Sheets (columns U, V, X, Z, AA) */}
+                {/* Show inspection types from Google Sheets */}
                 {project.inspection1Type && (
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium text-slate-900">{project.inspection1Type}</p>
+                      <p className="font-medium">{project.inspection1Type}</p>
                       <p className="text-sm text-slate-500">Inspection 1</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">Scheduled</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      project.inspection1Result === 'Approved' ? 'bg-green-100 text-green-800' :
+                      project.inspection1Result === 'Denied' ? 'bg-red-100 text-red-800' :
+                      project.inspection1Result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {project.inspection1Result || 'Scheduled'}
+                    </span>
                   </div>
                 )}
                 {project.inspection2Type && (
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium text-slate-900">{project.inspection2Type}</p>
+                      <p className="font-medium">{project.inspection2Type}</p>
                       <p className="text-sm text-slate-500">Inspection 2</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">Scheduled</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      project.inspection2Result === 'Approved' ? 'bg-green-100 text-green-800' :
+                      project.inspection2Result === 'Denied' ? 'bg-red-100 text-red-800' :
+                      project.inspection2Result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {project.inspection2Result || 'Scheduled'}
+                    </span>
                   </div>
                 )}
                 {project.inspection3Type && (
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium text-slate-900">{project.inspection3Type}</p>
+                      <p className="font-medium">{project.inspection3Type}</p>
                       <p className="text-sm text-slate-500">Inspection 3</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">Scheduled</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      project.inspection3Result === 'Approved' ? 'bg-green-100 text-green-800' :
+                      project.inspection3Result === 'Denied' ? 'bg-red-100 text-red-800' :
+                      project.inspection3Result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {project.inspection3Result || 'Scheduled'}
+                    </span>
                   </div>
                 )}
                 {project.inspection4Type && (
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium text-slate-900">{project.inspection4Type}</p>
+                      <p className="font-medium">{project.inspection4Type}</p>
                       <p className="text-sm text-slate-500">Inspection 4</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">Scheduled</span>
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      Scheduled
+                    </span>
                   </div>
                 )}
                 {project.inspection5Type && (
-                  <div className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium text-slate-900">{project.inspection5Type}</p>
+                      <p className="font-medium">{project.inspection5Type}</p>
                       <p className="text-sm text-slate-500">Inspection 5</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">Scheduled</span>
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      Scheduled
+                    </span>
                   </div>
                 )}
-                
-                {/* Inspections from database (user-scheduled) */}
+                {/* Show inspections from database */}
                 {inspections?.map((inspection: any) => (
-                  <div
-                    key={inspection.id}
-                    className="flex items-start justify-between p-4 border rounded-lg bg-blue-50"
-                  >
-                    <div className="flex-1">
+                  <div key={inspection.id} className="flex items-center justify-between p-4 border rounded-lg bg-white">
+                    <div>
                       <p className="font-medium">{inspection.inspectionType}</p>
-                      {inspection.notes && (
-                        <p className="text-sm text-slate-600 mt-1">{inspection.notes}</p>
-                      )}
-                      <p className="text-xs text-slate-500 mt-2">
-                        Requested: {new Date(inspection.createdAt).toLocaleDateString()}
+                      <p className="text-sm text-slate-500">
+                        Requested {new Date(inspection.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap ml-4 ${
-                      inspection.status === "completed"
-                        ? "bg-green-100 text-green-800"
-                        : inspection.status === "scheduled"
-                        ? "bg-blue-200 text-blue-800"
-                        : "bg-yellow-100 text-yellow-800"
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      inspection.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      inspection.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                      inspection.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {inspection.status === "pending" ? "Scheduled" : inspection.status.charAt(0).toUpperCase() + inspection.status.slice(1)}
+                      {inspection.status.charAt(0).toUpperCase() + inspection.status.slice(1)}
                     </span>
                   </div>
                 ))}
@@ -409,21 +527,20 @@ export default function ProjectDetail() {
             ) : (
               <div className="space-y-3">
                 {projectCompletedInspections.map((inspection: any, index: number) => (
-                  <div key={`${inspection.projectName}-${inspection.inspectionType}-${index}`} className="flex items-center justify-between p-3 border rounded-lg bg-green-50">
+                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium text-slate-900">{inspection.inspectionType}</p>
+                      <p className="font-medium">{inspection.inspectionType || 'Inspection'}</p>
                       <p className="text-sm text-slate-500">
-                        {inspection.dateApproved ? new Date(inspection.dateApproved).toLocaleDateString() : "No date"}
+                        {inspection.completedDate ? new Date(inspection.completedDate).toLocaleDateString() : 'Date not available'}
                       </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      inspection.approvedStatus?.toLowerCase() === 'approved' 
-                        ? 'bg-green-200 text-green-800' 
-                        : inspection.approvedStatus?.toLowerCase() === 'denied'
-                        ? 'bg-red-200 text-red-800'
-                        : 'bg-yellow-200 text-yellow-800'
+                      inspection.result === 'Approved' ? 'bg-green-100 text-green-800' :
+                      inspection.result === 'Denied' ? 'bg-red-100 text-red-800' :
+                      inspection.result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}>
-                      {inspection.approvedStatus || "Completed"}
+                      {inspection.result || 'Completed'}
                     </span>
                   </div>
                 ))}
@@ -450,12 +567,12 @@ export default function ProjectDetail() {
                 <DialogHeader>
                   <DialogTitle>Add Contact Email</DialogTitle>
                   <DialogDescription>
-                    Add an additional email contact for {project.opportunityName}
+                    Add an additional email address for {project.opportunityName}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleAddContact} className="space-y-4">
                   <div>
-                    <Label htmlFor="contactName">Name (Optional)</Label>
+                    <Label htmlFor="contactName">Name (optional)</Label>
                     <Input
                       id="contactName"
                       value={contactName}
@@ -464,7 +581,7 @@ export default function ProjectDetail() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contactEmail">Email *</Label>
+                    <Label htmlFor="contactEmail">Email</Label>
                     <Input
                       id="contactEmail"
                       type="email"
@@ -477,7 +594,7 @@ export default function ProjectDetail() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={createContactMutation.isPending || !contactEmail}
+                    disabled={!contactEmail || createContactMutation.isPending}
                   >
                     {createContactMutation.isPending ? (
                       <>
@@ -485,7 +602,7 @@ export default function ProjectDetail() {
                         Adding...
                       </>
                     ) : (
-                      "Add Email"
+                      "Add Contact"
                     )}
                   </Button>
                 </form>
@@ -497,7 +614,7 @@ export default function ProjectDetail() {
               <p className="text-slate-500 text-center py-8">No additional contacts</p>
             ) : (
               <div className="space-y-3">
-                {contacts.map((contact) => (
+                {contacts.map((contact: any) => (
                   <div
                     key={contact.id}
                     className="flex items-center justify-between p-4 border rounded-lg"
@@ -527,7 +644,7 @@ export default function ProjectDetail() {
               <CardTitle>Project Files</CardTitle>
               <CardDescription>Uploaded documents and photos</CardDescription>
             </div>
-            <Dialog>
+            <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">
                   <Upload className="h-4 w-4 mr-2" />
@@ -541,12 +658,91 @@ export default function ProjectDetail() {
                     Upload a document or photo for {project.opportunityName}
                   </DialogDescription>
                 </DialogHeader>
-                <p className="text-sm text-slate-600">File upload functionality coming soon</p>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="file">Select File</Label>
+                    <Input
+                      id="file"
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                      className="cursor-pointer"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Max file size: 10MB. Supported: Images, PDF, Word, Excel
+                    </p>
+                  </div>
+                  {selectedFile && (
+                    <div className="p-3 bg-slate-50 rounded-lg">
+                      <p className="text-sm font-medium">{selectedFile.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  )}
+                  <Button
+                    onClick={handleFileUpload}
+                    className="w-full"
+                    disabled={!selectedFile || uploading || uploadFileMutation.isPending}
+                  >
+                    {uploading || uploadFileMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload File
+                      </>
+                    )}
+                  </Button>
+                </div>
               </DialogContent>
             </Dialog>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-500 text-center py-8">No files uploaded</p>
+            {!files || files.length === 0 ? (
+              <p className="text-slate-500 text-center py-8">No files uploaded</p>
+            ) : (
+              <div className="space-y-3">
+                {files.map((file: any) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <FileText className="h-8 w-8 text-blue-600 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{file.fileName}</p>
+                        <p className="text-xs text-slate-500">
+                          {file.fileSize ? `${(file.fileSize / 1024 / 1024).toFixed(2)} MB` : 'Unknown size'} • 
+                          Uploaded {new Date(file.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <a
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors"
+                      >
+                        <Download className="h-4 w-4" />
+                      </a>
+                      <button
+                        onClick={() => handleDeleteFile(file.id)}
+                        className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                        disabled={deleteFileMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
