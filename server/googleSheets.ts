@@ -160,6 +160,40 @@ export async function fetchPastInspections(): Promise<SheetRow[]> {
 }
 
 /**
+ * Append new project email to the New Project Emails sheet
+ * Columns: A=Additional Contact Emails, B=Project Name, C=Company
+ */
+export async function appendNewProjectEmail(
+  email: string,
+  projectName: string,
+  company: string
+): Promise<boolean> {
+  try {
+    // Send data to Google Apps Script webhook
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
+    
+    const response = await axios.post(webhookUrl, {
+      action: 'newProjectEmail',
+      email,
+      projectName,
+      company,
+    });
+    
+    if (response.data.success) {
+      console.log(`[New Project Email] Successfully logged to Google Sheets: Email: ${email}, Project: ${projectName}, Company: ${company}`);
+      return true;
+    } else {
+      console.error('[Error] Google Apps Script returned error:', response.data.error);
+      return false;
+    }
+  } catch (error) {
+    console.error('[Error] Failed to append new project email to Google Sheets:', error);
+    console.log(`[New Project Email - Fallback] Email: ${email}, Project: ${projectName}, Company: ${company}`);
+    return false;
+  }
+}
+
+/**
  * Append client upload data to the Client Uploads sheet
  * Columns: A=Company, B=Project Name, C=Email, D=Upload Link
  */

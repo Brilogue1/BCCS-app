@@ -367,3 +367,7 @@
 - [x] Log upload info to "Client Uploads" sheet with columns: Company, Project Name, Email, Upload Link
 - [x] Implement file upload UI with file selection, upload progress, and file list display
 - [ ] Note: For Google Drive integration, you'll need to update your Google Apps Script webhook to handle the 'clientUpload' action and write to the Client Uploads sheet
+
+## New Project Emails Sheet Logging
+- [x] Log additional contact emails to "New Project Emails" sheet with columns: Additional Contact Emails, Project Name, Company
+- [ ] Note: Update Google Apps Script webhook to handle 'newProjectEmail' action

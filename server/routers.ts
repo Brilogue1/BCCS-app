@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, fetchPastInspections, appendClientUpload } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail } from "./googleSheets";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -431,6 +431,12 @@ export const appRouter = router({
           name: input.name,
           ghlSynced: 0,
         });
+        
+        // Log to Google Sheets New Project Emails tab
+        const projectName = project.opportunityName || 'Unknown Project';
+        const company = project.company || 'Unknown';
+        await appendNewProjectEmail(input.email, projectName, company)
+          .catch(err => console.error('[Google Sheets] Failed to log new project email:', err));
         
         // Sync to GHL if configured
         if (isGHLConfigured()) {
