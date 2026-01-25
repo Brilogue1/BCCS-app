@@ -152,28 +152,24 @@ export default function ProjectDetail() {
       const sanitizedFileName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const fileKey = `bccs-uploads/${projectId}/${timestamp}-${randomSuffix}-${sanitizedFileName}`;
 
-      // Upload to S3 via Forge API
+      // Upload to S3 via server-side endpoint (avoids CORS issues)
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const uploadUrl = new URL('v1/storage/upload', FORGE_API_URL);
-      uploadUrl.searchParams.set('path', fileKey);
+      const uploadUrl = `/api/upload?path=${encodeURIComponent(fileKey)}`;
 
-      console.log('Uploading to:', uploadUrl.toString());
-      console.log('API Key present:', !!FORGE_API_KEY);
+      console.log('Uploading to server:', uploadUrl);
       
-      const response = await fetch(uploadUrl.toString(), {
+      const response = await fetch(uploadUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${FORGE_API_KEY}`,
-        },
         body: formData,
+        credentials: 'include',
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Upload failed:', response.status, errorText);
-        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+        const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+        console.error('Upload failed:', response.status, errorData);
+        throw new Error(errorData.error || `Upload failed: ${response.status}`);
       }
 
       const result = await response.json();

@@ -383,3 +383,10 @@
 - [x] Debug: Additional emails - Updated sheet name to "Additional Contact Emails", added contactName field
 - [x] Updated webhook URL to new deployment: AKfycbxNxpCKHxrIE5YdR6BxFnHQYYUgzM91ZGLuJPanXbRtFzmwuS2X7Jl--RcV4ketwAFW
 - [ ] File uploads - Need to test on published site (backend working, may be S3/CORS issue on frontend)
+
+## File Upload Debug - Jan 25
+- [x] Debug file upload error: "Failed to upload file. Please try again."
+- [x] Root cause: Frontend was trying to upload directly to Forge API (CORS blocked)
+- [x] Fix: Added server-side /api/upload endpoint using multer
+- [x] Updated frontend to use server-side upload endpoint
+- [x] Test upload endpoint - working (returns S3 URL)

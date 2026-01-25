@@ -7,6 +7,8 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { storagePut } from "../storage";
+import multer from "multer";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -54,6 +56,36 @@ async function startServer() {
   });
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // File upload endpoint
+  const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  });
+  
+  app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file provided' });
+      }
+      
+      const fileKey = req.query.path as string;
+      if (!fileKey) {
+        return res.status(400).json({ error: 'No file path provided' });
+      }
+      
+      const result = await storagePut(
+        fileKey,
+        req.file.buffer,
+        req.file.mimetype
+      );
+      
+      res.json({ url: result.url, key: result.key });
+    } catch (error) {
+      console.error('[Upload Error]', error);
+      res.status(500).json({ error: 'Upload failed' });
+    }
+  });
   
   // Ensure CORS headers are set for tRPC responses
   app.use((req, res, next) => {
