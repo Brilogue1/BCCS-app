@@ -376,7 +376,8 @@ export const appRouter = router({
           scheduledDateTime,
           inspectorName,
           'pending',
-          project.opportunityId || ''
+          project.opportunityId || '',
+          input.notes || ''
         ).catch(err => console.error('[Google Sheets] Failed to log inspection:', err));
         
         // Sync to GHL if configured
@@ -389,6 +390,35 @@ export const appRouter = router({
             notes: input.notes,
           }).catch(err => console.error('[GHL] Sync failed:', err));
         }       
+        return { success: true };
+      }),
+  }),
+
+  // New project inspection request (for projects not yet in the system)
+  newProjectInspection: router({
+    create: protectedProcedure
+      .input(z.object({
+        projectName: z.string(),
+        projectAddress: z.string(),
+        inspectionType: z.string(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Log to Google Sheets with project name and address
+        const scheduledDateTime = new Date().toISOString();
+        const inspectorName = ctx.user.name || 'Unassigned';
+        
+        await appendInspectionRequest(
+          input.projectName,
+          ctx.user.email || '',
+          input.inspectionType,
+          scheduledDateTime,
+          inspectorName,
+          'pending',
+          '', // No opportunity ID for new projects
+          `Address: ${input.projectAddress}${input.notes ? ` | Notes: ${input.notes}` : ''}`
+        ).catch(err => console.error('[Google Sheets] Failed to log new project inspection:', err));
+        
         return { success: true };
       }),
   }),

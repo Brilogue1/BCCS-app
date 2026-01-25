@@ -371,3 +371,9 @@
 ## New Project Emails Sheet Logging
 - [x] Log additional contact emails to "New Project Emails" sheet with columns: Additional Contact Emails, Project Name, Company
 - [ ] Note: Update Google Apps Script webhook to handle 'newProjectEmail' action
+
+## Bug Fixes - Jan 25
+- [x] Fix inspection scheduling to add notes to column H in Google Sheets
+- [x] Fix additional emails going to wrong sheet - changed action to 'additionalContactEmail' for Google Apps Script routing
+- [x] Fix file upload error - added URL fallback and better error handling
+- [x] Add new project inspection request button with project name and address fields

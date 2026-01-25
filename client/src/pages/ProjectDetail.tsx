@@ -13,8 +13,9 @@ import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
 
-// Frontend API URL for file uploads
-const FORGE_API_URL = import.meta.env.VITE_FRONTEND_FORGE_API_URL;
+// Frontend API URL for file uploads - ensure trailing slash for URL construction
+const FORGE_BASE = import.meta.env.VITE_FRONTEND_FORGE_API_URL || 'https://forge.butterfly-effect.dev';
+const FORGE_API_URL = FORGE_BASE.endsWith('/') ? FORGE_BASE : `${FORGE_BASE}/`;
 const FORGE_API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
 
 export default function ProjectDetail() {
@@ -158,6 +159,9 @@ export default function ProjectDetail() {
       const uploadUrl = new URL('v1/storage/upload', FORGE_API_URL);
       uploadUrl.searchParams.set('path', fileKey);
 
+      console.log('Uploading to:', uploadUrl.toString());
+      console.log('API Key present:', !!FORGE_API_KEY);
+      
       const response = await fetch(uploadUrl.toString(), {
         method: 'POST',
         headers: {
@@ -167,10 +171,13 @@ export default function ProjectDetail() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload file to storage');
+        const errorText = await response.text();
+        console.error('Upload failed:', response.status, errorText);
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
+      console.log('Upload result:', result);
       const fileUrl = result.url;
 
       // Save file record to database (which also logs to Google Sheets)

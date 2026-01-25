@@ -160,7 +160,7 @@ export async function fetchPastInspections(): Promise<SheetRow[]> {
 }
 
 /**
- * Append new project email to the New Project Emails sheet
+ * Append additional contact email to the "Additional Contact Emails" sheet
  * Columns: A=Additional Contact Emails, B=Project Name, C=Company
  */
 export async function appendNewProjectEmail(
@@ -173,22 +173,22 @@ export async function appendNewProjectEmail(
     const webhookUrl = 'https://script.google.com/macros/s/AKfycbz3STYdul6HqAWSKVGqldu4JRIGbMh4Tlxl_j0fOXgdmgBr9T8P1TDTGco3kxsJm-eE/exec';
     
     const response = await axios.post(webhookUrl, {
-      action: 'newProjectEmail',
+      action: 'additionalContactEmail',
       email,
       projectName,
       company,
     });
     
     if (response.data.success) {
-      console.log(`[New Project Email] Successfully logged to Google Sheets: Email: ${email}, Project: ${projectName}, Company: ${company}`);
+      console.log(`[Additional Contact Email] Successfully logged to Google Sheets: Email: ${email}, Project: ${projectName}, Company: ${company}`);
       return true;
     } else {
       console.error('[Error] Google Apps Script returned error:', response.data.error);
       return false;
     }
   } catch (error) {
-    console.error('[Error] Failed to append new project email to Google Sheets:', error);
-    console.log(`[New Project Email - Fallback] Email: ${email}, Project: ${projectName}, Company: ${company}`);
+    console.error('[Error] Failed to append additional contact email to Google Sheets:', error);
+    console.log(`[Additional Contact Email - Fallback] Email: ${email}, Project: ${projectName}, Company: ${company}`);
     return false;
   }
 }
@@ -231,7 +231,7 @@ export async function appendClientUpload(
 
 /**
  * Append inspection data to the Inspection Requests sheet using Google Sheets API
- * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name, F=Approved
+ * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name, F=Approved, G=Opportunity ID, H=Notes
  */
 export async function appendInspectionRequest(
   projectName: string,
@@ -240,7 +240,8 @@ export async function appendInspectionRequest(
   scheduledDateTime: string,
   inspectorName: string,
   approved: string = 'pending',
-  opportunityId: string = ''
+  opportunityId: string = '',
+  notes: string = ''
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
@@ -254,10 +255,11 @@ export async function appendInspectionRequest(
       inspectorName,
       approved,
       opportunityId,
+      notes,
     });
     
     if (response.data.success) {
-      console.log(`[Inspection Request] Successfully logged to Google Sheets: Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Approved: ${approved}`);
+      console.log(`[Inspection Request] Successfully logged to Google Sheets: Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Approved: ${approved}, Notes: ${notes}`);
       return true;
     } else {
       console.error('[Error] Google Apps Script returned error:', response.data.error);
@@ -265,7 +267,7 @@ export async function appendInspectionRequest(
     }
   } catch (error) {
     console.error('[Error] Failed to append inspection request to Google Sheets:', error);
-    console.log(`[Inspection Request - Fallback] Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Approved: ${approved}`);
+    console.log(`[Inspection Request - Fallback] Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Approved: ${approved}, Notes: ${notes}`);
     return false;
   }
 }

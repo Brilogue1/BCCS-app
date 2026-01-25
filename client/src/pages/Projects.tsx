@@ -1,20 +1,30 @@
-// v0bd1ee34 - Latest version with all admin fixes
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Building2, Loader2, LogOut, MapPin, RefreshCw, Search, BarChart3, CheckCircle2, Mail } from "lucide-react";
+import { Building2, Calendar, Loader2, LogOut, MapPin, Plus, RefreshCw, Search, BarChart3, CheckCircle2, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
-
+import inspectionTypes from "../../../shared/inspectionTypes.json";
 
 export default function Projects() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
+  
+  // New project inspection dialog state
+  const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectAddress, setNewProjectAddress] = useState("");
+  const [newInspectionType, setNewInspectionType] = useState("");
+  const [newInspectionNotes, setNewInspectionNotes] = useState("");
 
   const { data: projects, isLoading: projectsLoading, refetch } = trpc.projects.list.useQuery();
   const { data: pastInspections, isLoading: pastInspectionsLoading } = trpc.pastInspections.list.useQuery();
@@ -28,6 +38,33 @@ export default function Projects() {
       toast.error(error.message || "Failed to sync projects");
     },
   });
+
+  const newProjectInspectionMutation = trpc.newProjectInspection.create.useMutation({
+    onSuccess: () => {
+      toast.success("Inspection request submitted successfully!");
+      setNewProjectDialogOpen(false);
+      setNewProjectName("");
+      setNewProjectAddress("");
+      setNewInspectionType("");
+      setNewInspectionNotes("");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to submit inspection request");
+    },
+  });
+
+  const handleNewProjectInspection = () => {
+    if (!newProjectName || !newProjectAddress || !newInspectionType) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    newProjectInspectionMutation.mutate({
+      projectName: newProjectName,
+      projectAddress: newProjectAddress,
+      inspectionType: newInspectionType,
+      notes: newInspectionNotes,
+    });
+  };
 
   const handleLogout = () => {
     logout();
@@ -138,20 +175,102 @@ export default function Projects() {
       <main className="container mx-auto px-4 py-8">
         {/* Tabs and Search */}
         <div className="mb-6 space-y-4">
-          {/* Tabs */}
-          <div className="flex gap-2">
-            <Button
-              variant={activeTab === 'active' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('active')}
-            >
-              Active Projects
-            </Button>
-            <Button
-              variant={activeTab === 'completed' ? 'default' : 'outline'}
-              onClick={() => setActiveTab('completed')}
-            >
-              Completed Projects
-            </Button>
+          {/* Tabs and New Project Button */}
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex gap-2">
+              <Button
+                variant={activeTab === 'active' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('active')}
+              >
+                Active Projects
+              </Button>
+              <Button
+                variant={activeTab === 'completed' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('completed')}
+              >
+                Completed Projects
+              </Button>
+            </div>
+            
+            {/* New Project Inspection Request Button */}
+            <Dialog open={newProjectDialogOpen} onOpenChange={setNewProjectDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Request Inspection for New Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Request Inspection for New Project
+                  </DialogTitle>
+                  <DialogDescription>
+                    Submit an inspection request for a project not yet in the system.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="projectName">Project Name *</Label>
+                    <Input
+                      id="projectName"
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      placeholder="Enter project name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="projectAddress">Project Address *</Label>
+                    <Input
+                      id="projectAddress"
+                      value={newProjectAddress}
+                      onChange={(e) => setNewProjectAddress(e.target.value)}
+                      placeholder="Enter project address"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="inspectionType">Inspection Type *</Label>
+                    <Select value={newInspectionType} onValueChange={setNewInspectionType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select inspection type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {inspectionTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes (optional)</Label>
+                    <Textarea
+                      id="notes"
+                      value={newInspectionNotes}
+                      onChange={(e) => setNewInspectionNotes(e.target.value)}
+                      placeholder="Any additional notes or details"
+                      rows={3}
+                    />
+                  </div>
+                  <Button
+                    onClick={handleNewProjectInspection}
+                    disabled={newProjectInspectionMutation.isPending}
+                    className="w-full"
+                  >
+                    {newProjectInspectionMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Inspection Request"
+                    )}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           
           {/* Search Bar */}
