@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3 } from "lucide-react";
+import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3, Mail } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -48,6 +48,21 @@ export default function Dashboard() {
               </Link>
               <Button variant="ghost">Logout</Button>
             </div>
+          </div>
+        </div>
+        {/* Support Link */}
+        <div className="bg-slate-50 border-t py-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-sm text-slate-600">
+              Issues with the app or need support?{" "}
+              <a 
+                href="mailto:info@bccsfl.com" 
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+              >
+                <Mail className="h-3 w-3" />
+                Please reach out here
+              </a>
+            </p>
           </div>
         </div>
       </div>

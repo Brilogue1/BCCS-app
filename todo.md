@@ -347,3 +347,15 @@
 - [x] Fix applied: Changed cookie name from 'session' to 'app_session_id' in routers.ts line 78
 - [x] Test and deploy fix - Login now redirects successfully to projects page
 - [ ] Publish to production for Monday client launch
+
+## Support Contact Links
+- [x] Add "Issues logging in or need to update your password? Reach out here" link on login page (mailto:info@bccsfl.com)
+- [x] Add "Issues with the app or need support? Please reach out here" link on every page in the app header (Projects, Dashboard, ProjectDetail, AdminDashboard)
+- [x] Test support links work correctly
+
+## Project Detail Inspections Reorganization
+- [x] Rename "In Progress Inspections" to "Scheduled Inspections"
+- [x] Combine Scheduled Inspections section with the Schedule Inspection form
+- [x] Keep "Completed Inspections" section showing past inspections from Past Inspections sheet filtered by project name
+- [x] Test reorganized inspection sections
+

@@ -1,7 +1,7 @@
 import { Link, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useRef } from "react";
@@ -156,6 +156,21 @@ export default function AdminDashboard() {
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+        {/* Support Link */}
+        <div className="bg-slate-50 border-t py-2 print:hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-sm text-slate-600">
+              Issues with the app or need support?{" "}
+              <a 
+                href="mailto:info@bccsfl.com" 
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+              >
+                <Mail className="h-3 w-3" />
+                Please reach out here
+              </a>
+            </p>
           </div>
         </div>
       </div>

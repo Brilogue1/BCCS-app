@@ -6,7 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -113,6 +113,20 @@ export default function Login() {
               )}
             </Button>
           </form>
+          
+          {/* Support link for login issues */}
+          <div className="mt-6 pt-4 border-t border-slate-200 text-center">
+            <p className="text-sm text-slate-600">
+              Issues logging in or need to update your password?{" "}
+              <a 
+                href="mailto:info@bccsfl.com" 
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+              >
+                <Mail className="h-3 w-3" />
+                Reach out here
+              </a>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Building2, Loader2, LogOut, MapPin, RefreshCw, Search, BarChart3, CheckCircle2 } from "lucide-react";
+import { Building2, Loader2, LogOut, MapPin, RefreshCw, Search, BarChart3, CheckCircle2, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
@@ -115,6 +115,21 @@ export default function Projects() {
                 Logout
               </Button>
             </div>
+          </div>
+        </div>
+        {/* Support Link */}
+        <div className="bg-slate-50 border-t py-2">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-sm text-slate-600">
+              Issues with the app or need support?{" "}
+              <a 
+                href="mailto:info@bccsfl.com" 
+                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+              >
+                <Mail className="h-3 w-3" />
+                Please reach out here
+              </a>
+            </p>
           </div>
         </div>
       </header>

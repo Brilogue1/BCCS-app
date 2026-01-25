@@ -1,0 +1,40 @@
+{
+  "query": "SELECT email, name, company, role FROM users LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT email, name, company, role FROM users LIMIT 5;",
+  "rows": [
+    {
+      "email": "bri@investorplug.io",
+      "name": "Bri Logue",
+      "company": "ALL",
+      "role": "admin"
+    },
+    {
+      "email": "bccsflatv@gmail.com",
+      "name": "bccsflatv",
+      "company": "NULL",
+      "role": "user"
+    },
+    {
+      "email": "bccsflatv@gmail.com",
+      "name": "bccsflatv",
+      "company": "ALL",
+      "role": "admin"
+    },
+    {
+      "email": "bri@investorplug.io",
+      "name": "bri",
+      "company": "ALL",
+      "role": "admin"
+    },
+    {
+      "email": "emartinez@kbhome.com",
+      "name": "emartinez",
+      "company": "Kb Home",
+      "role": "user"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tname\tcompany\trole\nbri@investorplug.io\tBri Logue\tALL\tadmin\nbccsflatv@gmail.com\tbccsflatv\tNULL\tuser\nbccsflatv@gmail.com\tbccsflatv\tALL\tadmin\nbri@investorplug.io\tbri\tALL\tadmin\nemartinez@kbhome.com\temartinez\tKb Home\tuser\n",
+  "stderr": "",
+  "execution_time_ms": 498
+}
