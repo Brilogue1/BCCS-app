@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE users ADD UNIQUE INDEX idx_users_email (email);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute ALTER TABLE users ADD UNIQUE INDEX idx_users_email (email);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1062 (23000) at line 1: Duplicate entry '?' for key 'users.idx_users_email'"
+  ]
+}

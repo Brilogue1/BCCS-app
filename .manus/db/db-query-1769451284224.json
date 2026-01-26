@@ -1,0 +1,9 @@
+{
+  "query": "DELETE u1 FROM users u1 INNER JOIN users u2 WHERE u1.id > u2.id AND u1.email = u2.email;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute DELETE u1 FROM users u1 INNER JOIN users u2 WHERE u1.id > u2.id AND u1.email = u2.email;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 58
+}

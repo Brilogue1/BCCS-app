@@ -424,7 +424,7 @@ export default function Projects() {
                                   ? 'bg-red-100 text-red-800'
                                   : 'bg-yellow-100 text-yellow-800'
                               }`}>
-                                {inspection.approvedStatus || 'Pending'}
+                                {inspection.approvedStatus || 'Scheduled'}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-slate-600">{inspection.dateApproved || '-'}</td>

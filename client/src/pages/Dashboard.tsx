@@ -91,7 +91,7 @@ export default function Dashboard() {
               <div className="text-3xl font-bold text-slate-900">
                 {summary?.upcomingInspections?.length || 0}
               </div>
-              <p className="text-xs text-slate-500 mt-2">Scheduled or pending</p>
+              <p className="text-xs text-slate-500 mt-2">Scheduled inspections</p>
             </CardContent>
           </Card>
 
@@ -197,7 +197,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                      {inspection.status || "Pending"}
+                      {inspection.status || "Scheduled"}
                     </span>
                   </div>
                 ))}

@@ -390,3 +390,12 @@
 - [x] Fix: Added server-side /api/upload endpoint using multer
 - [x] Updated frontend to use server-side upload endpoint
 - [x] Test upload endpoint - working (returns S3 URL)
+
+## Contact Passwords - Jan 26
+- [x] Read contact CSV and understand data structure (554 records)
+- [x] Generate passwords based on company names (format: CompanyName2025!)
+- [x] Add contacts with passwords to portal database (424 inserted, 3 updated)
+- [ ] Test login with new contacts
+
+## Inspection Status Update - Jan 26
+- [x] Change all inspection statuses from "Pending" to "Scheduled"

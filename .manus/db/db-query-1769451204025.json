@@ -1,0 +1,28 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE();",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE();",
+  "rows": [
+    {
+      "TABLE_NAME": "__drizzle_migrations"
+    },
+    {
+      "TABLE_NAME": "users"
+    },
+    {
+      "TABLE_NAME": "contactEmails"
+    },
+    {
+      "TABLE_NAME": "inspections"
+    },
+    {
+      "TABLE_NAME": "projectFiles"
+    },
+    {
+      "TABLE_NAME": "projects"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\n__drizzle_migrations\nusers\ncontactEmails\ninspections\nprojectFiles\nprojects\n",
+  "stderr": "",
+  "execution_time_ms": 134
+}

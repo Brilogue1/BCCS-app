@@ -1,0 +1,70 @@
+{
+  "query": "SELECT email, name, company, password FROM users WHERE loginMethod = 'password' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT email, name, company, password FROM users WHERE loginMethod = 'password' LIMIT 10;",
+  "rows": [
+    {
+      "email": "colby@whiteheadconstruction.com",
+      "name": "Colby Pike",
+      "company": "Whitehead Construction",
+      "password": "WhiteheadConstruction2025!"
+    },
+    {
+      "email": "chrisg@watermanproperties.net",
+      "name": "Christopher Greene",
+      "company": "Waterman Properties",
+      "password": "WatermanProperties2025!"
+    },
+    {
+      "email": "jayweston.jmhs@gmail.com",
+      "name": "Jay weston",
+      "company": "Jennings Mobile Home",
+      "password": "JenningsMobileHome2025!"
+    },
+    {
+      "email": "rosew.jmhs@gmail.com",
+      "name": "Rose wingham",
+      "company": "Jennings Mobile Home",
+      "password": "JenningsMobileHome2025!"
+    },
+    {
+      "email": "jenningsmhs@tampabayrr.com",
+      "name": "Kim Watkins",
+      "company": "Jennings Mobile Home",
+      "password": "JenningsMobileHome2025!"
+    },
+    {
+      "email": "james.mitchell@midflorida.com",
+      "name": "James Mitchell",
+      "company": "Mid Florida Credit Union",
+      "password": "MidFloridaCreditUnion2025!"
+    },
+    {
+      "email": "bcameron@byrdsonservice.com",
+      "name": "Lynda ventura",
+      "company": "Byrdson Services",
+      "password": "ByrdsonServices2025!"
+    },
+    {
+      "email": "samuel@alanulch.com",
+      "name": "Samuel Hendrickson",
+      "company": "Alan Ulch Construction",
+      "password": "AlanUlchConstruction2025!"
+    },
+    {
+      "email": "bccsflarw@gmail.com",
+      "name": "Ryan Wiggins",
+      "company": "BCCS LLC",
+      "password": "BccsLlc2025!"
+    },
+    {
+      "email": "bccsflajs@gmail.com",
+      "name": "Jim Spivey",
+      "company": "BCCS LLC",
+      "password": "BccsLlc2025!"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tname\tcompany\tpassword\ncolby@whiteheadconstruction.com\tColby Pike\tWhitehead Construction\tWhiteheadConstruction2025!\nchrisg@watermanproperties.net\tChristopher Greene\tWaterman Properties\tWatermanProperties2025!\njayweston.jmhs@gmail.com\tJay weston\tJennings Mobile Home\tJenningsMobileHome2025!\nrosew.jmhs@gmail.com\tRose wingham\tJennings Mobile Home\tJenningsMobileHome2025!\njenningsmhs@tampabayrr.com\tKim Watkins\tJennings Mobile Home\tJenningsMobileHome2025!\njames.mitchell@midflorida.com\tJames Mitchell\tMid Florida Credit Union\tMidFloridaCreditUnion2025!\nbcameron@byrdsonservice.com\tLynda ventura\tByrdson Services\tByrdsonServices2025!\nsamuel@alanulch.com\tSamuel Hendrickson\tAlan Ulch Construction\tAlanUlchConstruction2025!\nbccsflarw@gmail.com\tRyan Wiggins\tBCCS LLC\tBccsLlc2025!\nbccsflajs@gmail.com\tJim Spivey\tBCCS LLC\tBccsLlc2025!\n",
+  "stderr": "",
+  "execution_time_ms": 63
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO users (openId, email, name, company, password, loginMethod, role, createdAt, updatedAt, lastSignedIn) VALUES ('local_test123456789', 'colby@whiteheadconstruction.com', 'Colby Pike', 'Whitehead Construction', 'WhiteheadConstruction2025!', 'password', 'user', NOW(), NOW(), NOW()) ON DUPLICATE KEY UPDATE name='Colby Pike', company='Whitehead Construction', password='WhiteheadConstruction2025!';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute INSERT INTO users (openId, email, name, company, password, loginMethod, role, createdAt, updatedAt, lastSignedIn) VALUES ('local_test123456789', 'colby@whiteheadconstruction.com', 'Colby Pike', 'Whitehead Construction', 'WhiteheadConstruction2025!', 'password', 'user', NOW(), NOW(), NOW()) ON DUPLICATE KEY UPDATE name='Colby Pike', company='Whitehead Construction', password='WhiteheadConstruction2025!';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 58
+}

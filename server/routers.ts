@@ -33,7 +33,56 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const { email, password } = input;
         
-        // Validate credentials against Google Sheets
+        // First, check if user exists in database with password authentication
+        let dbUser = await db.getUserByEmail(email, 'password');
+        
+        if (dbUser && dbUser.password === password) {
+          // User found in database with matching password
+          console.log('[DEBUG] User authenticated via database:', email);
+          
+          // Update last signed in
+          const openId = dbUser.openId;
+          await db.upsertUser({
+            openId,
+            email,
+            name: dbUser.name || email.split('@')[0] || 'User',
+            loginMethod: 'password',
+            role: dbUser.role as 'admin' | 'user',
+            company: dbUser.company || 'ALL',
+            lastSignedIn: new Date(),
+          });
+          
+          let user = await db.getUserByEmail(email);
+          
+          if (!user) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'Failed to retrieve user',
+            });
+          }
+          
+          // Create JWT token
+          const token = await new SignJWT({ 
+            openId: user.openId,
+            appId: ENV.appId,
+            name: user.name || user.email || 'User',
+            company: user.company || 'ALL'
+          })
+            .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+            .setIssuedAt()
+            .setExpirationTime('30d')
+            .sign(JWT_SECRET);
+
+          ctx.res.setHeader('Set-Cookie', `app_session_id=${token}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=${30 * 24 * 60 * 60}`);
+          
+          return {
+            appId: ENV.appId,
+            name: user.name || user.email || 'User',
+            company: user.company || 'ALL'
+          } as const;
+        }
+        
+        // Fallback: Validate credentials against Google Sheets
         const validation = await validateCredentials(email, password);
         
         if (!validation.valid) {

@@ -1,0 +1,18 @@
+{
+  "query": "SELECT email, COUNT(*) as cnt FROM users GROUP BY email HAVING cnt > 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT email, COUNT(*) as cnt FROM users GROUP BY email HAVING cnt > 1;",
+  "rows": [
+    {
+      "email": "bccsflatv@gmail.com",
+      "cnt": "2"
+    },
+    {
+      "email": "bri@investorplug.io",
+      "cnt": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "email\tcnt\nbccsflatv@gmail.com\t2\nbri@investorplug.io\t2\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}
