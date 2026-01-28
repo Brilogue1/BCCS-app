@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail } from "./googleSheets";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -424,9 +424,10 @@ export const appRouter = router({
           input.inspectionType,
           scheduledDateTime,
           inspectorName,
-          'pending',
+          'Scheduled',
           project.opportunityId || '',
-          input.notes || ''
+          input.notes || '',
+          project.address || ''
         ).catch(err => console.error('[Google Sheets] Failed to log inspection:', err));
         
         // Sync to GHL if configured
@@ -453,19 +454,19 @@ export const appRouter = router({
         notes: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Log to Google Sheets with project name and address
+        // Log to New Project Inspection Requests sheet (separate sheet for new projects)
         const scheduledDateTime = new Date().toISOString();
         const inspectorName = ctx.user.name || 'Unassigned';
         
-        await appendInspectionRequest(
+        await appendNewProjectInspectionRequest(
           input.projectName,
           ctx.user.email || '',
           input.inspectionType,
           scheduledDateTime,
           inspectorName,
-          'pending',
-          '', // No opportunity ID for new projects
-          `Address: ${input.projectAddress}${input.notes ? ` | Notes: ${input.notes}` : ''}`
+          'Scheduled',
+          input.notes || '',
+          input.projectAddress
         ).catch(err => console.error('[Google Sheets] Failed to log new project inspection:', err));
         
         return { success: true };

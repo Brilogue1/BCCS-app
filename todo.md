@@ -399,3 +399,15 @@
 
 ## Inspection Status Update - Jan 26
 - [x] Change all inspection statuses from "Pending" to "Scheduled"
+
+## Inspection Sheet Updates - Jan 28
+- [ ] Add address to scheduled inspections (existing projects) in Inspection Requests sheet
+- [ ] Route new project inspections (without Opportunity ID) to "New Project Inspection Requests" sheet
+- [ ] Update Google Apps Script to handle both sheets with correct columns
+
+## Inspection Sheet Updates - Jan 28
+- [x] Add Address and Opportunity ID to scheduled inspections for existing projects
+- [x] Route new project inspections (without Opportunity ID) to "New Project Inspection Requests" sheet
+- [x] Provide updated Google Apps Script code for user to deploy
+- [x] Updated webhook URL to new deployment
+- [x] Tested both inspection request types - working
