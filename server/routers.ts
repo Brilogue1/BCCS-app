@@ -292,6 +292,7 @@ export const appRouter = router({
             proposalSigned: getString(row['proposal signed'] || row['Proposal Signed']),
             company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
             completionStatus: getString(row['engagement status'] || row['completed'] || row['Completed']), // Column F - Completed/Active status
+            opportunityId: getString(row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           }));

@@ -411,3 +411,9 @@
 - [x] Provide updated Google Apps Script code for user to deploy
 - [x] Updated webhook URL to new deployment
 - [x] Tested both inspection request types - working
+
+## Bug Fix - Opp ID Not Pulling - Jan 28
+- [x] Debug why Opportunity ID is not being sent to Google Sheets for scheduled inspections
+- [x] Added opportunityId mapping from column AQ (Opportunity ID) in sync function
+- [ ] User needs to run sync to pull Opportunity IDs into database
+- [ ] Test scheduling inspection to verify Opp ID is sent to Request Opp ID column
