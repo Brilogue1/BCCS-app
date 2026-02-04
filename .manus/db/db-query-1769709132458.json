@@ -1,0 +1,30 @@
+{
+  "query": "SELECT opportunityName, opportunityId FROM projects LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT opportunityName, opportunityId FROM projects LIMIT 5;",
+  "rows": [
+    {
+      "opportunityName": "Kb Home - Project 1",
+      "opportunityId": ""
+    },
+    {
+      "opportunityName": "Bri Logue",
+      "opportunityId": "EaX3DfmCeTWDW8o2vxtw"
+    },
+    {
+      "opportunityName": "Bri's HOP - Lot 451",
+      "opportunityId": ""
+    },
+    {
+      "opportunityName": "KINSLEY - 102",
+      "opportunityId": ""
+    },
+    {
+      "opportunityName": "Liberte - Lot 105",
+      "opportunityId": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "opportunityName\topportunityId\nKb Home - Project 1\t\nBri Logue\tEaX3DfmCeTWDW8o2vxtw\nBri's HOP - Lot 451\t\nKINSLEY - 102\t\nLiberte - Lot 105\t\n",
+  "stderr": "",
+  "execution_time_ms": 1522
+}

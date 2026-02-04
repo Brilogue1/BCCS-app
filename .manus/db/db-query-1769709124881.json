@@ -1,0 +1,50 @@
+{
+  "query": "SELECT opportunityName, opportunityId FROM projects WHERE opportunityId IS NOT NULL AND opportunityId != '' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT opportunityName, opportunityId FROM projects WHERE opportunityId IS NOT NULL AND opportunityId != '' LIMIT 10;",
+  "rows": [
+    {
+      "opportunityName": "Bri Logue",
+      "opportunityId": "EaX3DfmCeTWDW8o2vxtw"
+    },
+    {
+      "opportunityName": "Test Company",
+      "opportunityId": "pFE54fkNO7tKS0YG6VLG"
+    },
+    {
+      "opportunityName": "Test Company - 123 Main St. - Lot 105",
+      "opportunityId": "4hx7WBp4eu9pET985hL3"
+    },
+    {
+      "opportunityName": "Reserve at Forest Lake 2025-01218",
+      "opportunityId": "7zceDSwznOevfbm9wPDK"
+    },
+    {
+      "opportunityName": "KB Home",
+      "opportunityId": "3AkNTJFXAI6zdwdcZLls"
+    },
+    {
+      "opportunityName": "ACTS KB Home Reserve at Forest LakeACTS KB Home Reserve at Forest Lake",
+      "opportunityId": "eACRi06fgbIZvPsOhM8w"
+    },
+    {
+      "opportunityName": "Dalton Test",
+      "opportunityId": "de8t8R37aoEGl5kJTqjF"
+    },
+    {
+      "opportunityName": "KB Home",
+      "opportunityId": "Ws4cwBPeny0SuM6d3M3Y"
+    },
+    {
+      "opportunityName": "Investor Plug",
+      "opportunityId": "NdYymRAHT2rxNSve6BK9"
+    },
+    {
+      "opportunityName": "PROPOSAL 123PROPOSAL 123",
+      "opportunityId": "S6oYTOegl8q3412dfJEj"
+    }
+  ],
+  "messages": [],
+  "stdout": "opportunityName\topportunityId\nBri Logue\tEaX3DfmCeTWDW8o2vxtw\nTest Company\tpFE54fkNO7tKS0YG6VLG\nTest Company - 123 Main St. - Lot 105\t4hx7WBp4eu9pET985hL3\nReserve at Forest Lake 2025-01218\t7zceDSwznOevfbm9wPDK\nKB Home\t3AkNTJFXAI6zdwdcZLls\nACTS KB Home Reserve at Forest LakeACTS KB Home Reserve at Forest Lake\teACRi06fgbIZvPsOhM8w\nDalton Test\tde8t8R37aoEGl5kJTqjF\nKB Home\tWs4cwBPeny0SuM6d3M3Y\nInvestor Plug\tNdYymRAHT2rxNSve6BK9\nPROPOSAL 123PROPOSAL 123\tS6oYTOegl8q3412dfJEj\n",
+  "stderr": "",
+  "execution_time_ms": 1542
+}

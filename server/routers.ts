@@ -200,6 +200,10 @@ export const appRouter = router({
           console.log('[Sync] Available columns:', Object.keys(rows[0]).slice(0, 20).join(', '));
           console.log('[Sync] Total columns:', Object.keys(rows[0]).length);
           console.log('[Sync] Company column value:', rows[0]['company'] || rows[0]['COMPANY'] || 'NOT FOUND');
+          console.log('[Sync] Opportunity ID column value:', rows[0]['Opportunity ID'] || rows[0]['opportunity id'] || rows[0]['Opportunity Id'] || 'NOT FOUND');
+          // Log all column names that contain 'opp' or 'id'
+          const oppColumns = Object.keys(rows[0]).filter(k => k.toLowerCase().includes('opp') || k.toLowerCase().includes('opportunity'));
+          console.log('[Sync] Opportunity-related columns:', oppColumns);
         }
         
         // If fetch returns 0 rows, don't proceed with sync
