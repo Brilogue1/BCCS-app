@@ -357,6 +357,11 @@ export default function ProjectDetail() {
                     Book a new inspection for {project.opportunityName}
                   </DialogDescription>
                 </DialogHeader>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-900">
+                    <strong>Note:</strong> Only 5 inspections can be scheduled per 24-hour period for this project.
+                  </p>
+                </div>
                 <form onSubmit={handleScheduleInspection} className="space-y-4">
                   <div>
                     <Label htmlFor="projectName">Project Name</Label>

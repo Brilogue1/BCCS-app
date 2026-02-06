@@ -438,3 +438,9 @@
 - [x] Format completion dates for display (Sep 16, 2025 format)
 - [x] Write vitest tests for employee report procedure (13 tests passing)
 - [x] Test with real data - September 2025 shows 2 completed projects
+
+
+## Inspection Scheduling Limit - 5 Per Day Per Project
+- [x] Add informational text above inspection scheduling form
+- [x] Display blue banner with message: "Only 5 inspections can be scheduled per 24-hour period for this project"
+- [x] Test display in browser - verified on Schedule Inspection dialog
