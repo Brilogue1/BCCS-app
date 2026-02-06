@@ -1,0 +1,38 @@
+{
+  "query": "SELECT stage, COUNT(*) as cnt FROM projects GROUP BY stage;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT stage, COUNT(*) as cnt FROM projects GROUP BY stage;",
+  "rows": [
+    {
+      "stage": "Proposal",
+      "cnt": "4"
+    },
+    {
+      "stage": "Permitting",
+      "cnt": "3"
+    },
+    {
+      "stage": "Plans Examining",
+      "cnt": "3"
+    },
+    {
+      "stage": "Complete",
+      "cnt": "1"
+    },
+    {
+      "stage": "Inspections",
+      "cnt": "9"
+    },
+    {
+      "stage": "⚙️ Inspection Request Router",
+      "cnt": "1"
+    },
+    {
+      "stage": "Closeout",
+      "cnt": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "stage\tcnt\nProposal\t4\nPermitting\t3\nPlans Examining\t3\nComplete\t1\nInspections\t9\n⚙️ Inspection Request Router\t1\nCloseout\t1\n",
+  "stderr": "",
+  "execution_time_ms": 1546
+}

@@ -66,6 +66,7 @@ export const projects = mysqlTable("projects", {
   inspection4Type: text("inspection4Type"), // Column X - Inspection Type 4
   inspection5Type: text("inspection5Type"), // Column Y - Inspection Type 5
   opportunityId: varchar("opportunityId", { length: 100 }), // Column AQ - Opportunity ID for system integration
+  completionDate: text("completionDate"), // Column AP - Completion Date for monthly reporting
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });

@@ -1,0 +1,45 @@
+{
+  "query": "SELECT stage, COUNT(*) as cnt, GROUP_CONCAT(SUBSTRING(updatedOn, 1, 20)) as sample_dates FROM projects GROUP BY stage;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT stage, COUNT(*) as cnt, GROUP_CONCAT(SUBSTRING(updatedOn, 1, 20)) as sample_dates FROM projects GROUP BY stage;",
+  "rows": [
+    {
+      "stage": "Closeout",
+      "cnt": "1",
+      "sample_dates": "2025-09-16T20:21:21."
+    },
+    {
+      "stage": "Complete",
+      "cnt": "1",
+      "sample_dates": "2025-09-09T19:13:19."
+    },
+    {
+      "stage": "Plans Examining",
+      "cnt": "3",
+      "sample_dates": "2025-10-07T21:44:24.,,"
+    },
+    {
+      "stage": "Permitting",
+      "cnt": "3",
+      "sample_dates": "2025-09-16T20:21:20.,,"
+    },
+    {
+      "stage": "Inspections",
+      "cnt": "9",
+      "sample_dates": "2025-10-28T20:12:58.,,,,,,,,"
+    },
+    {
+      "stage": "⚙️ Inspection Request Router",
+      "cnt": "1",
+      "sample_dates": ""
+    },
+    {
+      "stage": "Proposal",
+      "cnt": "4",
+      "sample_dates": "2025-10-07T20:14:42.,,,"
+    }
+  ],
+  "messages": [],
+  "stdout": "stage\tcnt\tsample_dates\nCloseout\t1\t2025-09-16T20:21:21.\nComplete\t1\t2025-09-09T19:13:19.\nPlans Examining\t3\t2025-10-07T21:44:24.,,\nPermitting\t3\t2025-09-16T20:21:20.,,\nInspections\t9\t2025-10-28T20:12:58.,,,,,,,,\n⚙️ Inspection Request Router\t1\t\nProposal\t4\t2025-10-07T20:14:42.,,,\n",
+  "stderr": "",
+  "execution_time_ms": 1516
+}

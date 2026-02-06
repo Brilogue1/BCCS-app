@@ -178,7 +178,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Link href="/admin/projects">
             <Card className="cursor-pointer hover:shadow-md transition-shadow hover:border-blue-300">
               <CardHeader className="pb-3">
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="text-3xl font-bold text-slate-900">{analytics?.totalProjects || 0}</div>
                 <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
-                  Click to view progress report
+                  View all projects report
                   <ArrowRight className="h-3 w-3" />
                 </p>
               </CardContent>
@@ -222,6 +222,24 @@ export default function AdminDashboard() {
                 <div className="text-3xl font-bold text-purple-600">Tasks</div>
                 <p className="text-xs text-purple-600 mt-2 flex items-center gap-1">
                   View detailed task tracking
+                  <ArrowRight className="h-3 w-3" />
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/admin/employee-report">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow hover:border-amber-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Employee Report
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-amber-600">Invoice</div>
+                <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
+                  Monthly completion report
                   <ArrowRight className="h-3 w-3" />
                 </p>
               </CardContent>

@@ -297,6 +297,7 @@ export const appRouter = router({
             company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
             completionStatus: getString(row['engagement status'] || row['completed'] || row['Completed']), // Column F - Completed/Active status
             opportunityId: getString(row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
+            completionDate: getString(row['completion date'] || row['Completion Date'] || row['COMPLETION DATE']), // Column AP - Completion Date
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           }));
@@ -879,6 +880,190 @@ export const appRouter = router({
             start: startDate.toISOString(),
             end: endDate.toISOString(),
           },
+        };
+      }),
+  }),
+
+  // Monthly Employee Report
+  employeeReport: router({
+    monthly: protectedProcedure
+      .input(z.object({
+        month: z.number().min(1).max(12),
+        year: z.number().min(2020).max(2030),
+        employee: z.string().optional(),
+      }))
+      .query(async ({ input, ctx }) => {
+        // Admin only
+        const user = ctx.user as any;
+        if (user?.company !== 'ALL' && user?.role !== 'admin') {
+          throw new Error('Unauthorized');
+        }
+
+        const db_instance = await (await import('./db')).getDb();
+        if (!db_instance) throw new Error('Database not available');
+        const allProjects: (typeof projects.$inferSelect)[] = await db_instance.select().from(projects);
+
+        // Filter projects completed in the selected month/year
+        const completedInMonth = allProjects.filter((p: typeof projects.$inferSelect) => {
+          if (!p.completionDate) return false;
+          // Try to parse the completion date
+          const dateStr = p.completionDate.trim();
+          const parsed = new Date(dateStr);
+          if (isNaN(parsed.getTime())) {
+            // Try MM/DD/YYYY format
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+              const m = parseInt(parts[0]);
+              const y = parseInt(parts[2]);
+              return m === input.month && y === input.year;
+            }
+            return false;
+          }
+          return (parsed.getMonth() + 1) === input.month && parsed.getFullYear() === input.year;
+        });
+
+        // Also include projects with stage = Complete/Closeout that have updatedOn in the month
+        const completedByStage = allProjects.filter((p: typeof projects.$inferSelect) => {
+          if (p.completionDate) return false; // Already captured above
+          const stage = (p.stage || '').toLowerCase();
+          if (!stage.includes('complete') && !stage.includes('closeout')) return false;
+          const dateStr = (p.updatedOn || '').trim();
+          if (!dateStr) return false;
+          const parsed = new Date(dateStr);
+          if (isNaN(parsed.getTime())) return false;
+          return (parsed.getMonth() + 1) === input.month && parsed.getFullYear() === input.year;
+        });
+
+        const allCompleted = [...completedInMonth, ...completedByStage];
+
+        // Build employee project map
+        type EmployeeProject = {
+          projectId: number;
+          opportunityName: string;
+          contactName: string | null;
+          company: string | null;
+          address: string | null;
+          lotNumber: string | null;
+          completionDate: string | null;
+          type: string; // Permit, Inspection, Both
+          assignedPermitTech: string | null;
+          assignedPlansExaminer: string | null;
+          assignedInspector: string | null;
+          inspection1Type: string | null;
+          inspection2Type: string | null;
+          inspection3Type: string | null;
+          inspection4Type: string | null;
+          inspection5Type: string | null;
+          inspection1Result: string | null;
+          inspection2Result: string | null;
+          inspection3Result: string | null;
+          permitNumber: string | null;
+          planningChecklist: string | null;
+          permittingChecklist: string | null;
+          inspectionChecklist: string | null;
+          stage: string | null;
+        };
+
+        const employeeMap: Record<string, EmployeeProject[]> = {};
+
+        allCompleted.forEach(p => {
+          const employees = new Set<string>();
+          const roles: Record<string, string[]> = {};
+
+          // Trim empty strings to treat them as null
+          const permitTech = (p.assignedPermitTech || '').trim() || null;
+          const plansExaminer = (p.assignedPlansExaminer || '').trim() || null;
+          const inspector = (p.assignedInspector || '').trim() || null;
+
+          if (permitTech) {
+            employees.add(permitTech);
+            if (!roles[permitTech]) roles[permitTech] = [];
+            roles[permitTech].push('Permit');
+          }
+          if (plansExaminer) {
+            employees.add(plansExaminer);
+            if (!roles[plansExaminer]) roles[plansExaminer] = [];
+            roles[plansExaminer].push('Plans');
+          }
+          if (inspector) {
+            employees.add(inspector);
+            if (!roles[inspector]) roles[inspector] = [];
+            roles[inspector].push('Inspection');
+          }
+
+          // If no employees assigned, put under "Unassigned"
+          if (employees.size === 0) {
+            employees.add('Unassigned');
+            roles['Unassigned'] = ['Unassigned'];
+          }
+
+          const projectData: EmployeeProject = {
+            projectId: p.id,
+            opportunityName: p.opportunityName,
+            contactName: p.contactName,
+            company: p.company,
+            address: p.address,
+            lotNumber: p.lotNumber,
+            completionDate: p.completionDate || p.updatedOn,
+            type: 'Unknown',
+            assignedPermitTech: p.assignedPermitTech,
+            assignedPlansExaminer: p.assignedPlansExaminer,
+            assignedInspector: p.assignedInspector,
+            inspection1Type: p.inspection1Type,
+            inspection2Type: p.inspection2Type,
+            inspection3Type: p.inspection3Type,
+            inspection4Type: p.inspection4Type,
+            inspection5Type: p.inspection5Type,
+            inspection1Result: p.inspection1Result,
+            inspection2Result: p.inspection2Result,
+            inspection3Result: p.inspection3Result,
+            permitNumber: p.permitNumber,
+            planningChecklist: p.planningChecklist,
+            permittingChecklist: p.permittingChecklist,
+            inspectionChecklist: p.inspectionChecklist,
+            stage: p.stage,
+          };
+
+          employees.forEach(emp => {
+            if (!employeeMap[emp]) employeeMap[emp] = [];
+            const empRoles = roles[emp] || [];
+            let type = empRoles.join(' & ');
+            if (empRoles.includes('Permit') && empRoles.includes('Inspection')) type = 'Both';
+            else if (emp === 'Unassigned') type = 'Unassigned';
+            else if (empRoles.length === 0) type = 'Unknown';
+
+            employeeMap[emp].push({ ...projectData, type });
+          });
+        });
+
+        // Filter by employee if specified
+        let result = Object.entries(employeeMap).map(([employee, projectsList]) => ({
+          employee,
+          projects: projectsList,
+          totalProjects: projectsList.length,
+        }));
+
+        if (input.employee) {
+          result = result.filter(r => r.employee.toLowerCase().includes(input.employee!.toLowerCase()));
+        }
+
+        // Sort by employee name
+        result.sort((a, b) => a.employee.localeCompare(b.employee));
+
+        // Get unique employee names for filter dropdown
+        const allEmployees = new Set<string>();
+        allProjects.forEach((p: typeof projects.$inferSelect) => {
+          if (p.assignedPermitTech) allEmployees.add(p.assignedPermitTech);
+          if (p.assignedPlansExaminer) allEmployees.add(p.assignedPlansExaminer);
+          if (p.assignedInspector) allEmployees.add(p.assignedInspector);
+        });
+
+        return {
+          employees: result,
+          totalCompletedProjects: allCompleted.length,
+          availableEmployees: Array.from(allEmployees).sort(),
+          month: input.month,
+          year: input.year,
         };
       }),
   }),

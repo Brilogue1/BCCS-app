@@ -1,0 +1,24 @@
+{
+  "query": "SELECT id, stage, updatedOn, assignedInspector, assignedPermitTech FROM projects WHERE stage LIKE '%omplete%' OR stage LIKE '%loseout%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, stage, updatedOn, assignedInspector, assignedPermitTech FROM projects WHERE stage LIKE '%omplete%' OR stage LIKE '%loseout%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "450093",
+      "stage": "Closeout",
+      "updatedOn": "2025-09-16T20:21:21.354Z",
+      "assignedInspector": "",
+      "assignedPermitTech": ""
+    },
+    {
+      "id": "450094",
+      "stage": "Complete",
+      "updatedOn": "2025-09-09T19:13:19.872Z",
+      "assignedInspector": "",
+      "assignedPermitTech": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstage\tupdatedOn\tassignedInspector\tassignedPermitTech\n450093\tCloseout\t2025-09-16T20:21:21.354Z\t\t\n450094\tComplete\t2025-09-09T19:13:19.872Z\t\t\n",
+  "stderr": "",
+  "execution_time_ms": 1527
+}

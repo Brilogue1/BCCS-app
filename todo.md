@@ -417,3 +417,24 @@
 - [x] Added opportunityId mapping from column AQ (Opportunity ID) in sync function
 - [ ] User needs to run sync to pull Opportunity IDs into database
 - [ ] Test scheduling inspection to verify Opp ID is sent to Request Opp ID column
+
+## Monthly Employee Report - Admin Analytics
+- [ ] Identify data sources: employee assignments (AL-AN), completion status, project details
+- [ ] Build monthly report page in Admin Analytics with month/year selector
+- [ ] Show completed projects grouped by employee with: Client, Address/Lot#, Type (Permit/Inspection/Both), Task
+- [ ] Add export to CSV functionality for invoice alignment
+- [ ] Test report with real data
+
+## Monthly Employee Report - Jan 28
+- [x] Add completionDate field to schema (from column AP)
+- [x] Update sync to pull Completion Date from column AP
+- [x] Create backend procedure for monthly employee report
+- [x] Build monthly report UI page with month/year selector
+- [x] Group completed projects by employee
+- [x] Clickable project rows to see completed inspections/permits details
+- [x] Export to CSV functionality
+- [x] Add route and navigation link in admin area
+- [x] Handle unassigned projects (no employees assigned)
+- [x] Format completion dates for display (Sep 16, 2025 format)
+- [x] Write vitest tests for employee report procedure (13 tests passing)
+- [x] Test with real data - September 2025 shows 2 completed projects
