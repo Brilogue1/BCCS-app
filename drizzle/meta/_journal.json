@@ -134,6 +134,20 @@
       "when": 1770405264058,
       "tag": "0018_fine_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1770654500872,
+      "tag": "0019_amazing_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1770655024708,
+      "tag": "0020_wonderful_white_queen",
+      "breakpoints": true
     }
   ]
 }

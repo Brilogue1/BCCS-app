@@ -444,3 +444,22 @@
 - [x] Add informational text above inspection scheduling form
 - [x] Display blue banner with message: "Only 5 inspections can be scheduled per 24-hour period for this project"
 - [x] Test display in browser - verified on Schedule Inspection dialog
+
+
+## Remove Upcoming Inspections from Client Dashboard
+- [x] Remove Upcoming Inspections summary card (3-column grid to 2-column)
+- [x] Remove Upcoming Inspections full card section
+- [x] Test dashboard display - verified layout looks clean with 2 summary cards
+
+
+## Contact ID Sync for Inspections
+- [x] Add contactId field to inspection schema
+- [x] Update database migration to add contactId column
+- [x] Add contactId field to projects schema (Column AR)
+- [x] Update database migration for projects contactId
+- [x] Update App Script to pull Contact ID from ALL sheet column AR
+- [x] Map Contact ID to Inspection Request sheet column J
+- [x] Update sync procedure to map Contact ID from projects to inspections
+- [x] Update inspection.create to pass Contact ID to Google Sheets
+- [ ] Deploy updated App Script to Google Sheets
+- [ ] Test the sync and verify Contact ID is populated correctly

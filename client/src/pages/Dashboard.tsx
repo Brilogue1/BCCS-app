@@ -70,7 +70,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-slate-600">Total Projects</CardTitle>
@@ -80,18 +80,6 @@ export default function Dashboard() {
               <p className="text-xs text-slate-500 mt-2">
                 {user?.role === "admin" ? "All projects" : "Your projects"}
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600">Upcoming Inspections</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-slate-900">
-                {summary?.upcomingInspections?.length || 0}
-              </div>
-              <p className="text-xs text-slate-500 mt-2">Scheduled inspections</p>
             </CardContent>
           </Card>
 
@@ -169,44 +157,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Upcoming Inspections */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Inspections</CardTitle>
-            <CardDescription>Inspections scheduled for your projects</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {summary?.upcomingInspections && summary.upcomingInspections.length > 0 ? (
-              <div className="space-y-3">
-                {summary.upcomingInspections.slice(0, 10).map((inspection: any) => (
-                  <div
-                    key={inspection.id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      {inspection.status === "completed" ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <Clock className="h-5 w-5 text-yellow-600" />
-                      )}
-                      <div>
-                        <p className="font-medium text-slate-900">{inspection.inspectionType}</p>
-                        <p className="text-sm text-slate-500">
-                          Project: {inspection.projectName}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                      {inspection.status || "Scheduled"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-slate-500 text-center py-8">No upcoming inspections</p>
-            )}
-          </CardContent>
-        </Card>
+
 
         {/* Quick Actions */}
         <div className="mt-8 flex gap-4">

@@ -239,7 +239,7 @@ export async function appendClientUpload(
 
 /**
  * Append inspection data to the Inspection Requests sheet using Google Sheets API
- * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name, F=Scheduled, G=Request Opp ID, H=Inspection Notes, I=Address
+ * Columns: A=Project Name, B=User Email, C=Inspection Type, D=Scheduled Date/Time, E=Inspector Name, F=Scheduled, G=Request Opp ID, H=Inspection Notes, I=Address, J=Contact ID
  */
 export async function appendInspectionRequest(
   projectName: string,
@@ -250,7 +250,8 @@ export async function appendInspectionRequest(
   scheduled: string = 'Scheduled',
   opportunityId: string = '',
   notes: string = '',
-  address: string = ''
+  address: string = '',
+  contactId: string = ''
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
@@ -267,13 +268,14 @@ export async function appendInspectionRequest(
       opportunityId,
       notes,
       address,
+      contactId,
     }, {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       maxRedirects: 5,
     });
     
     if (response.data.success) {
-      console.log(`[Inspection Request] Successfully logged to Google Sheets: Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Scheduled: ${scheduled}, OppID: ${opportunityId}, Notes: ${notes}, Address: ${address}`);
+      console.log(`[Inspection Request] Successfully logged to Google Sheets: Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Scheduled: ${scheduled}, OppID: ${opportunityId}, ContactID: ${contactId}, Notes: ${notes}, Address: ${address}`);
       return true;
     } else {
       console.error('[Error] Google Apps Script returned error:', response.data.error);
@@ -281,7 +283,7 @@ export async function appendInspectionRequest(
     }
   } catch (error) {
     console.error('[Error] Failed to append inspection request to Google Sheets:', error);
-    console.log(`[Inspection Request - Fallback] Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Scheduled: ${scheduled}, OppID: ${opportunityId}, Notes: ${notes}, Address: ${address}`);
+    console.log(`[Inspection Request - Fallback] Project: ${projectName}, Email: ${userEmail}, Type: ${inspectionType}, DateTime: ${scheduledDateTime}, Inspector: ${inspectorName}, Scheduled: ${scheduled}, OppID: ${opportunityId}, ContactID: ${contactId}, Notes: ${notes}, Address: ${address}`);
     return false;
   }
 }

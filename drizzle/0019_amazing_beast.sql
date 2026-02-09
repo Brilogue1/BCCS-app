@@ -1,0 +1,1 @@
+ALTER TABLE `inspections` ADD `contactId` varchar(100);

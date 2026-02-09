@@ -66,6 +66,7 @@ export const projects = mysqlTable("projects", {
   inspection4Type: text("inspection4Type"), // Column X - Inspection Type 4
   inspection5Type: text("inspection5Type"), // Column Y - Inspection Type 5
   opportunityId: varchar("opportunityId", { length: 100 }), // Column AQ - Opportunity ID for system integration
+  contactId: varchar("contactId", { length: 100 }), // Column AR - Contact ID from ALL sheet for inspection sync
   completionDate: text("completionDate"), // Column AP - Completion Date for monthly reporting
   lastUpdated: timestamp("lastUpdated"),
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
@@ -83,6 +84,7 @@ export const inspections = mysqlTable("inspections", {
   projectName: varchar("projectName", { length: 500 }),
   projectAddress: varchar("projectAddress", { length: 500 }),
   opportunityId: varchar("opportunityId", { length: 100 }),
+  contactId: varchar("contactId", { length: 100 }), // Column J in Inspection Request sheet - Contact ID from ALL sheet column AR
   inspectionType: varchar("inspectionType", { length: 255 }).notNull(),
   notes: text("notes"),
   status: mysqlEnum("status", ["pending", "scheduled", "completed", "cancelled"]).default("pending").notNull(),

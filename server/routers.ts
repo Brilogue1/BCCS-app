@@ -297,6 +297,7 @@ export const appRouter = router({
             company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
             completionStatus: getString(row['engagement status'] || row['completed'] || row['Completed']), // Column F - Completed/Active status
             opportunityId: getString(row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
+            contactId: getString(row['contact id'] || row['Contact ID'] || row['Contact Id'] || row['contact_id'], 100), // Column AR - Contact ID
             completionDate: getString(row['completion date'] || row['Completion Date'] || row['COMPLETION DATE']), // Column AP - Completion Date
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
@@ -413,9 +414,13 @@ export const appRouter = router({
           });
         }
         
+        // Get Contact ID from project data (will be synced from ALL sheet)
+        const contactId = project.contactId || '';
+        
         await db.createInspection({
           ...input,
           opportunityId: project.opportunityId || '',
+          contactId: contactId,
           createdBy: ctx.user.email || '',
           status: 'pending',
           ghlSynced: 0,
@@ -433,7 +438,8 @@ export const appRouter = router({
           'Scheduled',
           project.opportunityId || '',
           input.notes || '',
-          project.address || ''
+          project.address || '',
+          contactId
         ).catch(err => console.error('[Google Sheets] Failed to log inspection:', err));
         
         // Sync to GHL if configured
