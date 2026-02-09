@@ -171,7 +171,7 @@ export async function appendNewProjectEmail(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzvep0OYJF9JkOZjhd5H-dLrrY85c_bEbobXb5eS37w6pJ6iu428u69biQ5y2l3J7PE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
@@ -210,7 +210,7 @@ export async function appendClientUpload(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzvep0OYJF9JkOZjhd5H-dLrrY85c_bEbobXb5eS37w6pJ6iu428u69biQ5y2l3J7PE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
@@ -255,7 +255,7 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzvep0OYJF9JkOZjhd5H-dLrrY85c_bEbobXb5eS37w6pJ6iu428u69biQ5y2l3J7PE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'inspectionRequest',
@@ -304,7 +304,7 @@ export async function appendNewProjectInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzvep0OYJF9JkOZjhd5H-dLrrY85c_bEbobXb5eS37w6pJ6iu428u69biQ5y2l3J7PE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'newProjectInspectionRequest',

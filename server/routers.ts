@@ -422,7 +422,7 @@ export const appRouter = router({
           opportunityId: project.opportunityId || '',
           contactId: contactId,
           createdBy: ctx.user.email || '',
-          status: 'pending',
+          status: 'scheduled',
           ghlSynced: 0,
         }, project);
         

@@ -457,9 +457,9 @@
 - [x] Update database migration to add contactId column
 - [x] Add contactId field to projects schema (Column AR)
 - [x] Update database migration for projects contactId
-- [x] Update App Script to pull Contact ID from ALL sheet column AR
+- [x] Create App Script that pulls Contact ID from ALL sheet column AR based on Opportunity ID
 - [x] Map Contact ID to Inspection Request sheet column J
-- [x] Update sync procedure to map Contact ID from projects to inspections
-- [x] Update inspection.create to pass Contact ID to Google Sheets
-- [ ] Deploy updated App Script to Google Sheets
-- [ ] Test the sync and verify Contact ID is populated correctly
+- [x] Deploy final App Script to Google Sheets
+- [x] Update backend webhook URL to use final App Script
+- [x] Change inspection status from "pending" to "scheduled"
+- [x] Test the sync and verify Contact ID is populated correctly
