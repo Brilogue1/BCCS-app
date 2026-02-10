@@ -222,11 +222,26 @@ export default function ProjectDetail() {
     );
   }
 
-  // Get completed inspections for this project
-  const projectCompletedInspections = pastInspections?.filter((i: any) => i.projectName === project.opportunityName) || [];
+  // Parse completed inspections from column H (format: "2026-02-10 — AUDIT INSPECTION\n2026-02-10 — AFFIDAVIT...")
+  const parsedCompletedInspections = (project.completedInspections || '').split('\n').filter((line: string) => line.trim()).map((line: string) => {
+    const parts = line.split('—');
+    if (parts.length >= 2) {
+      return { date: parts[0].trim(), type: parts.slice(1).join('—').trim() };
+    }
+    return { date: '', type: line.trim() };
+  });
 
-  // Check if there are any scheduled inspections (from inspection types 1-5 or from inspections table)
-  const hasScheduledInspections = project.inspection1Type || project.inspection2Type || project.inspection3Type || project.inspection4Type || project.inspection5Type || (inspections && inspections.length > 0);
+  // Filter scheduled inspection types - only show if not blank and not "_"
+  const isValidInspection = (val: string | null | undefined) => val && val.trim() !== '' && val.trim() !== '_';
+  const scheduledTypes = [
+    { type: project.inspection1Type, result: project.inspection1Result, label: 'Inspection Type 1' },
+    { type: project.inspection2Type, result: project.inspection2Result, label: 'Inspection Type 2' },
+    { type: project.inspection3Type, result: project.inspection3Result, label: 'Inspection Type 3' },
+    { type: project.inspection4Type, result: null, label: 'Inspection Type 4' },
+    { type: project.inspection5Type, result: null, label: 'Inspection Type 5' },
+  ].filter(i => isValidInspection(i.type));
+
+  const hasScheduledInspections = scheduledTypes.length > 0 || (inspections && inspections.length > 0);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -428,77 +443,23 @@ export default function ProjectDetail() {
               <p className="text-slate-500 text-center py-8">No scheduled inspections</p>
             ) : (
               <div className="space-y-3">
-                {/* Show inspection types from Google Sheets */}
-                {project.inspection1Type && (
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
+                {/* Show inspection types from Google Sheets (filtered: no blank, no "_") */}
+                {scheduledTypes.map((item, index) => (
+                  <div key={`sheet-${index}`} className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium">{project.inspection1Type}</p>
-                      <p className="text-sm text-slate-500">Inspection 1</p>
+                      <p className="font-medium">{item.type}</p>
+                      <p className="text-sm text-slate-500">{item.label}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      project.inspection1Result === 'Approved' ? 'bg-green-100 text-green-800' :
-                      project.inspection1Result === 'Denied' ? 'bg-red-100 text-red-800' :
-                      project.inspection1Result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
+                      item.result === 'Approved' ? 'bg-green-100 text-green-800' :
+                      item.result === 'Denied' ? 'bg-red-100 text-red-800' :
+                      item.result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-blue-100 text-blue-800'
                     }`}>
-                      {project.inspection1Result || 'Scheduled'}
+                      {item.result || 'Scheduled'}
                     </span>
                   </div>
-                )}
-                {project.inspection2Type && (
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
-                    <div>
-                      <p className="font-medium">{project.inspection2Type}</p>
-                      <p className="text-sm text-slate-500">Inspection 2</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      project.inspection2Result === 'Approved' ? 'bg-green-100 text-green-800' :
-                      project.inspection2Result === 'Denied' ? 'bg-red-100 text-red-800' :
-                      project.inspection2Result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
-                      {project.inspection2Result || 'Scheduled'}
-                    </span>
-                  </div>
-                )}
-                {project.inspection3Type && (
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
-                    <div>
-                      <p className="font-medium">{project.inspection3Type}</p>
-                      <p className="text-sm text-slate-500">Inspection 3</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      project.inspection3Result === 'Approved' ? 'bg-green-100 text-green-800' :
-                      project.inspection3Result === 'Denied' ? 'bg-red-100 text-red-800' :
-                      project.inspection3Result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
-                      {project.inspection3Result || 'Scheduled'}
-                    </span>
-                  </div>
-                )}
-                {project.inspection4Type && (
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
-                    <div>
-                      <p className="font-medium">{project.inspection4Type}</p>
-                      <p className="text-sm text-slate-500">Inspection 4</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      Scheduled
-                    </span>
-                  </div>
-                )}
-                {project.inspection5Type && (
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
-                    <div>
-                      <p className="font-medium">{project.inspection5Type}</p>
-                      <p className="text-sm text-slate-500">Inspection 5</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      Scheduled
-                    </span>
-                  </div>
-                )}
+                ))}
                 {/* Show inspections from database */}
                 {inspections?.map((inspection: any) => (
                   <div key={inspection.id} className="flex items-center justify-between p-4 border rounded-lg bg-white">
@@ -523,32 +484,25 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
-        {/* Completed Inspections */}
+        {/* Completed Inspections - from Column H of ALL sheet */}
         <Card>
           <CardHeader>
             <CardTitle>Completed Inspections</CardTitle>
             <CardDescription>Inspections that have been completed for this project</CardDescription>
           </CardHeader>
           <CardContent>
-            {projectCompletedInspections.length === 0 ? (
+            {parsedCompletedInspections.length === 0 ? (
               <p className="text-slate-500 text-center py-8">No completed inspections</p>
             ) : (
               <div className="space-y-3">
-                {projectCompletedInspections.map((inspection: any, index: number) => (
+                {parsedCompletedInspections.map((inspection: { date: string; type: string }, index: number) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
-                      <p className="font-medium">{inspection.inspectionType || 'Inspection'}</p>
-                      <p className="text-sm text-slate-500">
-                        {inspection.completedDate ? new Date(inspection.completedDate).toLocaleDateString() : 'Date not available'}
-                      </p>
+                      <p className="font-medium">{inspection.type}</p>
+                      <p className="text-sm text-slate-500">{inspection.date || 'Date not available'}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      inspection.result === 'Approved' ? 'bg-green-100 text-green-800' :
-                      inspection.result === 'Denied' ? 'bg-red-100 text-red-800' :
-                      inspection.result === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {inspection.result || 'Completed'}
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                      Completed
                     </span>
                   </div>
                 ))}

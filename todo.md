@@ -463,3 +463,14 @@
 - [x] Update backend webhook URL to use final App Script
 - [x] Change inspection status from "pending" to "scheduled"
 - [x] Test the sync and verify Contact ID is populated correctly
+
+
+## Completed & Scheduled Inspections from ALL Sheet
+- [x] Add completedInspections field to projects schema (Column H)
+- [x] Fix inspection type column mapping (U,V,X,Z,AA instead of U,V,W,X,Y)
+- [x] Update sync procedure to pull completedInspections from ALL sheet
+- [x] Run database migration
+- [x] Update project detail page to show Completed Inspections from column H (parsed date — type format)
+- [x] Update project detail page to filter Scheduled Inspection Types (hide blank and "_")
+- [x] Fix project list cards to also filter out blank and "_" inspection types
+- [x] Test with real data - Tony Stark shows only "TEST TEST", Bruce Wayne shows no inspections

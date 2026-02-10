@@ -60,11 +60,12 @@ export const projects = mysqlTable("projects", {
   proposalSigned: text("proposalSigned"), // Column BA - Proposal Signed (Yes/No/empty)
   company: text("company"), // Column BB - company assignment for filtering
   completionStatus: text("completionStatus"), // Column F - Completed/Active status for filtering
+  completedInspections: text("completedInspections"), // Column H - Completed Inspections (date — type entries)
   inspection1Type: text("inspection1Type"), // Column U - Inspection Type 1
   inspection2Type: text("inspection2Type"), // Column V - Inspection Type 2
-  inspection3Type: text("inspection3Type"), // Column W - Inspection Type 3
-  inspection4Type: text("inspection4Type"), // Column X - Inspection Type 4
-  inspection5Type: text("inspection5Type"), // Column Y - Inspection Type 5
+  inspection3Type: text("inspection3Type"), // Column X - Inspection Type 3
+  inspection4Type: text("inspection4Type"), // Column Z - Inspection Type 4
+  inspection5Type: text("inspection5Type"), // Column AA - Inspection Type 5
   opportunityId: varchar("opportunityId", { length: 100 }), // Column AQ - Opportunity ID for system integration
   contactId: varchar("contactId", { length: 100 }), // Column AR - Contact ID from ALL sheet for inspection sync
   completionDate: text("completionDate"), // Column AP - Completion Date for monthly reporting

@@ -284,6 +284,7 @@ export const appRouter = router({
             planningChecklist: getString(row['planning checklist'] || row['Planning Checklist']),
             permittingChecklist: getString(row['permitting information'] || row['PERMITTING INFORMATION']),
             inspectionChecklist: getString(row['inspection checklist'] || row['Inspection Checklist']),
+            completedInspections: getString(row['completed inspections'] || row['COMPLETED INSPECTIONS'] || row['Completed Inspections']), // Column H
             inspection1Result: getString(row['1st inspection results'] || row['1st Inspection Results']),
             inspection2Result: getString(row['2nd inspection results'] || row['2nd Inspection Results']),
             inspection3Result: getString(row['3rd inspection results'] || row['3rd Inspection Results']),

@@ -334,44 +334,30 @@ export default function Projects() {
                             </div>
                           )}
                           
-                          {/* In Progress Inspections */}
-                          {(project.inspection1Type || project.inspection2Type || project.inspection3Type || project.inspection4Type || project.inspection5Type) && (
-                            <div className="pt-2 border-t">
-                              <p className="text-xs font-semibold text-slate-600 mb-2">Scheduled Inspections:</p>
-                              <div className="space-y-1">
-                                {project.inspection1Type && (
-                                  <div className="flex items-center justify-between text-xs">
-                                    <span className="text-slate-600">{project.inspection1Type}</span>
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
-                                  </div>
-                                )}
-                                {project.inspection2Type && (
-                                  <div className="flex items-center justify-between text-xs">
-                                    <span className="text-slate-600">{project.inspection2Type}</span>
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
-                                  </div>
-                                )}
-                                {project.inspection3Type && (
-                                  <div className="flex items-center justify-between text-xs">
-                                    <span className="text-slate-600">{project.inspection3Type}</span>
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
-                                  </div>
-                                )}
-                                {project.inspection4Type && (
-                                  <div className="flex items-center justify-between text-xs">
-                                    <span className="text-slate-600">{project.inspection4Type}</span>
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
-                                  </div>
-                                )}
-                                {project.inspection5Type && (
-                                  <div className="flex items-center justify-between text-xs">
-                                    <span className="text-slate-600">{project.inspection5Type}</span>
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
-                                  </div>
-                                )}
+                          {/* In Progress Inspections - filter out blank and "_" values */}
+                          {(() => {
+                            const isValid = (val: string | null | undefined) => val && val.trim() !== '' && val.trim() !== '_';
+                            const types = [
+                              project.inspection1Type,
+                              project.inspection2Type,
+                              project.inspection3Type,
+                              project.inspection4Type,
+                              project.inspection5Type,
+                            ].filter(isValid);
+                            return types.length > 0 ? (
+                              <div className="pt-2 border-t">
+                                <p className="text-xs font-semibold text-slate-600 mb-2">Scheduled Inspections:</p>
+                                <div className="space-y-1">
+                                  {types.map((type, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs">
+                                      <span className="text-slate-600">{type}</span>
+                                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            ) : null;
+                          })()}
                         </div>
                       </CardContent>
                     </Card>
