@@ -1,0 +1,14 @@
+{
+  "query": "SELECT completedInspections, HEX(completedInspections) as hex_val FROM projects WHERE opportunityName LIKE '%Elvis%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT completedInspections, HEX(completedInspections) as hex_val FROM projects WHERE opportunityName LIKE '%Elvis%'",
+  "rows": [
+    {
+      "completedInspections": "2026-02-10 — AUDIT INSPECTION",
+      "hex_val": "323032362D30322D313020E2809420415544495420494E5350454354494F4E"
+    }
+  ],
+  "messages": [],
+  "stdout": "completedInspections\thex_val\n2026-02-10 — AUDIT INSPECTION\t323032362D30322D313020E2809420415544495420494E5350454354494F4E\n",
+  "stderr": "",
+  "execution_time_ms": 1494
+}

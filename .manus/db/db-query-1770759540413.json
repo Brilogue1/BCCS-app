@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE projects SET opportunityId = 'O5X8gbJkxQzdPlNHNEji', contactId = '0BuLO0tw5lPKpgemsEgB' WHERE opportunityName LIKE '%Tony Stark%';\nUPDATE projects SET opportunityId = 'vRSnY6zrpwlgyr6CEVhb', contactId = 'LI0OpwaFdLyV6cmdij1e' WHERE opportunityName LIKE '%Elvis%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute UPDATE projects SET opportunityId = 'O5X8gbJkxQzdPlNHNEji', contactId = '0BuLO0tw5lPKpgemsEgB' WHERE opportunityName LIKE '%Tony Stark%';\nUPDATE projects SET opportunityId = 'vRSnY6zrpwlgyr6CEVhb', contactId = 'LI0OpwaFdLyV6cmdij1e' WHERE opportunityName LIKE '%Elvis%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1804
+}

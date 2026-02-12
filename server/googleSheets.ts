@@ -15,7 +15,8 @@ interface SheetRow {
  * Sheet must be shared with "Anyone with the link can view"
  */
 async function fetchSheetAsCSV(gid: string): Promise<string> {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+  // Export with range A:BB to ensure all columns are included
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&range=A:BB`;
   const response = await axios.get(url, {
     headers: {
       'User-Agent': 'Mozilla/5.0',
@@ -28,24 +29,85 @@ async function fetchSheetAsCSV(gid: string): Promise<string> {
  * Parse CSV string into array of objects
  */
 function parseCSV(csv: string): SheetRow[] {
-  const lines = csv.split('\n').filter(line => line.trim());
-  if (lines.length === 0) return [];
+  // Updated 2026-02-10: Fixed multi-line quoted field handling
+  const logicalRows = splitCSVRows(csv);
+  console.log('[CSV DEBUG] Total logical rows:', logicalRows.length);
+  if (logicalRows.length === 0) return [];
 
-  const headers = lines[0]!.split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const headers = parseCSVLine(logicalRows[0]!).map(h => h.trim().replace(/^"|"$/g, ''));
+  console.log('[CSV DEBUG] Headers found:', JSON.stringify(headers.slice(0, 50)));
+  console.log('[CSV DEBUG] Total headers count:', headers.length);
+  console.log('[CSV DEBUG] All headers:', headers);
+  if (headers.length < 30) {
+    console.log('[CSV DEBUG] WARNING: Only', headers.length, 'columns found. Expected at least 50+');
+  }
   const rows: SheetRow[] = [];
 
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i]!;
+  for (let i = 1; i < logicalRows.length; i++) {
+    const line = logicalRows[i]!;
+    if (!line.trim()) continue;
     const values = parseCSVLine(line);
     const row: SheetRow = {};
     
     headers.forEach((header, index) => {
-      row[header] = values[index]?.trim() || '';
-      // Also add lowercase version for case-insensitive lookups
-      row[header.toLowerCase()] = values[index]?.trim() || '';
+      // Use column index as key to avoid duplicate header issues
+      const colKey = `__col_${index}`;
+      row[colKey] = values[index] || '';
+      // Only set header-based keys if not already set (first occurrence wins)
+      if (!(header in row)) {
+        row[header] = values[index] || '';
+      }
+      if (!(header.toLowerCase() in row)) {
+        row[header.toLowerCase()] = values[index] || '';
+      }
     });
     
+    // Debug: log Elvis completed inspections and IDs
+    if (row['Opportunity Name']?.toLowerCase().includes('elvis') || row['opportunity name']?.toLowerCase().includes('elvis')) {
+      console.log('[CSV DEBUG] Elvis row keys:', Object.keys(row).filter(k => k.toLowerCase().includes('id') || k.toLowerCase().includes('completed')));
+      console.log('[CSV DEBUG] Elvis opportunityId:', JSON.stringify(row['Opportunity ID'] || row['opportunity id']));
+      console.log('[CSV DEBUG] Elvis contactId:', JSON.stringify(row['Contact ID'] || row['contact id']));
+      console.log('[CSV DEBUG] Elvis COMPLETED INSPECTIONS:', JSON.stringify(row['COMPLETED INSPECTIONS']));
+      console.log('[CSV DEBUG] Elvis completed inspections:', JSON.stringify(row['completed inspections']));
+    }
+    
     rows.push(row);
+  }
+
+  return rows;
+}
+
+/**
+ * Split CSV text into logical rows, handling multi-line quoted fields
+ * A newline inside a quoted field is part of the field value, not a row separator
+ */
+function splitCSVRows(csv: string): string[] {
+  const rows: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < csv.length; i++) {
+    const char = csv[i]!;
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      current += char;
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      // Skip \r in \r\n
+      if (char === '\r' && csv[i + 1] === '\n') {
+        i++;
+      }
+      if (current.trim()) {
+        rows.push(current);
+      }
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  if (current.trim()) {
+    rows.push(current);
   }
 
   return rows;
@@ -171,7 +233,7 @@ export async function appendNewProjectEmail(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
@@ -210,7 +272,7 @@ export async function appendClientUpload(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
@@ -255,9 +317,9 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
     
-    const response = await axios.post(webhookUrl, {
+    const payload = {
       action: 'inspectionRequest',
       projectName,
       userEmail,
@@ -269,7 +331,10 @@ export async function appendInspectionRequest(
       notes,
       address,
       contactId,
-    }, {
+    };
+    
+    console.log('[Inspection Request] Payload being sent:', JSON.stringify(payload, null, 2));
+    const response = await axios.post(webhookUrl, payload, {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       maxRedirects: 5,
     });
@@ -304,7 +369,7 @@ export async function appendNewProjectInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycby6qRMW1t4vm2x3_vEkcRfyn566r89Kmi2m2QjZA-cppBsCGow5jgEBW3zBlV0X_NRn/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'newProjectInspectionRequest',

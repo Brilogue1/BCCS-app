@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, opportunityName, address, inspection1Type, inspection2Type, inspection3Type FROM projects WHERE opportunityName LIKE '%TESTING TESTING%' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, address, inspection1Type, inspection2Type, inspection3Type FROM projects WHERE opportunityName LIKE '%TESTING TESTING%' LIMIT 1;",
+  "rows": [
+    {
+      "id": "690014",
+      "opportunityName": "TESTING TESTING 123",
+      "address": "123 Tiny Dancer Way, Elton ME 123457",
+      "inspection1Type": "_",
+      "inspection2Type": "BLDG ADA SITE FINAL",
+      "inspection3Type": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\taddress\tinspection1Type\tinspection2Type\tinspection3Type\n690014\tTESTING TESTING 123\t123 Tiny Dancer Way, Elton ME 123457\t_\tBLDG ADA SITE FINAL\t\n",
+  "stderr": "",
+  "execution_time_ms": 1532
+}

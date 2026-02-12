@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, opportunityName, opportunityId, contactId, address FROM projects WHERE opportunityName LIKE '%Elvis%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, opportunityId, contactId, address FROM projects WHERE opportunityName LIKE '%Elvis%' LIMIT 5;",
+  "rows": [
+    {
+      "id": "570028",
+      "opportunityName": "Elvis Presley - Graceland 175 Elvis BLVD. - Lot #146",
+      "opportunityId": "",
+      "contactId": "",
+      "address": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\topportunityId\tcontactId\taddress\n570028\tElvis Presley - Graceland 175 Elvis BLVD. - Lot #146\t\t\t\n",
+  "stderr": "",
+  "execution_time_ms": 1530
+}

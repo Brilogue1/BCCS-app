@@ -474,3 +474,11 @@
 - [x] Update project detail page to filter Scheduled Inspection Types (hide blank and "_")
 - [x] Fix project list cards to also filter out blank and "_" inspection types
 - [x] Test with real data - Tony Stark shows only "TEST TEST", Bruce Wayne shows no inspections
+
+## Bug Fix: Completed Inspections Parsing
+- [ ] Fix parsing to show all completed inspections for Elvis (only showing 1 of 2)
+- [ ] Fix CSV header parsing bug - headers not splitting correctly
+- [ ] Rename "Completed Inspections" to "Approved Inspections" throughout the app
+
+## URGENT Bug Fix: Opp ID and Contact ID not sent when scheduling inspections
+- [ ] Fix inspection.create to pass Opportunity ID and Contact ID to Google Sheets

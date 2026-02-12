@@ -1,0 +1,8 @@
+{
+  "query": "SELECT opportunity_name, opportunity_id, contact_id, address FROM projects LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT opportunity_name, opportunity_id, contact_id, address FROM projects LIMIT 10;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'opportunity_name' in 'field list'"
+  ]
+}

@@ -274,7 +274,7 @@ export const appRouter = router({
             followers: getString(row['followers'] || row['Followers']),
             notes: getString(row['notes'] || row['Notes']),
             tag: getString(row['tag'] || row['Tag'] || row['tags']),
-            address: getString(row['address'] || row['Address']),
+            address: getString(row['__col_13'] || row['address'] || row['Address']), // Column N - Address
             subdivision: getString(row['subdivision'] || row['Subdivision']),
             lotNumber: getString(row['lot number'] || row['Lot Number']),
             permitNumber: getString(row['permit number'] || row['Permit Number']),
@@ -297,14 +297,20 @@ export const appRouter = router({
             proposalSigned: getString(row['proposal signed'] || row['Proposal Signed']),
             company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
             completionStatus: getString(row['engagement status'] || row['completed'] || row['Completed']), // Column F - Completed/Active status
-            opportunityId: getString(row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
-            contactId: getString(row['contact id'] || row['Contact ID'] || row['Contact Id'] || row['contact_id'], 100), // Column AR - Contact ID
+            // Extract by column position: AQ is column 42, AR is column 43
+            opportunityId: getString(row['__col_42'] || row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
+            contactId: getString(row['__col_43'] || row['contact id'] || row['Contact ID'] || row['Contact Id'] || row['contact_id'], 100), // Column AR - Contact ID
             completionDate: getString(row['completion date'] || row['Completion Date'] || row['COMPLETION DATE']), // Column AP - Completion Date
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           }));
         
         console.log(`[Sync] Inserting ${validProjects.length} valid projects`);
+        
+        // Debug: log all projects' opportunityId and contactId
+        validProjects.forEach(p => {
+          console.log(`[Sync DEBUG] ${p.opportunityName}: oppId=${JSON.stringify(p.opportunityId)}, contactId=${JSON.stringify(p.contactId)}, completedInspections=${JSON.stringify(p.completedInspections?.substring(0, 80))}`);
+        });
         
         if (validProjects.length > 0) {
           await db_instance.insert(projects).values(validProjects);

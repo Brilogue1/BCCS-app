@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, opportunityName, completedInspections, LENGTH(completedInspections) as len FROM projects WHERE opportunityName LIKE '%Elvis%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, completedInspections, LENGTH(completedInspections) as len FROM projects WHERE opportunityName LIKE '%Elvis%'",
+  "rows": [
+    {
+      "id": "540020",
+      "opportunityName": "Elvis Presley - Graceland 175 Elvis BLVD. - Lot #146",
+      "completedInspections": "2026-02-10 — AUDIT INSPECTION",
+      "len": "31"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\tcompletedInspections\tlen\n540020\tElvis Presley - Graceland 175 Elvis BLVD. - Lot #146\t2026-02-10 — AUDIT INSPECTION\t31\n",
+  "stderr": "",
+  "execution_time_ms": 1535
+}

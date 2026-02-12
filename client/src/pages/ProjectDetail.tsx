@@ -222,14 +222,8 @@ export default function ProjectDetail() {
     );
   }
 
-  // Parse completed inspections from column H (format: "2026-02-10 — AUDIT INSPECTION\n2026-02-10 — AFFIDAVIT...")
-  const parsedCompletedInspections = (project.completedInspections || '').split('\n').filter((line: string) => line.trim()).map((line: string) => {
-    const parts = line.split('—');
-    if (parts.length >= 2) {
-      return { date: parts[0].trim(), type: parts.slice(1).join('—').trim() };
-    }
-    return { date: '', type: line.trim() };
-  });
+  // Raw completed inspections text from column H
+  const completedInspectionsText = (project.completedInspections || '').trim();
 
   // Filter scheduled inspection types - only show if not blank and not "_"
   const isValidInspection = (val: string | null | undefined) => val && val.trim() !== '' && val.trim() !== '_';
@@ -491,21 +485,11 @@ export default function ProjectDetail() {
             <CardDescription>Inspections that have been completed for this project</CardDescription>
           </CardHeader>
           <CardContent>
-            {parsedCompletedInspections.length === 0 ? (
+            {!completedInspectionsText ? (
               <p className="text-slate-500 text-center py-8">No completed inspections</p>
             ) : (
-              <div className="space-y-3">
-                {parsedCompletedInspections.map((inspection: { date: string; type: string }, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg bg-white">
-                    <div>
-                      <p className="font-medium">{inspection.type}</p>
-                      <p className="text-sm text-slate-500">{inspection.date || 'Date not available'}</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                      Completed
-                    </span>
-                  </div>
-                ))}
+              <div className="whitespace-pre-line p-4 border rounded-lg bg-white text-sm leading-relaxed">
+                {completedInspectionsText}
               </div>
             )}
           </CardContent>

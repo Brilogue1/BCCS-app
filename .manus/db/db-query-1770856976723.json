@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, opportunityName, address, inspection1Type, inspection2Type, inspection3Type, inspection4Type, inspection5Type FROM projects WHERE opportunityName LIKE '%TESTING TESTING%' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, address, inspection1Type, inspection2Type, inspection3Type, inspection4Type, inspection5Type FROM projects WHERE opportunityName LIKE '%TESTING TESTING%' LIMIT 1;",
+  "rows": [
+    {
+      "id": "690012",
+      "opportunityName": "TESTING TESTING 123",
+      "address": "",
+      "inspection1Type": "",
+      "inspection2Type": "",
+      "inspection3Type": "",
+      "inspection4Type": "",
+      "inspection5Type": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\taddress\tinspection1Type\tinspection2Type\tinspection3Type\tinspection4Type\tinspection5Type\n690012\tTESTING TESTING 123\t\t\t\t\t\t\n",
+  "stderr": "",
+  "execution_time_ms": 1500
+}
