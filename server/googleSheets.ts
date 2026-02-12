@@ -233,7 +233,7 @@ export async function appendNewProjectEmail(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
@@ -262,31 +262,39 @@ export async function appendNewProjectEmail(
 
 /**
  * Append client upload data to the Client Uploads sheet
- * Columns: A=Company, B=Project Name, C=Email, D=Upload Link
+ * Columns: A=Company, B=Project Name, C=Email, D=File Name, E=Drive Link, F=Opp ID, G=Contact ID, H=Upload Date
  */
 export async function appendClientUpload(
   company: string,
   projectName: string,
   email: string,
-  uploadLink: string
+  fileName: string,
+  fileData: string, // base64 encoded file data
+  mimeType: string,
+  opportunityId?: string,
+  contactId?: string
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
       company,
       projectName,
       email,
-      uploadLink,
+      fileName,
+      fileData,
+      mimeType,
+      opportunityId,
+      contactId,
     }, {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       maxRedirects: 5,
     });
     
     if (response.data.success) {
-      console.log(`[Client Upload] Successfully logged to Google Sheets: Company: ${company}, Project: ${projectName}, Email: ${email}, Link: ${uploadLink}`);
+      console.log(`[Client Upload] Successfully logged to Google Sheets: Company: ${company}, Project: ${projectName}, Email: ${email}, File: ${fileName}, Opp ID: ${opportunityId}`);
       return true;
     } else {
       console.error('[Error] Google Apps Script returned error:', response.data.error);
@@ -294,7 +302,7 @@ export async function appendClientUpload(
     }
   } catch (error) {
     console.error('[Error] Failed to append client upload to Google Sheets:', error);
-    console.log(`[Client Upload - Fallback] Company: ${company}, Project: ${projectName}, Email: ${email}, Link: ${uploadLink}`);
+    console.log(`[Client Upload - Fallback] Company: ${company}, Project: ${projectName}, Email: ${email}, File: ${fileName}`);
     return false;
   }
 }
@@ -317,7 +325,7 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
     
     const payload = {
       action: 'inspectionRequest',
@@ -369,7 +377,7 @@ export async function appendNewProjectInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzMeMVi4x9vyza1su3FsIMIw-zFoznFaHKV_Gp5Ab0adgDXy1nE8dp0QmrRuV_3-FjB/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'newProjectInspectionRequest',

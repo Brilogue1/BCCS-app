@@ -184,15 +184,64 @@ function handleClientUpload(spreadsheet, params) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
   
+  let driveLink = params.uploadLink || "";
+  
+  // If file data is provided, upload to Google Drive
+  if (params.fileData && params.fileName) {
+    try {
+      driveLink = uploadFileToDrive(params.fileData, params.fileName, params.mimeType);
+      Logger.log("File uploaded to Drive: " + driveLink);
+    } catch (error) {
+      Logger.log("Error uploading file to Drive: " + error.toString());
+      // Fall back to the provided link if Drive upload fails
+      driveLink = params.uploadLink || "";
+    }
+  }
+  
+  // Append row: A=Company, B=Project Name, C=Email, D=Upload Link, E=Opp ID, F=Contact ID
   sheet.appendRow([
     params.company || "",
     params.projectName || "",
     params.email || "",
-    params.uploadLink || ""
+    driveLink,
+    params.opportunityId || "",
+    params.contactId || ""
   ]);
   
   return ContentService.createTextOutput(JSON.stringify({
     success: true,
-    message: "Client upload logged successfully"
+    message: "Client upload logged successfully",
+    driveLink: driveLink
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function uploadFileToDrive(base64Data, fileName, mimeType) {
+  try {
+    // Get the "Client Uploads" folder
+    const folders = DriveApp.getFoldersByName("Client Uploads");
+    if (!folders.hasNext()) {
+      Logger.log("Client Uploads folder not found");
+      return "";
+    }
+    
+    const folder = folders.next();
+    
+    // Decode base64 to bytes
+    const bytes = Utilities.base64Decode(base64Data);
+    const blob = Utilities.newBlob(bytes, mimeType, fileName);
+    
+    // Upload file to Drive
+    const file = folder.createFile(blob);
+    
+    // Make file accessible via link
+    file.setSharing(DriveApp.Access.ANYONE, DriveApp.Permission.VIEW);
+    
+    // Return the file link
+    const fileId = file.getId();
+    return "https://drive.google.com/file/d/" + fileId + "/view";
+    
+  } catch (error) {
+    Logger.log("Error in uploadFileToDrive: " + error.toString());
+    return "";
+  }
 }

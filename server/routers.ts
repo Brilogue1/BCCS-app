@@ -609,12 +609,35 @@ export const appRouter = router({
           uploadedBy: ctx.user.email || undefined,
         });
         
-        // Log upload to Google Sheets Client Uploads tab
+        // Log upload to Google Sheets with file data for Drive upload
         const company = project.company || 'Unknown';
         const projectName = project.opportunityName || 'Unknown Project';
         const email = ctx.user.email || 'Unknown';
-        await appendClientUpload(company, projectName, email, input.fileUrl)
-          .catch(err => console.error('[Google Sheets] Failed to log client upload:', err));
+        const opportunityId = project.opportunityId || '';
+        const contactId = project.contactId || '';
+        
+        // Fetch file from S3 and convert to base64
+        let fileData = '';
+        try {
+          const response = await fetch(input.fileUrl);
+          if (response.ok) {
+            const buffer = await response.arrayBuffer();
+            fileData = Buffer.from(buffer).toString('base64');
+          }
+        } catch (err) {
+          console.error('[File Upload] Failed to fetch file from S3:', err);
+        }
+        
+        await appendClientUpload(
+          company,
+          projectName,
+          email,
+          input.fileName,
+          fileData,
+          input.mimeType || 'application/octet-stream',
+          opportunityId,
+          contactId
+        ).catch(err => console.error('[Google Sheets] Failed to log client upload:', err));
         
         return { success: true };
       }),
