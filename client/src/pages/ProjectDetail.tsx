@@ -34,7 +34,8 @@ export default function ProjectDetail() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   // Inspection form state
-  const [inspectionType, setInspectionType] = useState("");
+  const [inspectionType, setInspectionType] = useState('');
+  const [inspectionTypeSearch, setInspectionTypeSearch] = useState('');
   const [inspectionNotes, setInspectionNotes] = useState("");
 
   // Contact form state
@@ -397,11 +398,25 @@ export default function ProjectDetail() {
                         <SelectValue placeholder="Select inspection type" />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
-                        {inspectionTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
+                        <div className="px-2 py-1.5 sticky top-0 bg-background">
+                          <input
+                            type="text"
+                            placeholder="Search inspection types..."
+                            className="w-full px-2 py-1 text-sm border rounded"
+                            value={inspectionTypeSearch}
+                            onChange={(e) => setInspectionTypeSearch(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                        {inspectionTypes
+                          .filter((type) =>
+                            type.toLowerCase().includes(inspectionTypeSearch.toLowerCase())
+                          )
+                          .map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>

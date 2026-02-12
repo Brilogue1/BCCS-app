@@ -482,3 +482,13 @@
 
 ## URGENT Bug Fix: Opp ID and Contact ID not sent when scheduling inspections
 - [ ] Fix inspection.create to pass Opportunity ID and Contact ID to Google Sheets
+
+## Inspection Type Updates
+- [ ] Update inspection types list with full 90+ inspection types
+- [ ] Add search bar to inspection type selector
+- [ ] Change "Sync Projects" button text to "Sync with BCCS System"
+
+## Inspection Type Updates
+- [x] Update inspection types list with full 90+ inspection types
+- [x] Add search bar to inspection type selector
+- [x] Change empty state sync button text to "Sync with BCCS System"

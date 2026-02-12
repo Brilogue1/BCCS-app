@@ -233,7 +233,7 @@ export async function appendNewProjectEmail(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
@@ -269,14 +269,13 @@ export async function appendClientUpload(
   projectName: string,
   email: string,
   fileName: string,
-  fileData: string, // base64 encoded file data
-  mimeType: string,
+  uploadLink: string, // S3 URL
   opportunityId?: string,
   contactId?: string
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
@@ -284,8 +283,7 @@ export async function appendClientUpload(
       projectName,
       email,
       fileName,
-      fileData,
-      mimeType,
+      uploadLink,
       opportunityId,
       contactId,
     }, {
@@ -325,7 +323,7 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
     
     const payload = {
       action: 'inspectionRequest',
@@ -377,7 +375,7 @@ export async function appendNewProjectInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMB-fGZ9bD2TvIR4DsRsZJEk9N4J_XPX4_uYRa6VPMx0u7LzrJc9O3O7ioz2kj2ZnE/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'newProjectInspectionRequest',

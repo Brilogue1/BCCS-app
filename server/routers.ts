@@ -616,25 +616,13 @@ export const appRouter = router({
         const opportunityId = project.opportunityId || '';
         const contactId = project.contactId || '';
         
-        // Fetch file from S3 and convert to base64
-        let fileData = '';
-        try {
-          const response = await fetch(input.fileUrl);
-          if (response.ok) {
-            const buffer = await response.arrayBuffer();
-            fileData = Buffer.from(buffer).toString('base64');
-          }
-        } catch (err) {
-          console.error('[File Upload] Failed to fetch file from S3:', err);
-        }
-        
+        // Log to Google Sheets with S3 link (Zapier will handle Drive upload)
         await appendClientUpload(
           company,
           projectName,
           email,
           input.fileName,
-          fileData,
-          input.mimeType || 'application/octet-stream',
+          input.fileUrl, // S3 URL
           opportunityId,
           contactId
         ).catch(err => console.error('[Google Sheets] Failed to log client upload:', err));

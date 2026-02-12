@@ -24,6 +24,7 @@ export default function Projects() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectAddress, setNewProjectAddress] = useState("");
   const [newInspectionType, setNewInspectionType] = useState("");
+  const [newInspectionTypeSearch, setNewInspectionTypeSearch] = useState("");
   const [newInspectionNotes, setNewInspectionNotes] = useState("");
 
   const { data: projects, isLoading: projectsLoading, refetch } = trpc.projects.list.useQuery();
@@ -235,12 +236,26 @@ export default function Projects() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select inspection type" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {inspectionTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
+                      <SelectContent className="max-h-60">
+                        <div className="px-2 py-1.5 sticky top-0 bg-background">
+                          <input
+                            type="text"
+                            placeholder="Search inspection types..."
+                            className="w-full px-2 py-1 text-sm border rounded"
+                            value={newInspectionTypeSearch}
+                            onChange={(e) => setNewInspectionTypeSearch(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                        {inspectionTypes
+                          .filter((type) =>
+                            type.toLowerCase().includes(newInspectionTypeSearch.toLowerCase())
+                          )
+                          .map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -298,7 +313,7 @@ export default function Projects() {
                   </p>
                   <Button onClick={handleSync} disabled={syncMutation.isPending}>
                     <RefreshCw className={`h-4 w-4 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
-                    Sync from Google Sheets
+                    Sync with BCCS System
                   </Button>
                 </CardContent>
               </Card>
