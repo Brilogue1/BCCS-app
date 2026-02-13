@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Building2, Calendar, Loader2, LogOut, MapPin, Plus, RefreshCw, Search, BarChart3, CheckCircle2, Mail } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
@@ -29,6 +29,23 @@ export default function Projects() {
 
   const { data: projects, isLoading: projectsLoading, refetch } = trpc.projects.list.useQuery();
   const { data: pastInspections, isLoading: pastInspectionsLoading } = trpc.pastInspections.list.useQuery();
+  
+  // Auto-sync every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      syncMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          // Silent sync - no toast notification
+          refetch();
+        },
+        onError: () => {
+          // Silent error - no toast notification
+        },
+      });
+    }, 60000); // 60 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
   
   const syncMutation = trpc.projects.sync.useMutation({
     onSuccess: (data) => {

@@ -509,3 +509,8 @@
 - [x] Update sync to extract Subdivision from column AF
 - [x] Update sync to extract Lot # from column AG  
 - [x] Update sync to extract Permit # from column AI
+
+## Auto-Sync Feature
+- [x] Add auto-sync interval (every 60 seconds) to Projects page
+- [x] Ensure sync runs in background without disrupting user interaction (silent sync, no toast notifications)
+- [ ] Add visual indicator when sync is running (optional enhancement)
