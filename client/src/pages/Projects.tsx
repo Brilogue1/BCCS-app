@@ -237,7 +237,7 @@ export default function Projects() {
                         <SelectValue placeholder="Select inspection type" />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
-                        <div className="px-2 py-1.5 sticky top-0 bg-background">
+                        <div className="px-2 pt-2 pb-3 sticky top-0 bg-background border-b z-10">
                           <input
                             type="text"
                             placeholder="Search inspection types..."
@@ -247,15 +247,17 @@ export default function Projects() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>
-                        {inspectionTypes
-                          .filter((type) =>
-                            type.toLowerCase().includes(newInspectionTypeSearch.toLowerCase())
-                          )
-                          .map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
+                        <div className="pt-2">
+                          {inspectionTypes
+                            .filter((type) =>
+                              type.toLowerCase().includes(newInspectionTypeSearch.toLowerCase())
+                            )
+                            .map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                        </div>
                       </SelectContent>
                     </Select>
                   </div>

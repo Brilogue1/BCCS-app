@@ -43,7 +43,7 @@ export default function ProjectDetail() {
   const [contactName, setContactName] = useState("");
 
   // File upload state
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,7 +89,7 @@ export default function ProjectDetail() {
     onSuccess: () => {
       toast.success("File uploaded successfully");
       setUploadDialogOpen(false);
-      setSelectedFile(null);
+      setSelectedFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
       refetchFiles();
     },
@@ -131,61 +131,70 @@ export default function ProjectDetail() {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("File size must be less than 10MB");
-        return;
-      }
-      setSelectedFile(file);
+    const files = Array.from(e.target.files || []);
+    // Check file sizes (max 10MB each)
+    const oversizedFiles = files.filter(f => f.size > 10 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      toast.error(`${oversizedFiles.length} file(s) exceed 10MB limit`);
+      return;
     }
+    setSelectedFiles(files);
   };
 
   const handleFileUpload = async () => {
-    if (!selectedFile || !project) return;
+    if (selectedFiles.length === 0 || !project) return;
 
     setUploading(true);
     try {
-      // Generate unique file key
-      const timestamp = Date.now();
-      const randomSuffix = Math.random().toString(36).substring(2, 8);
-      const sanitizedFileName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileKey = `bccs-uploads/${projectId}/${timestamp}-${randomSuffix}-${sanitizedFileName}`;
+      // Upload each file sequentially
+      for (const file of selectedFiles) {
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const fileKey = `bccs-uploads/${projectId}/${timestamp}-${randomSuffix}-${sanitizedFileName}`;
 
-      // Upload to S3 via server-side endpoint (avoids CORS issues)
-      const formData = new FormData();
-      formData.append('file', selectedFile);
+        // Upload to S3 via server-side endpoint (avoids CORS issues)
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const uploadUrl = `/api/upload?path=${encodeURIComponent(fileKey)}`;
+        const uploadUrl = `/api/upload?path=${encodeURIComponent(fileKey)}`;
 
-      console.log('Uploading to server:', uploadUrl);
-      
-      const response = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
+        console.log('Uploading to server:', uploadUrl);
+        
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
-        console.error('Upload failed:', response.status, errorData);
-        throw new Error(errorData.error || `Upload failed: ${response.status}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+          console.error('Upload failed:', response.status, errorData);
+          throw new Error(errorData.error || `Upload failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Upload result:', result);
+        const fileUrl = result.url;
+
+        // Save file record to database (which also logs to Google Sheets)
+        uploadFileMutation.mutate({
+          projectId,
+          fileName: file.name,
+          fileUrl,
+          fileKey,
+          fileSize: file.size,
+          mimeType: file.type,
+        });
       }
 
-      const result = await response.json();
-      console.log('Upload result:', result);
-      const fileUrl = result.url;
-
-      // Save file record to database (which also logs to Google Sheets)
-      uploadFileMutation.mutate({
-        projectId,
-        fileName: selectedFile.name,
-        fileUrl,
-        fileKey,
-        fileSize: selectedFile.size,
-        mimeType: selectedFile.type,
-      });
+      toast.success(`${selectedFiles.length} file(s) uploaded successfully`);
+      setSelectedFiles([]);
+      setUploadDialogOpen(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      utils.files.list.invalidate({ projectId });
     } catch (error) {
       console.error('Upload error:', error);
       toast.error("Failed to upload file. Please try again.");
@@ -398,7 +407,7 @@ export default function ProjectDetail() {
                         <SelectValue placeholder="Select inspection type" />
                       </SelectTrigger>
                       <SelectContent className="max-h-60">
-                        <div className="px-2 py-1.5 sticky top-0 bg-background">
+                        <div className="px-2 pt-2 pb-3 sticky top-0 bg-background border-b z-10">
                           <input
                             type="text"
                             placeholder="Search inspection types..."
@@ -408,15 +417,17 @@ export default function ProjectDetail() {
                             onClick={(e) => e.stopPropagation()}
                           />
                         </div>
-                        {inspectionTypes
-                          .filter((type) =>
-                            type.toLowerCase().includes(inspectionTypeSearch.toLowerCase())
-                          )
-                          .map((type) => (
+                        <div className="pt-2">
+                          {inspectionTypes
+                            .filter((type) =>
+                              type.toLowerCase().includes(inspectionTypeSearch.toLowerCase())
+                            )
+                            .map((type) => (
                             <SelectItem key={type} value={type}>
                               {type}
                             </SelectItem>
                           ))}
+                        </div>
                       </SelectContent>
                     </Select>
                   </div>
@@ -629,23 +640,31 @@ export default function ProjectDetail() {
                       onChange={handleFileSelect}
                       accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
                       className="cursor-pointer"
+                      multiple
                     />
                     <p className="text-xs text-slate-500 mt-1">
                       Max file size: 10MB. Supported: Images, PDF, Word, Excel
                     </p>
                   </div>
-                  {selectedFile && (
-                    <div className="p-3 bg-slate-50 rounded-lg">
-                      <p className="text-sm font-medium">{selectedFile.name}</p>
-                      <p className="text-xs text-slate-500">
-                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                  {selectedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      {selectedFiles.map((file, index) => (
+                        <div key={index} className="p-3 bg-slate-50 rounded-lg">
+                          <p className="text-sm font-medium">{file.name}</p>
+                          <p className="text-xs text-slate-500">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      ))}
+                      <p className="text-xs text-slate-600 font-medium">
+                        {selectedFiles.length} file(s) selected
                       </p>
                     </div>
                   )}
                   <Button
                     onClick={handleFileUpload}
                     className="w-full"
-                    disabled={!selectedFile || uploading || uploadFileMutation.isPending}
+                    disabled={selectedFiles.length === 0 || uploading || uploadFileMutation.isPending}
                   >
                     {uploading || uploadFileMutation.isPending ? (
                       <>
@@ -655,7 +674,7 @@ export default function ProjectDetail() {
                     ) : (
                       <>
                         <Upload className="h-4 w-4 mr-2" />
-                        Upload File
+                        Upload {selectedFiles.length > 0 ? `${selectedFiles.length} File(s)` : 'File'}
                       </>
                     )}
                   </Button>

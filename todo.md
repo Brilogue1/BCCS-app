@@ -492,3 +492,6 @@
 - [x] Update inspection types list with full 90+ inspection types
 - [x] Add search bar to inspection type selector
 - [x] Change empty state sync button text to "Sync with BCCS System"
+
+## File Upload Updates
+- [x] Enable multiple file selection for client uploader
