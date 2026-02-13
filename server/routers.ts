@@ -275,9 +275,9 @@ export const appRouter = router({
             notes: getString(row['notes'] || row['Notes']),
             tag: getString(row['tag'] || row['Tag'] || row['tags']),
             address: getString(row['__col_13'] || row['address'] || row['Address']), // Column N - Address
-            subdivision: getString(row['subdivision'] || row['Subdivision']),
-            lotNumber: getString(row['lot number'] || row['Lot Number']),
-            permitNumber: getString(row['permit number'] || row['Permit Number']),
+            subdivision: getString(row['__col_31'] || row['subdivision'] || row['Subdivision']), // Column AF - Subdivision
+            lotNumber: getString(row['__col_32'] || row['lot number'] || row['Lot Number']), // Column AG - Lot #
+            permitNumber: getString(row['__col_34'] || row['permit number'] || row['Permit Number']), // Column AI - Permit #
             assignedPermitTech: getString(row['assign permit tech'] || row['Assign Permit tech']),
             assignedPlansExaminer: getString(row['assign plans examiner'] || row['Assign Plans Examiner']),
             assignedInspector: getString(row['assign inspector'] || row['Assign Inspector']),
@@ -296,7 +296,7 @@ export const appRouter = router({
             proposalSent: getString(row['proposals sent'] || row['Proposals Sent']),
             proposalSigned: getString(row['proposal signed'] || row['Proposal Signed']),
             company: getString(row['company'] || row['COMPANY']), // Column BB - company assignment for filtering
-            completionStatus: getString(row['engagement status'] || row['completed'] || row['Completed']), // Column F - Completed/Active status
+            completionStatus: getString(row['__col_5'] || row['stage'] || row['Stage']), // Column F - Stage (Completed/Active status)
             // Extract by column position: AQ is column 42, AR is column 43
             opportunityId: getString(row['__col_42'] || row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
             contactId: getString(row['__col_43'] || row['contact id'] || row['Contact ID'] || row['Contact Id'] || row['contact_id'], 100), // Column AR - Contact ID

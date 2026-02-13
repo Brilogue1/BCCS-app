@@ -495,3 +495,17 @@
 
 ## File Upload Updates
 - [x] Enable multiple file selection for client uploader
+
+## Completed Projects Fix
+- [ ] Update database sync to extract stage from column F
+- [ ] Update frontend filtering to use stage field instead of completionStatus
+
+## Completed Projects Fix
+- [x] Update database sync to extract stage from column F
+- [x] Update frontend filtering to use stage field instead of completionStatus
+- [x] Replace Past Inspections table with Completed Projects cards in completed tab
+
+## Missing Field Extraction
+- [x] Update sync to extract Subdivision from column AF
+- [x] Update sync to extract Lot # from column AG  
+- [x] Update sync to extract Permit # from column AI

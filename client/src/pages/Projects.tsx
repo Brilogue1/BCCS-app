@@ -385,59 +385,59 @@ export default function Projects() {
           </>
         )}
 
-        {/* Past Inspections Table */}
+        {/* Completed Projects */}
         {activeTab === 'completed' && (
           <>
-            {!filteredPastInspections || filteredPastInspections.length === 0 ? (
+            {!filteredProjects || filteredProjects.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <CheckCircle2 className="h-12 w-12 mx-auto text-slate-300 mb-4" />
                   <p className="text-slate-600 mb-4">
-                    {searchQuery ? "No inspections found matching your search" : "No completed inspections found"}
+                    {searchQuery ? "No completed projects found matching your search" : "No completed projects found"}
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Past Inspections</CardTitle>
-                  <CardDescription>Completed inspections from your projects</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Project Name</th>
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Inspection Type</th>
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Status</th>
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Date Approved</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPastInspections.map((inspection, index) => (
-                          <tr key={index} className="border-b hover:bg-slate-50 transition-colors">
-                            <td className="py-3 px-4 text-slate-900 font-medium">{inspection.projectName}</td>
-                            <td className="py-3 px-4 text-slate-600">{inspection.inspectionType}</td>
-                            <td className="py-3 px-4">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                inspection.approvedStatus?.toLowerCase() === 'approved' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : inspection.approvedStatus?.toLowerCase() === 'denied'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {inspection.approvedStatus || 'Scheduled'}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-slate-600">{inspection.dateApproved || '-'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProjects.map((project) => (
+                  <Link key={project.id} href={`/projects/${project.id}`}>
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-start gap-2">
+                          <Building2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <span className="line-clamp-2">{project.opportunityName}</span>
+                        </CardTitle>
+                        {project.address && (
+                          <CardDescription className="flex items-start gap-2 mt-2">
+                            <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            <span>{project.address}</span>
+                          </CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-slate-600">Stage:</span>
+                          <span className="font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
+                            {project.completionStatus || 'Completed'}
+                          </span>
+                        </div>
+                        {project.contactName && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-600">Contact:</span>
+                            <span className="font-medium text-slate-900">{project.contactName}</span>
+                          </div>
+                        )}
+                        {project.completedInspections && (
+                          <div className="pt-2 border-t">
+                            <p className="text-xs text-slate-500 mb-1">Completed Inspections:</p>
+                            <p className="text-sm text-slate-700">{project.completedInspections}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             )}
           </>
         )}
