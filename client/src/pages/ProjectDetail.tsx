@@ -56,6 +56,7 @@ export default function ProjectDetail() {
       setInspectionType("");
       setInspectionNotes("");
       utils.inspections.list.invalidate({ projectId });
+      utils.projects.getById.invalidate({ id: projectId });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to schedule inspection");

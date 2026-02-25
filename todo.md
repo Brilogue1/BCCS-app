@@ -514,3 +514,17 @@
 - [x] Add auto-sync interval (every 60 seconds) to Projects page
 - [x] Ensure sync runs in background without disrupting user interaction (silent sync, no toast notifications)
 - [ ] Add visual indicator when sync is running (optional enhancement)
+
+## GHL File Upload Integration
+- [ ] Add GHL API token and Location ID as environment variables
+- [ ] Research GHL API file upload endpoint documentation
+- [ ] Create GHL API helper function for file uploads
+- [ ] Update file upload mutation to call GHL API
+- [ ] Test file upload to verify files appear in GHL opportunity cards
+- [ ] Maintain existing Google Sheets and Drive logging
+
+## Bug: Back-to-Back Inspection Scheduling Error
+- [x] Fix "You don't have access to this project" error when scheduling multiple inspections in a row
+- [x] Issue: Error appears after first inspection is scheduled, goes away on refresh
+- [x] Root cause: Stale cache after inspection creation - project data not being invalidated properly
+- [x] Solution: Invalidate project query cache after successful inspection creation
