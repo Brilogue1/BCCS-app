@@ -239,11 +239,11 @@ export default function ProjectDetail() {
   // Filter scheduled inspection types - only show if not blank and not "_"
   const isValidInspection = (val: string | null | undefined) => val && val.trim() !== '' && val.trim() !== '_';
   const scheduledTypes = [
-    { type: project.inspection1Type, result: project.inspection1Result, label: 'Inspection Type 1' },
-    { type: project.inspection2Type, result: project.inspection2Result, label: 'Inspection Type 2' },
-    { type: project.inspection3Type, result: project.inspection3Result, label: 'Inspection Type 3' },
-    { type: project.inspection4Type, result: null, label: 'Inspection Type 4' },
-    { type: project.inspection5Type, result: null, label: 'Inspection Type 5' },
+    { type: project.inspection1Type, result: project.inspection1Result },
+    { type: project.inspection2Type, result: project.inspection2Result },
+    { type: project.inspection3Type, result: project.inspection3Result },
+    { type: project.inspection4Type, result: null },
+    { type: project.inspection5Type, result: null },
   ].filter(i => isValidInspection(i.type));
 
   const hasScheduledInspections = scheduledTypes.length > 0 || (inspections && inspections.length > 0);
@@ -469,7 +469,6 @@ export default function ProjectDetail() {
                   <div key={`sheet-${index}`} className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
                       <p className="font-medium">{item.type}</p>
-                      <p className="text-sm text-slate-500">{item.label}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       item.result === 'Approved' ? 'bg-green-100 text-green-800' :
