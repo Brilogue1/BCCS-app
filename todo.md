@@ -533,3 +533,6 @@
 - [x] Replace "Inspection Type 1", "Inspection Type 2", etc. with actual request date
 - [x] Remove "Inspection Type 1-5" labels from scheduled inspections display
 - [ ] Future: Add inspection date columns to Google Sheets sync when available
+
+## UI Change: Remove New Project Inspection Button
+- [x] Remove "Request Inspection for New Project" button from projects page
