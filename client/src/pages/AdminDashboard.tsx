@@ -556,6 +556,45 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* Completed Projects - Inspection Reports */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Inspection Reports
+            </CardTitle>
+            <CardDescription>Download inspection record PDFs for completed projects</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {(analytics?.completedProjectsList?.length ?? 0) > 0 ? (
+              <div className="divide-y divide-slate-200">
+                {analytics!.completedProjectsList.map((project: any) => (
+                  <div key={project.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-slate-900 truncate">{project.opportunityName}</div>
+                      <div className="text-sm text-slate-500 flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                        {project.address && <span>{project.address}</span>}
+                        {project.permitNumber && <span>Permit: {project.permitNumber}</span>}
+                        {project.assignedInspector && <span>Inspector: {project.assignedInspector}</span>}
+                      </div>
+                    </div>
+                    <a
+                      href={`/api/report/inspection/${project.id}`}
+                      download
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-md hover:bg-slate-700 transition-colors whitespace-nowrap ml-4"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download PDF
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-center py-8">No completed projects yet</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

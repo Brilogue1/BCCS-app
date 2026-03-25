@@ -775,9 +775,10 @@ export const appRouter = router({
 
         // Calculate completion percentage (projects in 'COMPLETE INSPECTION' or similar stages)
         const completedStages = ['COMPLETE INSPECTION', 'Completed', 'Complete', 'Done'];
-        const completedProjects = allProjects.filter(p => 
+        const completedProjectsList = allProjects.filter(p => 
           completedStages.some(s => p.stage?.toLowerCase().includes(s.toLowerCase()))
-        ).length;
+        );
+        const completedProjects = completedProjectsList.length;
         const completionPercentage = allProjects.length > 0 
           ? Math.round((completedProjects / allProjects.length) * 100) 
           : 0;
@@ -900,6 +901,14 @@ export const appRouter = router({
           weeklyTrend,
           inspectionResultsTally,
           proposalsTally,
+          completedProjectsList: completedProjectsList.map(p => ({
+            id: p.id,
+            opportunityName: p.opportunityName,
+            address: p.address,
+            permitNumber: p.permitNumber,
+            stage: p.stage,
+            assignedInspector: p.assignedInspector,
+          })),
           dateRange: {
             start: startDate.toISOString(),
             end: endDate.toISOString(),

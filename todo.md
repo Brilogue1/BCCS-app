@@ -545,3 +545,10 @@
 - [x] Include inspection1-5 types with their results
 - [x] Add Download Report button on completed project detail page
 - [ ] Add Download Report button on Past Inspections tab in projects list (future)
+
+## Feature: Inspection Reports on Admin Analytics
+- [x] Add Completed Projects Reports section to Admin Analytics page
+- [x] List all completed projects with project name, address, permit number
+- [x] Add Download Inspection Report button for each completed project
+- [x] Remove Download Inspection Report button from client-facing ProjectDetail page
+- [x] Reports should only be accessible by admins

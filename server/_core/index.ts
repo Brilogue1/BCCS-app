@@ -80,7 +80,10 @@ async function startServer() {
         return res.status(404).json({ error: 'Project not found' });
       }
 
-      // Access control
+      // Admin-only access control
+      if (user.role !== 'admin' && user.company !== 'ALL') {
+        return res.status(403).json({ error: 'Only admins can download reports' });
+      }
       if (user.role !== 'admin' && user.company !== 'ALL' && user.company && project.company?.toLowerCase() !== user.company?.toLowerCase()) {
         return res.status(403).json({ error: 'Access denied' });
       }
