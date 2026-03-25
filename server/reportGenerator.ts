@@ -51,34 +51,13 @@ export function parseCompletedInspections(text: string): InspectionRow[] {
 }
 
 /**
- * Merge inspection types from columns (inspection1Type-5Type) with their results,
- * combined with completed inspections parsed from text.
+ * Build inspection rows from the Past Inspections sheet data only.
  * Skips entries where type is "_", blank, or null.
  */
 export function buildInspectionRows(
   completedInspectionsText: string,
-  typedInspections: Array<{ type: string | null; result: string | null }>,
 ): InspectionRow[] {
-  const isValid = (val: string | null | undefined) =>
-    val && val.trim() !== '' && val.trim() !== '_';
-
-  // Build rows from inspection1-5 types with results
-  const typedRows: InspectionRow[] = typedInspections
-    .filter(i => isValid(i.type))
-    .map(i => ({
-      type: i.type!.trim(),
-      status: i.result && i.result.trim() !== '_' ? i.result.trim() : '',
-    }));
-
-  // Build rows from completedInspections text
-  const completedRows = parseCompletedInspections(completedInspectionsText);
-
-  // Merge: use completedRows as the primary source (they have dates),
-  // then add any typed rows not already present
-  const allTypes = new Set(completedRows.map(r => r.type.toLowerCase()));
-  const extraTyped = typedRows.filter(r => !allTypes.has(r.type.toLowerCase()));
-
-  return [...completedRows, ...extraTyped];
+  return parseCompletedInspections(completedInspectionsText);
 }
 
 /**

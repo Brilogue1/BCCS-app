@@ -88,18 +88,9 @@ async function startServer() {
         return res.status(403).json({ error: 'Access denied' });
       }
 
-      // Build inspection rows
-      const typedInspections = [
-        { type: project.inspection1Type, result: project.inspection1Result },
-        { type: project.inspection2Type, result: project.inspection2Result },
-        { type: project.inspection3Type, result: project.inspection3Result },
-        { type: project.inspection4Type, result: null },
-        { type: project.inspection5Type, result: null },
-      ];
-
+      // Build inspection rows from Past Inspections sheet only
       const inspectionRows = buildInspectionRows(
         project.completedInspections || '',
-        typedInspections,
       );
 
       const pdfBuffer = await generateInspectionRecordPDF({

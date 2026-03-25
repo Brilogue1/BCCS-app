@@ -552,3 +552,7 @@
 - [x] Add Download Inspection Report button for each completed project
 - [x] Remove Download Inspection Report button from client-facing ProjectDetail page
 - [x] Reports should only be accessible by admins
+
+## Update: Report Only Uses Past Inspections Data
+- [x] Update report generator to only pull from completedInspections (Past Inspections sheet)
+- [x] Remove inspection1-5 type columns from report data
