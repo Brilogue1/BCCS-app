@@ -1,0 +1,189 @@
+import PDFDocument from 'pdfkit';
+
+export interface InspectionRow {
+  type: string;
+  status: string;
+}
+
+export interface ReportData {
+  permitNumber: string;
+  address: string;
+  date: string;
+  inspectorName: string;
+  inspections: InspectionRow[];
+}
+
+/**
+ * Parse completedInspections text field into inspection rows.
+ * Format: "YYYY-MM-DD — TYPE\nYYYY-MM-DD — TYPE\n..."
+ * Skips blank lines and lines where type is "_" or just whitespace.
+ */
+export function parseCompletedInspections(text: string): InspectionRow[] {
+  if (!text || text.trim() === '') return [];
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line && line !== '_' && line !== '—' && line.length > 2)
+    .map(line => {
+      // Format: "2026-02-13 — BLDG CEILING GRID"
+      const dashIdx = line.indexOf('—');
+      if (dashIdx !== -1) {
+        const datePart = line.substring(0, dashIdx).trim();
+        const typePart = line.substring(dashIdx + 1).trim();
+        if (!typePart || typePart === '_') return null;
+        // Format date as MM/DD/YY
+        let formattedDate = '';
+        try {
+          const d = new Date(datePart);
+          if (!isNaN(d.getTime())) {
+            formattedDate = `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
+          }
+        } catch {
+          formattedDate = datePart;
+        }
+        return { type: typePart, status: formattedDate ? `Pass - ${formattedDate}` : 'Pass' };
+      }
+      // No date separator, treat whole line as type
+      if (line === '_') return null;
+      return { type: line, status: '' };
+    })
+    .filter((row): row is InspectionRow => row !== null && row.type !== '_' && row.type.trim() !== '');
+}
+
+/**
+ * Merge inspection types from columns (inspection1Type-5Type) with their results,
+ * combined with completed inspections parsed from text.
+ * Skips entries where type is "_", blank, or null.
+ */
+export function buildInspectionRows(
+  completedInspectionsText: string,
+  typedInspections: Array<{ type: string | null; result: string | null }>,
+): InspectionRow[] {
+  const isValid = (val: string | null | undefined) =>
+    val && val.trim() !== '' && val.trim() !== '_';
+
+  // Build rows from inspection1-5 types with results
+  const typedRows: InspectionRow[] = typedInspections
+    .filter(i => isValid(i.type))
+    .map(i => ({
+      type: i.type!.trim(),
+      status: i.result && i.result.trim() !== '_' ? i.result.trim() : '',
+    }));
+
+  // Build rows from completedInspections text
+  const completedRows = parseCompletedInspections(completedInspectionsText);
+
+  // Merge: use completedRows as the primary source (they have dates),
+  // then add any typed rows not already present
+  const allTypes = new Set(completedRows.map(r => r.type.toLowerCase()));
+  const extraTyped = typedRows.filter(r => !allTypes.has(r.type.toLowerCase()));
+
+  return [...completedRows, ...extraTyped];
+}
+
+/**
+ * Generate a PDF Inspection Record matching the BCCS report format.
+ * Returns a Buffer containing the PDF bytes.
+ */
+export function generateInspectionRecordPDF(data: ReportData): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'LETTER', margin: 60 });
+    const chunks: Buffer[] = [];
+
+    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    const pageWidth = doc.page.width - 120; // account for margins
+
+    // ── Header ──────────────────────────────────────────────────────────────
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(14)
+      .text('BUILDING CODE COMPLIANCE SOLUTIONS LLC', { align: 'center' });
+
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .text('908 Christina Chase Lane Lakeland, FL 33813', { align: 'center' })
+      .text('Phone: 765-212-8177     Email: bccsfla@gmail.com', { align: 'center' });
+
+    doc.moveDown(0.8);
+
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(13)
+      .text('INSPECTION RECORD', { align: 'center', underline: false });
+
+    doc.moveDown(1.2);
+
+    // ── Project Info ─────────────────────────────────────────────────────────
+    doc.font('Helvetica').fontSize(11);
+    doc.text(`Permit Number: ${data.permitNumber || 'N/A'}`);
+    doc.moveDown(0.4);
+    doc.text(`Address: ${data.address || 'N/A'}`);
+    doc.moveDown(0.4);
+    doc.text(`Date: ${data.date || ''}`);
+
+    doc.moveDown(1.2);
+
+    // ── Table ─────────────────────────────────────────────────────────────────
+    const tableTop = doc.y;
+    const col1X = 60;
+    const col2X = 60 + pageWidth * 0.72;
+    const col2Width = pageWidth * 0.28;
+    const rowHeight = 22;
+
+    // Table header background
+    doc.rect(col1X, tableTop, pageWidth, rowHeight).fillAndStroke('#f0f0f0', '#cccccc');
+
+    // Header text
+    doc
+      .fillColor('#000000')
+      .font('Helvetica-Bold')
+      .fontSize(10)
+      .text('Inspection', col1X + 8, tableTop + 6, { width: pageWidth * 0.70 })
+      .text('STATUS', col2X + 4, tableTop + 6, { width: col2Width - 8 });
+
+    // Vertical divider in header
+    doc.moveTo(col2X, tableTop).lineTo(col2X, tableTop + rowHeight).strokeColor('#cccccc').stroke();
+
+    let y = tableTop + rowHeight;
+
+    doc.font('Helvetica').fontSize(10);
+
+    for (const row of data.inspections) {
+      // Row background (alternating subtle)
+      doc.rect(col1X, y, pageWidth, rowHeight).fillAndStroke('#ffffff', '#e0e0e0');
+
+      doc.fillColor('#000000');
+      doc.text(row.type, col1X + 8, y + 6, { width: pageWidth * 0.68, ellipsis: true });
+      doc.text(row.status, col2X + 4, y + 6, { width: col2Width - 8 });
+
+      // Vertical divider
+      doc.moveTo(col2X, y).lineTo(col2X, y + rowHeight).strokeColor('#e0e0e0').stroke();
+
+      y += rowHeight;
+
+      // Page break if needed
+      if (y > doc.page.height - 120) {
+        doc.addPage();
+        y = 60;
+      }
+    }
+
+    // Bottom border of table
+    doc.moveTo(col1X, y).lineTo(col1X + pageWidth, y).strokeColor('#cccccc').stroke();
+
+    doc.moveDown(2);
+
+    // ── Footer ────────────────────────────────────────────────────────────────
+    doc.y = y + 24;
+    doc.font('Helvetica').fontSize(11);
+    doc.text(`Inspector Name: ${data.inspectorName || ''}`);
+    doc.moveDown(0.4);
+    doc.text('License Number');
+
+    doc.end();
+  });
+}

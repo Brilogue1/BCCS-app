@@ -536,3 +536,12 @@
 
 ## UI Change: Remove New Project Inspection Button
 - [x] Remove "Request Inspection for New Project" button from projects page
+
+## Feature: Inspection Record PDF Report
+- [x] Add PDF report generation endpoint for completed projects
+- [x] Match BCCS report format: company header, permit number, address, inspection table with statuses
+- [x] Skip inspection rows where type is "_"
+- [x] Parse completedInspections field (date — type format) for table rows
+- [x] Include inspection1-5 types with their results
+- [x] Add Download Report button on completed project detail page
+- [ ] Add Download Report button on Past Inspections tab in projects list (future)

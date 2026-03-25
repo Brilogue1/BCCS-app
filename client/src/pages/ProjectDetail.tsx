@@ -259,10 +259,22 @@ export default function ProjectDetail() {
               Back to Projects
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-slate-900">{project.opportunityName}</h1>
-          {project.address && (
-            <p className="text-slate-600 mt-2">{project.address}</p>
-          )}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">{project.opportunityName}</h1>
+              {project.address && (
+                <p className="text-slate-600 mt-2">{project.address}</p>
+              )}
+            </div>
+            <a
+              href={`/api/report/inspection/${project.id}`}
+              download
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-md hover:bg-slate-700 transition-colors whitespace-nowrap mt-1"
+            >
+              <FileText className="h-4 w-4" />
+              Download Inspection Report
+            </a>
+          </div>
         </div>
         {/* Support Link */}
         <div className="bg-slate-50 border-t py-2">

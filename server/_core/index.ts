@@ -9,6 +9,9 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { storagePut } from "../storage";
 import multer from "multer";
+import { generateInspectionRecordPDF, buildInspectionRows } from "../reportGenerator";
+import * as db from "../db";
+import { sdk } from "./sdk";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -57,6 +60,67 @@ async function startServer() {
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   
+  // PDF Report download endpoint
+  app.get('/api/report/inspection/:projectId', async (req, res) => {
+    try {
+      // Authenticate via session cookie
+      let user = null;
+      try { user = await sdk.authenticateRequest(req); } catch { user = null; }
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const projectId = parseInt(req.params.projectId);
+      if (isNaN(projectId)) {
+        return res.status(400).json({ error: 'Invalid project ID' });
+      }
+
+      const project = await db.getProjectById(projectId);
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found' });
+      }
+
+      // Access control
+      if (user.role !== 'admin' && user.company !== 'ALL' && user.company && project.company?.toLowerCase() !== user.company?.toLowerCase()) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      // Build inspection rows
+      const typedInspections = [
+        { type: project.inspection1Type, result: project.inspection1Result },
+        { type: project.inspection2Type, result: project.inspection2Result },
+        { type: project.inspection3Type, result: project.inspection3Result },
+        { type: project.inspection4Type, result: null },
+        { type: project.inspection5Type, result: null },
+      ];
+
+      const inspectionRows = buildInspectionRows(
+        project.completedInspections || '',
+        typedInspections,
+      );
+
+      const pdfBuffer = await generateInspectionRecordPDF({
+        permitNumber: project.permitNumber || '',
+        address: project.address || project.opportunityName || '',
+        date: project.completionDate || '',
+        inspectorName: project.assignedInspector || '',
+        inspections: inspectionRows,
+      });
+
+      const safeFileName = (project.opportunityName || `project-${projectId}`)
+        .replace(/[^a-zA-Z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 60);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="Inspection-Record-${safeFileName}.pdf"`);
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error('[Report Error]', error);
+      res.status(500).json({ error: 'Failed to generate report' });
+    }
+  });
+
   // File upload endpoint
   const upload = multer({ 
     storage: multer.memoryStorage(),

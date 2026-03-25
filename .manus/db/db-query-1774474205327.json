@@ -1,0 +1,12 @@
+{
+  "query": "SELECT id, opportunityName, completedInspections, inspection1Type, inspection2Type, inspection3Type, permitNumber, address FROM projects WHERE completedInspections IS NOT NULL AND completedInspections != '' AND completedInspections != '_' LIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, completedInspections, inspection1Type, inspection2Type, inspection3Type, permitNumber, address FROM projects WHERE completedInspections IS NOT NULL AND completedInspections != '' AND completedInspections != '_' LIMIT 3;",
+  "rows": [],
+  "messages": [
+    "1680013\tRocket Man | 123 Tiny Dancer Way | Lot 123\t2026-02-11 — BLDG BLOWER DOOR TEST REPORT",
+    "2026-02-11 — BLDG ADA SITE PREPOUR\tBLDG DUCT LEAKAGE TEST\tBLDG DUCT LEAKAGE TEST\t\t123456\t"
+  ],
+  "stdout": "id\topportunityName\tcompletedInspections\tinspection1Type\tinspection2Type\tinspection3Type\tpermitNumber\taddress\n1680013\tRocket Man | 123 Tiny Dancer Way | Lot 123\t2026-02-11 — BLDG BLOWER DOOR TEST REPORT\n2026-02-11 — BLDG ADA SITE PREPOUR\tBLDG DUCT LEAKAGE TEST\tBLDG DUCT LEAKAGE TEST\t\t123456\t\n",
+  "stderr": "",
+  "execution_time_ms": 263
+}
