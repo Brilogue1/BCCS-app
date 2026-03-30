@@ -405,3 +405,49 @@ export async function appendNewProjectInspectionRequest(
     return false;
   }
 }
+
+/**
+ * Update the Report Link (column M) for a row in the Past Inspections sheet.
+ * Uses the Google Apps Script webhook with a new action type.
+ * sheetRowIndex is the 0-based data row index (row 0 = first data row after header = sheet row 2)
+ */
+export async function updatePastInspectionReportLink(
+  sheetRowIndex: number,
+  reportLink: string,
+  projectName: string,
+  inspectionType: string
+): Promise<boolean> {
+  try {
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbw3_l-eNE91Fp1eLYXNu03erqtgtkUVt7nTu5gGO08tjOjwL9N963ZaSW7pMpMA4r9N/exec';
+    
+    const response = await axios.post(webhookUrl, {
+      action: 'updateReportLink',
+      sheetGid: PAST_INSPECTIONS_SHEET_GID,
+      rowIndex: sheetRowIndex + 2, // +2 because: +1 for header row, +1 for 1-based indexing
+      column: 'M',
+      value: reportLink,
+      projectName,
+      inspectionType,
+    }, {
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      maxRedirects: 0, // Don't follow redirects - 302 means success for Apps Script
+      validateStatus: (status: number) => status >= 200 && status < 400, // Accept 302 as success
+    });
+    
+    // Google Apps Script returns 302 redirect on success
+    if (response.status === 302 || response.status === 200) {
+      console.log(`[Report Link] Successfully updated column M for row ${sheetRowIndex + 2}: ${projectName} - ${inspectionType}`);
+      return true;
+    } else if (response.data?.success) {
+      console.log(`[Report Link] Successfully updated column M for row ${sheetRowIndex + 2}: ${projectName} - ${inspectionType}`);
+      return true;
+    } else {
+      console.error('[Error] Google Apps Script returned error:', response.data?.error);
+      return false;
+    }
+  } catch (error) {
+    console.error('[Error] Failed to update report link in Google Sheets:', error);
+    console.log(`[Report Link - Fallback] Row: ${sheetRowIndex + 2}, Link: ${reportLink}, Project: ${projectName}, Type: ${inspectionType}`);
+    return false;
+  }
+}

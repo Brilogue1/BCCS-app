@@ -132,3 +132,24 @@ export const projectFiles = mysqlTable("projectFiles", {
 
 export type ProjectFile = typeof projectFiles.$inferSelect;
 export type InsertProjectFile = typeof projectFiles.$inferInsert;
+
+/**
+ * Inspection reports table - stores generated PDF report links for individual inspections
+ */
+export const inspectionReports = mysqlTable("inspectionReports", {
+  id: int("id").autoincrement().primaryKey(),
+  projectName: varchar("projectName", { length: 500 }).notNull(),
+  inspectionType: varchar("inspectionType", { length: 255 }).notNull(),
+  approvedStatus: varchar("approvedStatus", { length: 100 }),
+  dateApproved: varchar("dateApproved", { length: 100 }),
+  inspectorName: varchar("inspectorName", { length: 255 }),
+  company: varchar("company", { length: 255 }),
+  opportunityId: varchar("opportunityId", { length: 100 }),
+  reportUrl: text("reportUrl").notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(),
+  sheetRowIndex: int("sheetRowIndex"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InspectionReport = typeof inspectionReports.$inferSelect;
+export type InsertInspectionReport = typeof inspectionReports.$inferInsert;

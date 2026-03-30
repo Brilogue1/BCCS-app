@@ -1,10 +1,11 @@
 import { Link, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail, FileCheck, Zap, ExternalLink } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
 
 export default function AdminDashboard() {
@@ -13,6 +14,48 @@ export default function AdminDashboard() {
   const { data: analytics, isLoading } = trpc.adminDashboard.analytics.useQuery({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
+  });
+
+  // Fetch past inspections for individual report generation
+  const { data: pastInspections, refetch: refetchPastInspections } = trpc.pastInspections.list.useQuery();
+  // Fetch existing report links from database
+  const { data: reportLinks, refetch: refetchReportLinks } = trpc.pastInspections.getReportLinks.useQuery();
+  const [generatingReportId, setGeneratingReportId] = useState<string | null>(null);
+  const [generatingAll, setGeneratingAll] = useState(false);
+
+  // Helper to find existing report link for an inspection
+  const getExistingReportUrl = (projectName: string, inspectionType: string): string | null => {
+    if (!reportLinks) return null;
+    const match = reportLinks.find(
+      (r: any) => r.projectName === projectName && r.inspectionType === inspectionType
+    );
+    return match?.reportUrl || null;
+  };
+
+  const generateReportMutation = trpc.pastInspections.generateReport.useMutation({
+    onSuccess: (data, variables) => {
+      toast.success(`Report generated for ${variables.projectName} - ${variables.inspectionType}`);
+      setGeneratingReportId(null);
+      refetchPastInspections();
+      refetchReportLinks();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to generate report');
+      setGeneratingReportId(null);
+    },
+  });
+
+  const generateAllReportsMutation = trpc.pastInspections.generateAllReports.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Generated ${data.generated} reports (${data.skipped} skipped)`);
+      setGeneratingAll(false);
+      refetchPastInspections();
+      refetchReportLinks();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to generate reports');
+      setGeneratingAll(false);
+    },
   });
 
   // Redirect users without ALL company access
@@ -592,6 +635,95 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <p className="text-slate-500 text-center py-8">No completed projects yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Individual Inspection Reports */}
+        <Card className="mt-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <FileCheck className="h-5 w-5" />
+                  Individual Inspection Reports
+                </CardTitle>
+                <CardDescription>Generate PDF reports for each inspection from the Past Inspections sheet. Reports are saved to S3 and linked in column M.</CardDescription>
+              </div>
+              <Button
+                onClick={() => {
+                  setGeneratingAll(true);
+                  generateAllReportsMutation.mutate();
+                }}
+                disabled={generatingAll}
+                className="bg-blue-700 hover:bg-blue-800 text-white"
+              >
+                {generatingAll ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating All...</>
+                ) : (
+                  <><Zap className="h-4 w-4 mr-2" /> Generate All Reports</>
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {(pastInspections?.filter((i: any) => i.source === 'past' && i.inspectionType && i.inspectionType.trim() !== '' && i.inspectionType.trim() !== '_' && i.inspectionType.trim() !== '_ ')?.length ?? 0) > 0 ? (
+              <div className="divide-y divide-slate-200 max-h-[600px] overflow-y-auto">
+                {pastInspections!.filter((i: any) => i.source === 'past' && i.inspectionType && i.inspectionType.trim() !== '' && i.inspectionType.trim() !== '_' && i.inspectionType.trim() !== '_ ').map((inspection: any) => (
+                  <div key={inspection.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0 gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-slate-900 truncate">{inspection.projectName}</div>
+                      <div className="text-sm text-slate-500 flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
+                        <span>{inspection.inspectionType || 'N/A'}</span>
+                        {inspection.approvedStatus && <span className={`font-medium ${inspection.approvedStatus.toLowerCase().includes('approved') ? 'text-green-600' : inspection.approvedStatus.toLowerCase().includes('denied') ? 'text-red-600' : 'text-amber-600'}`}>{inspection.approvedStatus}</span>}
+                        {inspection.dateApproved && <span>{inspection.dateApproved}</span>}
+                        {inspection.inspectorName && <span>Inspector: {inspection.inspectorName}</span>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {(inspection.reportLink || getExistingReportUrl(inspection.projectName, inspection.inspectionType)) ? (
+                        <a
+                          href={inspection.reportLink || getExistingReportUrl(inspection.projectName, inspection.inspectionType) || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          View PDF
+                        </a>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setGeneratingReportId(inspection.id);
+                            generateReportMutation.mutate({
+                              projectName: inspection.projectName,
+                              inspectionType: inspection.inspectionType,
+                              approvedStatus: inspection.approvedStatus,
+                              dateApproved: inspection.dateApproved,
+                              company: inspection.company,
+                              inspectorName: inspection.inspectorName || '',
+                              opportunityId: inspection.opportunityId || '',
+                              sheetRowIndex: inspection.sheetRowIndex,
+                            });
+                          }}
+                          disabled={generatingReportId === inspection.id}
+                          className="text-sm"
+                        >
+                          {generatingReportId === inspection.id ? (
+                            <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Generating...</>
+                          ) : (
+                            <><FileText className="h-3.5 w-3.5 mr-1" /> Generate Report</>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500 text-center py-8">No past inspections found</p>
             )}
           </CardContent>
         </Card>

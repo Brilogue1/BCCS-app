@@ -556,3 +556,13 @@
 ## Update: Report Only Uses Past Inspections Data
 - [x] Update report generator to only pull from completedInspections (Past Inspections sheet)
 - [x] Remove inspection1-5 type columns from report data
+
+## Feature: Individual Inspection Reports with Signature
+- [x] Generate individual PDF report for each inspection in Past Inspections sheet
+- [x] Add cursive/fancy font signature using inspector's name at bottom of each report
+- [x] Upload generated PDF to S3 and get public URL
+- [x] Write report link back to column M (Report Link) in Past Inspections Google Sheet
+- [x] Add UI in Admin Analytics to trigger report generation
+- [x] Keep existing completed project report as-is
+- [x] Fix Google Apps Script webhook 302 redirect handling
+- [x] Store report links in database for instant View PDF buttons

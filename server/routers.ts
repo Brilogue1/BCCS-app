@@ -5,8 +5,10 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { projects } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail } from "./googleSheets";
+import { projects, inspectionReports } from "../drizzle/schema";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink } from "./googleSheets";
+import { generateSingleInspectionPDF } from "./reportGenerator";
+import { storagePut } from "./storage";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
@@ -360,8 +362,8 @@ export const appRouter = router({
         const rows = await fetchPastInspections();
         const pastInspections = rows
           .filter(row => {
-            const projectName = row['project name'] || row['Project Name'];
-            if (!projectName || projectName.toLowerCase() === 'project name') return false;
+            const projectName = row['opportunity name'] || row['Opportunity Name'] || row['project name'] || row['Project Name'];
+            if (!projectName || projectName.toLowerCase() === 'project name' || projectName.toLowerCase() === 'opportunity name') return false;
             const company = row['company'] || row['COMPANY'];
             if (userCompany === 'ALL') return true;
             if (!userCompany || !company) return false;
@@ -369,12 +371,16 @@ export const appRouter = router({
           })
           .map((row, index) => ({
             id: `past-${index}`,
-            projectName: row['project name'] || row['Project Name'] || '',
-            inspectionType: row['inspection type'] || row['Inspection Type'] || '',
-            approvedStatus: row['approved status'] || row['Approved Status'] || row['approved'] || row['Approved'] || '',
-            dateApproved: row['date approved'] || row['Date Approved'] || '',
-            company: row['company'] || row['COMPANY'] || '',
+            projectName: row['opportunity name'] || row['Opportunity Name'] || row['project name'] || row['Project Name'] || '',
+            inspectionType: row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '',
+            approvedStatus: row['approved/ denied'] || row['Approved/ Denied'] || row['approved status'] || row['Approved Status'] || row['__col_8'] || '',
+            dateApproved: row['approved date'] || row['Approved Date'] || row['date approved'] || row['Date Approved'] || row['__col_9'] || '',
+            company: row['company'] || row['COMPANY'] || row['__col_4'] || '',
+            inspectorName: row['inspector name:'] || row['Inspector Name:'] || row['__col_11'] || '',
+            opportunityId: row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || '',
+            reportLink: row['report link'] || row['Report Link'] || row['__col_12'] || '',
             source: 'past',
+            sheetRowIndex: index,
           }));
         
         // Combine both sources
@@ -387,6 +393,228 @@ export const appRouter = router({
         return [];
       }
     }),
+
+    generateReport: protectedProcedure
+      .input(z.object({
+        projectName: z.string(),
+        inspectionType: z.string(),
+        approvedStatus: z.string(),
+        dateApproved: z.string(),
+        company: z.string(),
+        inspectorName: z.string(),
+        opportunityId: z.string(),
+        sheetRowIndex: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Admin only
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+
+        try {
+          // Look up project from database to get permit number and address
+          let permitNumber = '';
+          let address = input.projectName;
+          const database = await db.getDb();
+          if (database && input.opportunityId) {
+            const allProjects = await database.select().from(projects);
+            const matchedProject = allProjects.find(
+              p => p.opportunityId === input.opportunityId
+            );
+            if (matchedProject) {
+              permitNumber = matchedProject.permitNumber || '';
+              address = matchedProject.address || matchedProject.opportunityName || input.projectName;
+            }
+          }
+
+          // Generate PDF
+          const pdfBuffer = await generateSingleInspectionPDF({
+            permitNumber,
+            address,
+            projectName: input.projectName,
+            inspectionType: input.inspectionType,
+            dateApproved: input.dateApproved,
+            approvedStatus: input.approvedStatus,
+            inspectorName: input.inspectorName,
+            company: input.company,
+          });
+
+          // Upload to S3
+          const safeName = (input.projectName || 'inspection')
+            .replace(/[^a-zA-Z0-9\s-]/g, '')
+            .replace(/\s+/g, '-');
+          const safeType = (input.inspectionType || 'report')
+            .replace(/[^a-zA-Z0-9\s-]/g, '')
+            .replace(/\s+/g, '-');
+          const timestamp = Date.now();
+          const fileKey = `inspection-reports/${safeName}-${safeType}-${timestamp}.pdf`;
+
+          const { url } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
+
+          // Write report link back to Google Sheet column M
+          await updatePastInspectionReportLink(
+            input.sheetRowIndex,
+            url,
+            input.projectName,
+            input.inspectionType
+          ).catch(err => {
+            console.error('[Report Link] Failed to update Google Sheet:', err);
+          });
+
+          // Save report link to database
+          const database2 = await db.getDb();
+          if (database2) {
+            await database2.insert(inspectionReports).values({
+              projectName: input.projectName,
+              inspectionType: input.inspectionType,
+              approvedStatus: input.approvedStatus,
+              dateApproved: input.dateApproved,
+              inspectorName: input.inspectorName,
+              company: input.company,
+              opportunityId: input.opportunityId,
+              reportUrl: url,
+              fileKey: fileKey,
+              sheetRowIndex: input.sheetRowIndex,
+            });
+          }
+
+          console.log(`[Report] Generated individual report for ${input.projectName} - ${input.inspectionType}: ${url}`);
+
+          return { success: true, reportUrl: url };
+        } catch (error) {
+          console.error('[Report] Error generating individual inspection report:', error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to generate inspection report',
+          });
+        }
+      }),
+
+    generateAllReports: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        // Admin only
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+
+        try {
+          // Fetch all past inspections
+          const rows = await fetchPastInspections();
+          const database = await db.getDb();
+          let allDbProjects: any[] = [];
+          if (database) {
+            allDbProjects = await database.select().from(projects);
+          }
+
+          let generated = 0;
+          let skipped = 0;
+
+          for (let index = 0; index < rows.length; index++) {
+            const row = rows[index]!;
+            const projectName = row['opportunity name'] || row['Opportunity Name'] || row['project name'] || row['Project Name'] || '';
+            if (!projectName || projectName.toLowerCase() === 'project name' || projectName.toLowerCase() === 'opportunity name') {
+              skipped++;
+              continue;
+            }
+
+            // Skip if report link already exists
+            const existingLink = row['report link'] || row['Report Link'] || row['__col_12'] || '';
+            if (existingLink && existingLink.trim() !== '') {
+              skipped++;
+              continue;
+            }
+
+            const inspectionType = row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '';
+            const approvedStatus = row['approved/ denied'] || row['Approved/ Denied'] || row['__col_8'] || '';
+            const dateApproved = row['approved date'] || row['Approved Date'] || row['__col_9'] || '';
+            const company = row['company'] || row['COMPANY'] || row['__col_4'] || '';
+            const inspectorName = row['inspector name:'] || row['Inspector Name:'] || row['__col_11'] || '';
+            const opportunityId = row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || '';
+
+            // Look up permit number and address from database
+            let permitNumber = '';
+            let address = projectName;
+            if (opportunityId) {
+              const matchedProject = allDbProjects.find(p => p.opportunityId === opportunityId);
+              if (matchedProject) {
+                permitNumber = matchedProject.permitNumber || '';
+                address = matchedProject.address || matchedProject.opportunityName || projectName;
+              }
+            }
+
+            // Generate PDF
+            const pdfBuffer = await generateSingleInspectionPDF({
+              permitNumber,
+              address,
+              projectName,
+              inspectionType,
+              dateApproved,
+              approvedStatus,
+              inspectorName,
+              company,
+            });
+
+            // Upload to S3
+            const safeName = (projectName || 'inspection')
+              .replace(/[^a-zA-Z0-9\s-]/g, '')
+              .replace(/\s+/g, '-');
+            const safeType = (inspectionType || 'report')
+              .replace(/[^a-zA-Z0-9\s-]/g, '')
+              .replace(/\s+/g, '-');
+            const timestamp = Date.now();
+            const fileKey = `inspection-reports/${safeName}-${safeType}-${timestamp}.pdf`;
+
+            const { url } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
+
+            // Save report link to database
+            if (database) {
+              await database.insert(inspectionReports).values({
+                projectName,
+                inspectionType,
+                approvedStatus,
+                dateApproved,
+                inspectorName,
+                company,
+                opportunityId,
+                reportUrl: url,
+                fileKey,
+                sheetRowIndex: index,
+              });
+            }
+
+            // Write report link back to Google Sheet column M
+            await updatePastInspectionReportLink(
+              index,
+              url,
+              projectName,
+              inspectionType
+            ).catch(err => {
+              console.error(`[Report Link] Failed to update row ${index + 2}:`, err);
+            });
+
+            generated++;
+          }
+
+          console.log(`[Report] Bulk generation complete: ${generated} generated, ${skipped} skipped`);
+          return { success: true, generated, skipped };
+        } catch (error) {
+          console.error('[Report] Error in bulk report generation:', error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to generate reports',
+          });
+        }
+      }),
+    getReportLinks: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        const database = await db.getDb();
+        if (!database) return [];
+        const reports = await database.select().from(inspectionReports).orderBy(desc(inspectionReports.createdAt));
+        return reports;
+      }),
   }),
 
   inspections: router({
