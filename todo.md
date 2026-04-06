@@ -581,3 +581,10 @@
 - [x] Add blank license number field below the signature
 - [x] Add "Regenerate All" button to force-regenerate all reports with updated format
 - [x] Update both generateReport and generateAllReports to use assigned inspector
+
+
+## Bug Fix: Inspector names and signatures not showing on PDF reports
+- [x] Fixed column index mapping in generateAllReports (opportunityId was reading from wrong column)
+- [x] Verified inspector lookup from database is working correctly
+- [x] Confirmed inspector name and signature now appear on regenerated PDFs
+- [x] Verified blank license number field appears below signature

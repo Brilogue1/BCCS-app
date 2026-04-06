@@ -540,12 +540,12 @@ export const appRouter = router({
               }
             }
 
-            const inspectionType = row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '';
-            const approvedStatus = row['approved/ denied'] || row['Approved/ Denied'] || row['__col_8'] || '';
-            const dateApproved = row['approved date'] || row['Approved Date'] || row['__col_9'] || '';
-            const company = row['company'] || row['COMPANY'] || row['__col_4'] || '';
-            const inspectorName = row['inspector name:'] || row['Inspector Name:'] || row['__col_11'] || '';
-            const opportunityId = row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || '';
+            const inspectionType = row['inspection type'] || row['Inspection Type'] || row['__col_8'] || '';
+            const approvedStatus = row['approved/ denied'] || row['Approved/ Denied'] || row['__col_9'] || '';
+            const dateApproved = row['approved date'] || row['Approved Date'] || row['__col_10'] || '';
+            const company = row['company'] || row['COMPANY'] || row['__col_5'] || '';
+            const inspectorName = row['inspector name:'] || row['Inspector Name:'] || row['__col_12'] || '';
+            const opportunityId = row['opportunity id'] || row['Opportunity ID'] || row['__col_6'] || '';
 
             // Look up permit number, address, and assigned inspector from database
             let permitNumber = '';
@@ -562,7 +562,7 @@ export const appRouter = router({
                 }
               }
             }
-            console.log(`[Report All] Using inspector for PDF: "${assignedInspector}" (sheet had: "${inspectorName}")`);
+            console.log(`[Report All] Using inspector for PDF: "${assignedInspector}" (sheet had: "${inspectorName}") | oppId: "${opportunityId}"`);
 
             // Generate PDF
             const pdfBuffer = await generateSingleInspectionPDF({
