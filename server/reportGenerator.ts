@@ -187,6 +187,62 @@ export function generateInspectionRecordPDF(data: ReportData): Promise<Buffer> {
 
 
 /**
+ * Inspector license number lookup by inspector name and inspection type.
+ * Keys are uppercase inspector names; values map inspection category to license number.
+ */
+const INSPECTOR_LICENSES: Record<string, { building?: string; plumbing?: string; electrical?: string; mechanical?: string; inspector?: string; plansExamining?: string }> = {
+  'TIM MILLER': {
+    building: 'BU2124',
+    inspector: 'BN6824',
+    plansExamining: 'PX3701',
+  },
+};
+
+/**
+ * Determine the correct license number for an inspector based on inspection type.
+ * Returns the license number string, or empty string if not found.
+ */
+export function getLicenseNumber(inspectorName: string, inspectionType: string): string {
+  const name = (inspectorName || '').toUpperCase().trim();
+  const licenses = INSPECTOR_LICENSES[name];
+  if (!licenses) return '';
+
+  const type = (inspectionType || '').toUpperCase();
+
+  // Plans examining types
+  if (type.includes('PLAN') || type.includes('EXAM') || type.includes('REVIEW')) {
+    return licenses.plansExamining || licenses.building || '';
+  }
+
+  // Plumbing types
+  if (type.includes('PLUMB') || type.includes('PLBG')) {
+    return licenses.inspector || licenses.building || '';
+  }
+
+  // Electrical types
+  if (type.includes('ELECT') || type.includes('ELEC')) {
+    return licenses.inspector || licenses.building || '';
+  }
+
+  // Mechanical types
+  if (type.includes('MECH')) {
+    return licenses.inspector || licenses.building || '';
+  }
+
+  // Building / structural types (BLDG, FOUNDATION, FRAMING, ADA, SLAB, etc.)
+  if (type.includes('BLDG') || type.includes('BUILDING') || type.includes('FOUND') ||
+      type.includes('FRAME') || type.includes('FRAMING') || type.includes('ADA') ||
+      type.includes('SLAB') || type.includes('FOOTER') || type.includes('CEILING') ||
+      type.includes('UNDERGROUND') || type.includes('ROUGH') || type.includes('FINAL') ||
+      type.includes('PREPOUR') || type.includes('GRID')) {
+    return licenses.inspector || licenses.building || '';
+  }
+
+  // Default: use inspector license if available, then building
+  return licenses.inspector || licenses.building || '';
+}
+
+/**
  * Data for a single inspection report
  */
 export interface SingleInspectionReportData {
@@ -198,6 +254,7 @@ export interface SingleInspectionReportData {
   approvedStatus: string;
   inspectorName: string;
   company: string;
+  licenseNumber?: string;
 }
 
 /**
@@ -338,12 +395,13 @@ export function generateSingleInspectionPDF(data: SingleInspectionReportData): P
       }
     }
 
-    // Blank license number line below signature
+    // License number line below signature
     doc.moveDown(0.8);
     doc.font('Helvetica-Bold').fontSize(11).fillColor('#000000');
     doc.text('License Number:', { continued: true });
     doc.font('Helvetica').fontSize(11);
-    doc.text(' ___________________________');
+    const licenseDisplay = data.licenseNumber ? ` ${data.licenseNumber}` : ' ___________________________';
+    doc.text(licenseDisplay);
 
     doc.end();
   });

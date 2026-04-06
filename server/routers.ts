@@ -7,7 +7,7 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects, inspectionReports } from "../drizzle/schema";
 import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink } from "./googleSheets";
-import { generateSingleInspectionPDF } from "./reportGenerator";
+import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
 import { storagePut } from "./storage";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
@@ -437,6 +437,8 @@ export const appRouter = router({
             }
           }
           console.log(`[Report] Using inspector for PDF: "${assignedInspector}" (input was: "${input.inspectorName}")`);
+          const licenseNumber = getLicenseNumber(assignedInspector, input.inspectionType);
+          console.log(`[Report] License number: "${licenseNumber}" for inspector "${assignedInspector}" + type "${input.inspectionType}"`);
 
           // Generate PDF
           const pdfBuffer = await generateSingleInspectionPDF({
@@ -448,6 +450,7 @@ export const appRouter = router({
             approvedStatus: input.approvedStatus,
             inspectorName: assignedInspector,
             company: input.company,
+            licenseNumber,
           });
 
           // Upload to S3
@@ -563,6 +566,7 @@ export const appRouter = router({
               }
             }
             console.log(`[Report All] Using inspector for PDF: "${assignedInspector}" (sheet had: "${inspectorName}") | oppId: "${opportunityId}"`);
+            const licenseNumber = getLicenseNumber(assignedInspector, inspectionType);
 
             // Generate PDF
             const pdfBuffer = await generateSingleInspectionPDF({
@@ -574,6 +578,7 @@ export const appRouter = router({
               approvedStatus,
               inspectorName: assignedInspector,
               company,
+              licenseNumber,
             });
 
             // Upload to S3

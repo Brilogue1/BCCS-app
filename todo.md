@@ -588,3 +588,8 @@
 - [x] Verified inspector lookup from database is working correctly
 - [x] Confirmed inspector name and signature now appear on regenerated PDFs
 - [x] Verified blank license number field appears below signature
+
+## License Number Auto-Fill by Inspector
+- [x] Add Tim Miller license numbers: BU2124 (building official), BN6824 (inspector), PX3701 (plans examining)
+- [x] Auto-select correct license number based on inspection type
+- [x] Regenerate all Tim Miller reports with correct license numbers
