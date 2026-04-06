@@ -574,3 +574,10 @@
 - [x] Improve webhook function with better logging and redirect handling
 - [x] Add "Sync Links to Sheet" button to re-push existing DB report links to correct sheet rows
 - [x] Verify links appear in correct column M rows after fix
+
+## PDF Report Inspector Enhancement
+- [x] Pull assigned inspector from column AN (Assign Inspector) of the All Sheet
+- [x] Add inspector's cursive signature to PDF report
+- [x] Add blank license number field below the signature
+- [x] Add "Regenerate All" button to force-regenerate all reports with updated format
+- [x] Update both generateReport and generateAllReports to use assigned inspector

@@ -316,14 +316,14 @@ export function generateSingleInspectionPDF(data: SingleInspectionReportData): P
 
     // ── Footer with Signature ────────────────────────────────────────────────
     doc.y = y + 40;
+    doc.font('Helvetica-Bold').fontSize(11);
+    doc.text('Inspector:', { continued: true });
     doc.font('Helvetica').fontSize(11);
-    doc.text(`Inspector Name: ${data.inspectorName || ''}`);
-    doc.moveDown(0.4);
-    doc.text('License Number');
+    doc.text(` ${data.inspectorName || ''}`);
 
     // Cursive signature
     if (data.inspectorName) {
-      doc.moveDown(1.5);
+      doc.moveDown(1);
       try {
         const fontPath = path.join(__dirname, 'fonts', 'DancingScript.ttf');
         doc.registerFont('SignatureFont', fontPath);
@@ -337,6 +337,13 @@ export function generateSingleInspectionPDF(data: SingleInspectionReportData): P
         doc.font('Helvetica').fontSize(10).fillColor('#000000');
       }
     }
+
+    // Blank license number line below signature
+    doc.moveDown(0.8);
+    doc.font('Helvetica-Bold').fontSize(11).fillColor('#000000');
+    doc.text('License Number:', { continued: true });
+    doc.font('Helvetica').fontSize(11);
+    doc.text(' ___________________________');
 
     doc.end();
   });

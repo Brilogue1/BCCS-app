@@ -417,9 +417,10 @@ export const appRouter = router({
         }
 
         try {
-          // Look up project from database to get permit number and address
+          // Look up project from database to get permit number, address, and assigned inspector
           let permitNumber = '';
           let address = input.projectName;
+          let assignedInspector = input.inspectorName; // fallback to past inspections inspector
           const database = await db.getDb();
           if (database && input.opportunityId) {
             const allProjects = await database.select().from(projects);
@@ -429,8 +430,13 @@ export const appRouter = router({
             if (matchedProject) {
               permitNumber = matchedProject.permitNumber || '';
               address = matchedProject.address || matchedProject.opportunityName || input.projectName;
+              // Use assigned inspector from main All Sheet (column AN) if available
+              if (matchedProject.assignedInspector && matchedProject.assignedInspector.trim()) {
+                assignedInspector = matchedProject.assignedInspector.trim();
+              }
             }
           }
+          console.log(`[Report] Using inspector for PDF: "${assignedInspector}" (input was: "${input.inspectorName}")`);
 
           // Generate PDF
           const pdfBuffer = await generateSingleInspectionPDF({
@@ -440,7 +446,7 @@ export const appRouter = router({
             inspectionType: input.inspectionType,
             dateApproved: input.dateApproved,
             approvedStatus: input.approvedStatus,
-            inspectorName: input.inspectorName,
+            inspectorName: assignedInspector,
             company: input.company,
           });
 
@@ -496,11 +502,14 @@ export const appRouter = router({
       }),
 
     generateAllReports: protectedProcedure
-      .mutation(async ({ ctx }) => {
+      .input(z.object({ forceRegenerate: z.boolean().optional() }).optional())
+      .mutation(async ({ input, ctx }) => {
         // Admin only
         if (ctx.user.role !== 'admin') {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
         }
+
+        const forceRegenerate = input?.forceRegenerate || false;
 
         try {
           // Fetch all past inspections
@@ -522,11 +531,13 @@ export const appRouter = router({
               continue;
             }
 
-            // Skip if report link already exists
-            const existingLink = row['report link'] || row['Report Link'] || row['__col_12'] || '';
-            if (existingLink && existingLink.trim() !== '') {
-              skipped++;
-              continue;
+            // Skip if report link already exists (unless force regenerating)
+            if (!forceRegenerate) {
+              const existingLink = row['report link'] || row['Report Link'] || row['__col_12'] || '';
+              if (existingLink && existingLink.trim() !== '') {
+                skipped++;
+                continue;
+              }
             }
 
             const inspectionType = row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '';
@@ -536,16 +547,22 @@ export const appRouter = router({
             const inspectorName = row['inspector name:'] || row['Inspector Name:'] || row['__col_11'] || '';
             const opportunityId = row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || '';
 
-            // Look up permit number and address from database
+            // Look up permit number, address, and assigned inspector from database
             let permitNumber = '';
             let address = projectName;
+            let assignedInspector = inspectorName; // fallback to past inspections inspector
             if (opportunityId) {
               const matchedProject = allDbProjects.find(p => p.opportunityId === opportunityId);
               if (matchedProject) {
                 permitNumber = matchedProject.permitNumber || '';
                 address = matchedProject.address || matchedProject.opportunityName || projectName;
+                // Use assigned inspector from main All Sheet (column AN) if available
+                if (matchedProject.assignedInspector && matchedProject.assignedInspector.trim()) {
+                  assignedInspector = matchedProject.assignedInspector.trim();
+                }
               }
             }
+            console.log(`[Report All] Using inspector for PDF: "${assignedInspector}" (sheet had: "${inspectorName}")`);
 
             // Generate PDF
             const pdfBuffer = await generateSingleInspectionPDF({
@@ -555,7 +572,7 @@ export const appRouter = router({
               inspectionType,
               dateApproved,
               approvedStatus,
-              inspectorName,
+              inspectorName: assignedInspector,
               company,
             });
 
@@ -571,14 +588,26 @@ export const appRouter = router({
 
             const { url } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
 
-            // Save report link to database
+            // Save report link to database (delete old record first if force regenerating)
             if (database) {
+              if (forceRegenerate) {
+                // Delete any existing report for this project+inspection combo
+                const existing = await database.select().from(inspectionReports);
+                const match = existing.find(r => 
+                  r.projectName === projectName && 
+                  r.inspectionType === inspectionType &&
+                  r.sheetRowIndex === index
+                );
+                if (match) {
+                  await database.delete(inspectionReports).where(eq(inspectionReports.id, match.id));
+                }
+              }
               await database.insert(inspectionReports).values({
                 projectName,
                 inspectionType,
                 approvedStatus,
                 dateApproved,
-                inspectorName,
+                inspectorName: assignedInspector,
                 company,
                 opportunityId,
                 reportUrl: url,

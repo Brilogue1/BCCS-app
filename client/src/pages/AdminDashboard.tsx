@@ -1,7 +1,7 @@
 import { Link, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail, FileCheck, Zap, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail, FileCheck, Zap, ExternalLink, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useRef, useState } from "react";
@@ -23,6 +23,7 @@ export default function AdminDashboard() {
   const [generatingReportId, setGeneratingReportId] = useState<string | null>(null);
   const [generatingAll, setGeneratingAll] = useState(false);
   const [syncingLinks, setSyncingLinks] = useState(false);
+  const [regeneratingAll, setRegeneratingAll] = useState(false);
 
   // Helper to find existing report link for an inspection
   const getExistingReportUrl = (projectName: string, inspectionType: string): string | null => {
@@ -68,6 +69,19 @@ export default function AdminDashboard() {
     onError: (error) => {
       toast.error(error.message || 'Failed to sync report links');
       setSyncingLinks(false);
+    },
+  });
+
+  const regenerateAllMutation = trpc.pastInspections.generateAllReports.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Regenerated ${data.generated} reports (${data.skipped} skipped)`);
+      setRegeneratingAll(false);
+      refetchPastInspections();
+      refetchReportLinks();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to regenerate reports');
+      setRegeneratingAll(false);
     },
   });
 
@@ -682,15 +696,32 @@ export default function AdminDashboard() {
                 <Button
                   onClick={() => {
                     setGeneratingAll(true);
-                    generateAllReportsMutation.mutate();
+                    generateAllReportsMutation.mutate({});
                   }}
-                  disabled={generatingAll}
+                  disabled={generatingAll || regeneratingAll}
                   className="bg-blue-700 hover:bg-blue-800 text-white"
                 >
                   {generatingAll ? (
                     <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating All...</>
                   ) : (
-                    <><Zap className="h-4 w-4 mr-2" /> Generate All Reports</>
+                    <><Zap className="h-4 w-4 mr-2" /> Generate New Reports</>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (confirm('This will regenerate ALL reports with updated inspector names and formatting. Continue?')) {
+                      setRegeneratingAll(true);
+                      regenerateAllMutation.mutate({ forceRegenerate: true });
+                    }
+                  }}
+                  disabled={generatingAll || regeneratingAll}
+                  variant="outline"
+                  className="border-orange-300 text-orange-700 hover:bg-orange-50"
+                >
+                  {regeneratingAll ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Regenerating...</>
+                  ) : (
+                    <><RefreshCw className="h-4 w-4 mr-2" /> Regenerate All</>
                   )}
                 </Button>
               </div>
