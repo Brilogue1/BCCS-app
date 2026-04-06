@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const { data: reportLinks, refetch: refetchReportLinks } = trpc.pastInspections.getReportLinks.useQuery();
   const [generatingReportId, setGeneratingReportId] = useState<string | null>(null);
   const [generatingAll, setGeneratingAll] = useState(false);
+  const [syncingLinks, setSyncingLinks] = useState(false);
 
   // Helper to find existing report link for an inspection
   const getExistingReportUrl = (projectName: string, inspectionType: string): string | null => {
@@ -55,6 +56,18 @@ export default function AdminDashboard() {
     onError: (error) => {
       toast.error(error.message || 'Failed to generate reports');
       setGeneratingAll(false);
+    },
+  });
+
+  const syncReportLinksMutation = trpc.pastInspections.syncReportLinksToSheet.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Synced ${data.synced} report links to Google Sheets`);
+      setSyncingLinks(false);
+      refetchPastInspections();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to sync report links');
+      setSyncingLinks(false);
     },
   });
 
@@ -650,20 +663,37 @@ export default function AdminDashboard() {
                 </CardTitle>
                 <CardDescription>Generate PDF reports for each inspection from the Past Inspections sheet. Reports are saved to S3 and linked in column M.</CardDescription>
               </div>
-              <Button
-                onClick={() => {
-                  setGeneratingAll(true);
-                  generateAllReportsMutation.mutate();
-                }}
-                disabled={generatingAll}
-                className="bg-blue-700 hover:bg-blue-800 text-white"
-              >
-                {generatingAll ? (
-                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating All...</>
-                ) : (
-                  <><Zap className="h-4 w-4 mr-2" /> Generate All Reports</>
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    setSyncingLinks(true);
+                    syncReportLinksMutation.mutate();
+                  }}
+                  disabled={syncingLinks}
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  {syncingLinks ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Syncing...</>
+                  ) : (
+                    <><Send className="h-4 w-4 mr-2" /> Sync Links to Sheet</>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setGeneratingAll(true);
+                    generateAllReportsMutation.mutate();
+                  }}
+                  disabled={generatingAll}
+                  className="bg-blue-700 hover:bg-blue-800 text-white"
+                >
+                  {generatingAll ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Generating All...</>
+                  ) : (
+                    <><Zap className="h-4 w-4 mr-2" /> Generate All Reports</>
+                  )}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>

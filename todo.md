@@ -566,3 +566,11 @@
 - [x] Keep existing completed project report as-is
 - [x] Fix Google Apps Script webhook 302 redirect handling
 - [x] Store report links in database for instant View PDF buttons
+
+## Bug Fix: Report links not writing to Past Inspections Google Sheet column M
+- [x] Investigate webhook call in report generation code
+- [x] Test Google Apps Script webhook directly
+- [x] Fix sheetRowIndex calculation (was using filtered index instead of original row index)
+- [x] Improve webhook function with better logging and redirect handling
+- [x] Add "Sync Links to Sheet" button to re-push existing DB report links to correct sheet rows
+- [x] Verify links appear in correct column M rows after fix

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -360,8 +360,13 @@ export const appRouter = router({
         
         // Fetch past inspections from Past Inspections sheet
         const rows = await fetchPastInspections();
-        const pastInspections = rows
-          .filter(row => {
+        // First, map ALL rows with their original sheet index before filtering
+        const allMappedRows = rows.map((row, originalIndex) => ({
+          row,
+          originalIndex, // This is the 0-based index in the CSV data (row 0 = first data row = sheet row 2)
+        }));
+        const pastInspections = allMappedRows
+          .filter(({ row }) => {
             const projectName = row['opportunity name'] || row['Opportunity Name'] || row['project name'] || row['Project Name'];
             if (!projectName || projectName.toLowerCase() === 'project name' || projectName.toLowerCase() === 'opportunity name') return false;
             const company = row['company'] || row['COMPANY'];
@@ -369,8 +374,8 @@ export const appRouter = router({
             if (!userCompany || !company) return false;
             return company.toLowerCase() === userCompany.toLowerCase();
           })
-          .map((row, index) => ({
-            id: `past-${index}`,
+          .map(({ row, originalIndex }, filteredIndex) => ({
+            id: `past-${filteredIndex}`,
             projectName: row['opportunity name'] || row['Opportunity Name'] || row['project name'] || row['Project Name'] || '',
             inspectionType: row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '',
             approvedStatus: row['approved/ denied'] || row['Approved/ Denied'] || row['approved status'] || row['Approved Status'] || row['__col_8'] || '',
@@ -380,7 +385,7 @@ export const appRouter = router({
             opportunityId: row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || '',
             reportLink: row['report link'] || row['Report Link'] || row['__col_12'] || '',
             source: 'past',
-            sheetRowIndex: index,
+            sheetRowIndex: originalIndex, // Use original sheet row index, not filtered index
           }));
         
         // Combine both sources
@@ -605,6 +610,73 @@ export const appRouter = router({
           });
         }
       }),
+    // Sync existing report links from DB to Google Sheets column M
+    // This re-writes all report links to the correct rows based on matching project name + inspection type
+    syncReportLinksToSheet: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+
+        try {
+          const database = await db.getDb();
+          if (!database) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database not available' });
+
+          // Get all reports from DB
+          const dbReports = await database.select().from(inspectionReports);
+          if (dbReports.length === 0) return { success: true, synced: 0, message: 'No reports in database' };
+
+          // Fetch current sheet data to find correct row indices
+          const rows = await fetchPastInspections();
+          let synced = 0;
+
+          for (const report of dbReports) {
+            // Find the matching row in the sheet by project name + inspection type
+            const matchIndex = rows.findIndex(row => {
+              const sheetProject = (row['opportunity name'] || row['Opportunity Name'] || row['project name'] || row['Project Name'] || '').trim();
+              const sheetType = (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim();
+              return sheetProject === report.projectName?.trim() && sheetType === report.inspectionType?.trim();
+            });
+
+            if (matchIndex >= 0 && report.reportUrl) {
+              // Check if sheet already has a link for this row
+              const existingLink = rows[matchIndex]?.['report link'] || rows[matchIndex]?.['Report Link'] || rows[matchIndex]?.['__col_12'] || '';
+              if (existingLink && existingLink.trim() !== '') {
+                console.log(`[Sync] Row ${matchIndex + 2} already has link, skipping: ${report.projectName} - ${report.inspectionType}`);
+                continue;
+              }
+
+              console.log(`[Sync] Writing report link to sheet row ${matchIndex + 2} for: ${report.projectName} - ${report.inspectionType}`);
+              const success = await updatePastInspectionReportLink(
+                matchIndex,
+                report.reportUrl,
+                report.projectName || '',
+                report.inspectionType || ''
+              );
+
+              if (success) {
+                // Update the DB record with the correct sheetRowIndex
+                await database.update(inspectionReports)
+                  .set({ sheetRowIndex: matchIndex })
+                  .where(eq(inspectionReports.id, report.id));
+                synced++;
+              }
+
+              // Small delay between webhook calls to avoid rate limiting
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            } else {
+              console.log(`[Sync] No matching sheet row found for: ${report.projectName} - ${report.inspectionType}`);
+            }
+          }
+
+          console.log(`[Sync] Completed: ${synced} report links synced to Google Sheets`);
+          return { success: true, synced };
+        } catch (error) {
+          console.error('[Sync] Error syncing report links:', error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to sync report links' });
+        }
+      }),
+
     getReportLinks: protectedProcedure
       .query(async ({ ctx }) => {
         if (ctx.user.role !== 'admin') {
