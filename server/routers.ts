@@ -594,32 +594,41 @@ export const appRouter = router({
 
             const { url } = await storagePut(fileKey, pdfBuffer, 'application/pdf');
 
-            // Save report link to database (delete old record first if force regenerating)
+            // Save report link to database (upsert: update if exists, insert if new)
             if (database) {
-              if (forceRegenerate) {
-                // Delete any existing report for this project+inspection combo
-                const existing = await database.select().from(inspectionReports);
-                const match = existing.find(r => 
-                  r.projectName === projectName && 
-                  r.inspectionType === inspectionType &&
-                  r.sheetRowIndex === index
-                );
-                if (match) {
-                  await database.delete(inspectionReports).where(eq(inspectionReports.id, match.id));
-                }
+              const existing = await database.select().from(inspectionReports);
+              const match = existing.find(r =>
+                r.projectName === projectName &&
+                r.inspectionType === inspectionType &&
+                r.sheetRowIndex === index
+              );
+              if (match) {
+                // Update existing record in place
+                await database.update(inspectionReports)
+                  .set({
+                    approvedStatus,
+                    dateApproved,
+                    inspectorName: assignedInspector,
+                    company,
+                    opportunityId,
+                    reportUrl: url,
+                    fileKey,
+                  })
+                  .where(eq(inspectionReports.id, match.id));
+              } else {
+                await database.insert(inspectionReports).values({
+                  projectName,
+                  inspectionType,
+                  approvedStatus,
+                  dateApproved,
+                  inspectorName: assignedInspector,
+                  company,
+                  opportunityId,
+                  reportUrl: url,
+                  fileKey,
+                  sheetRowIndex: index,
+                });
               }
-              await database.insert(inspectionReports).values({
-                projectName,
-                inspectionType,
-                approvedStatus,
-                dateApproved,
-                inspectorName: assignedInspector,
-                company,
-                opportunityId,
-                reportUrl: url,
-                fileKey,
-                sheetRowIndex: index,
-              });
             }
 
             // Write report link back to Google Sheet column M

@@ -612,3 +612,9 @@
 ## Tim Miller License Number on All Reports
 - [x] Update getLicenseNumber to always use Tim Miller's license numbers regardless of inspector name
 - [x] Regenerate all reports with the correct license number
+
+## Duplicate Report Cleanup
+- [x] Investigate duplicate inspection reports in the database
+- [x] Remove duplicate records, keep only the 14 matching current sheet rows
+- [x] Fix upsert logic to update existing records instead of always inserting (prevents future duplicates)
+- [x] Verify client-facing tab shows clean 14 deduplicated reports
