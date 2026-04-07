@@ -85,6 +85,21 @@ export default function AdminDashboard() {
     },
   });
 
+  // Scheduler status
+  const { data: schedulerStatus, refetch: refetchScheduler } = trpc.pastInspections.schedulerStatus.useQuery();
+  const [runningScheduler, setRunningScheduler] = useState(false);
+  const runSchedulerNowMutation = trpc.pastInspections.runSchedulerNow.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      setRunningScheduler(false);
+      setTimeout(() => refetchScheduler(), 2000);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to trigger scheduler');
+      setRunningScheduler(false);
+    },
+  });
+
   // Redirect users without ALL company access
   if (!authLoading && user?.company !== 'ALL') {
     return <Redirect to="/dashboard" />;
@@ -676,6 +691,17 @@ export default function AdminDashboard() {
                   Individual Inspection Reports
                 </CardTitle>
                 <CardDescription>Generate PDF reports for each inspection from the Past Inspections sheet. Reports are saved to S3 and linked in column M.</CardDescription>
+                {schedulerStatus && (
+                  <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+                    <span className={`flex items-center gap-1 font-medium ${schedulerStatus.isRunning ? 'text-blue-600' : 'text-green-600'}`}>
+                      {schedulerStatus.isRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Clock className="h-3 w-3" />}
+                      {schedulerStatus.isRunning ? 'Running now...' : schedulerStatus.schedule}
+                    </span>
+                    {schedulerStatus.lastRunAt && (
+                      <span>Last run: {new Date(schedulerStatus.lastRunAt).toLocaleString()} — {schedulerStatus.lastRunResult?.generated ?? 0} generated</span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button

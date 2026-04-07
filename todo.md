@@ -593,3 +593,10 @@
 - [x] Add Tim Miller license numbers: BU2124 (building official), BN6824 (inspector), PX3701 (plans examining)
 - [x] Auto-select correct license number based on inspection type
 - [x] Regenerate all Tim Miller reports with correct license numbers
+
+## Auto Report Generation Scheduler
+- [x] Add server-side cron job that runs every hour 7am-5pm CST (Mon-Fri)
+- [x] Job scans Past Inspections sheet for rows missing column M report link
+- [x] Auto-generates PDF and writes link back to sheet for each missing row
+- [x] Add scheduler status/last-run info visible in Admin Analytics page
+- [x] Add vitest tests for getLicenseNumber and schedulerState (11/11 passing)

@@ -12,6 +12,7 @@ import multer from "multer";
 import { generateInspectionRecordPDF, buildInspectionRows } from "../reportGenerator";
 import * as db from "../db";
 import { sdk } from "./sdk";
+import { startReportScheduler } from "../reportScheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -192,6 +193,8 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    // Start the automated report generation scheduler (7am-5pm CST, Mon-Fri, hourly)
+    startReportScheduler();
   });
 }
 

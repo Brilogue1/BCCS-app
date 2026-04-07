@@ -8,6 +8,7 @@ import * as db from "./db";
 import { projects, inspectionReports } from "../drizzle/schema";
 import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink } from "./googleSheets";
 import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
+import { schedulerState, runAutoReportGeneration } from "./reportScheduler";
 import { storagePut } from "./storage";
 import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
@@ -720,6 +721,33 @@ export const appRouter = router({
         if (!database) return [];
         const reports = await database.select().from(inspectionReports).orderBy(desc(inspectionReports.createdAt));
         return reports;
+      }),
+
+    schedulerStatus: protectedProcedure
+      .query(({ ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        return {
+          isRunning: schedulerState.isRunning,
+          lastRunAt: schedulerState.lastRunAt,
+          lastRunResult: schedulerState.lastRunResult,
+          nextRunAt: schedulerState.nextRunAt,
+          schedule: 'Every hour, 7am–5pm CST, Mon–Fri',
+        };
+      }),
+
+    runSchedulerNow: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        if (schedulerState.isRunning) {
+          return { success: false, message: 'Scheduler is already running' };
+        }
+        // Run in background, don't await
+        runAutoReportGeneration().catch(err => console.error('[AutoReport] Manual trigger error:', err));
+        return { success: true, message: 'Scheduler triggered manually' };
       }),
   }),
 
