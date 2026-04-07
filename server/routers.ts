@@ -723,6 +723,34 @@ export const appRouter = router({
         return reports;
       }),
 
+    // Client-facing: returns inspection reports filtered by the logged-in user's company
+    getMyReports: protectedProcedure
+      .query(async ({ ctx }) => {
+        const database = await db.getDb();
+        if (!database) return [];
+        const userCompany = ctx.user.company;
+        const allReports = await database.select().from(inspectionReports).orderBy(desc(inspectionReports.createdAt));
+        // Admins (company=ALL) see all reports; clients see only their company's reports
+        const filtered = allReports.filter(r => {
+          if (!r.reportUrl) return false; // Only show reports that have a PDF
+          if (userCompany === 'ALL') return true;
+          if (!userCompany || !r.company) return false;
+          return r.company.toLowerCase() === userCompany.toLowerCase();
+        });
+        // Return safe fields only — no fileKey exposed to clients
+        return filtered.map(r => ({
+          id: r.id,
+          projectName: r.projectName,
+          inspectionType: r.inspectionType,
+          approvedStatus: r.approvedStatus,
+          dateApproved: r.dateApproved,
+          company: r.company,
+          inspectorName: r.inspectorName,
+          reportUrl: r.reportUrl,
+          createdAt: r.createdAt,
+        }));
+      }),
+
     schedulerStatus: protectedProcedure
       .query(({ ctx }) => {
         if (ctx.user.role !== 'admin') {

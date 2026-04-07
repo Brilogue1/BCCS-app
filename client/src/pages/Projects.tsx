@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Building2, Calendar, Loader2, LogOut, MapPin, Plus, RefreshCw, Search, BarChart3, CheckCircle2, Mail } from "lucide-react";
+import { Building2, Calendar, Loader2, LogOut, MapPin, Plus, RefreshCw, Search, BarChart3, CheckCircle2, Mail, FileText, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ export default function Projects() {
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'completed' | 'reports'>('active');
   
   // New project inspection dialog state
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
@@ -29,6 +29,7 @@ export default function Projects() {
 
   const { data: projects, isLoading: projectsLoading, refetch } = trpc.projects.list.useQuery();
   const { data: pastInspections, isLoading: pastInspectionsLoading } = trpc.pastInspections.list.useQuery();
+  const { data: myReports, isLoading: reportsLoading } = trpc.pastInspections.getMyReports.useQuery();
   
   // Auto-sync every 60 seconds
   useEffect(() => {
@@ -119,7 +120,7 @@ export default function Projects() {
     );
   });
 
-  const isLoading = activeTab === 'active' ? projectsLoading : pastInspectionsLoading;
+  const isLoading = activeTab === 'active' ? projectsLoading : activeTab === 'completed' ? pastInspectionsLoading : reportsLoading;
 
   if (isLoading) {
     return (
@@ -195,7 +196,7 @@ export default function Projects() {
         <div className="mb-6 space-y-4">
           {/* Tabs and New Project Button */}
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 variant={activeTab === 'active' ? 'default' : 'outline'}
                 onClick={() => setActiveTab('active')}
@@ -207,6 +208,19 @@ export default function Projects() {
                 onClick={() => setActiveTab('completed')}
               >
                 Completed Projects
+              </Button>
+              <Button
+                variant={activeTab === 'reports' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('reports')}
+                className={activeTab === 'reports' ? '' : 'border-blue-300 text-blue-700 hover:bg-blue-50'}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Inspection Reports
+                {myReports && myReports.length > 0 && (
+                  <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                    {myReports.length}
+                  </span>
+                )}
               </Button>
             </div>
             
@@ -303,6 +317,77 @@ export default function Projects() {
                     </Card>
                   </Link>
                 ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Inspection Reports Tab */}
+        {activeTab === 'reports' && (
+          <>
+            {!myReports || myReports.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <FileText className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+                  <p className="text-slate-600 mb-2 font-medium">No inspection reports available yet</p>
+                  <p className="text-slate-500 text-sm">Reports are automatically generated for completed inspections and will appear here.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {/* Group reports by project */}
+                {(() => {
+                  const grouped: Record<string, typeof myReports> = {};
+                  myReports.forEach(r => {
+                    const key = r.projectName || 'Unknown Project';
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key]!.push(r);
+                  });
+                  return Object.entries(grouped).map(([projectName, reports]) => (
+                    <Card key={projectName} className="overflow-hidden">
+                      <CardHeader className="pb-3 bg-slate-50 border-b">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                          {projectName}
+                        </CardTitle>
+                        {reports[0]?.company && (
+                          <CardDescription className="text-xs">{reports[0].company}</CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="divide-y divide-slate-100">
+                          {reports.map((report) => (
+                            <div key={report.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm text-slate-900 truncate">{report.inspectionType || 'Inspection'}</div>
+                                <div className="text-xs text-slate-500 flex flex-wrap gap-x-3 mt-0.5">
+                                  {report.dateApproved && <span>{report.dateApproved}</span>}
+                                  {report.approvedStatus && (
+                                    <span className={`font-medium ${
+                                      report.approvedStatus.toLowerCase().includes('approved') ? 'text-green-600' :
+                                      report.approvedStatus.toLowerCase().includes('denied') ? 'text-red-600' :
+                                      'text-amber-600'
+                                    }`}>{report.approvedStatus}</span>
+                                  )}
+                                  {report.inspectorName && <span>Inspector: {report.inspectorName}</span>}
+                                </div>
+                              </div>
+                              <a
+                                href={report.reportUrl!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-4 flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-colors"
+                              >
+                                <FileText className="h-3.5 w-3.5" />
+                                View Report
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ));
+                })()}
               </div>
             )}
           </>

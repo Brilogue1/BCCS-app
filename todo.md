@@ -600,3 +600,11 @@
 - [x] Auto-generates PDF and writes link back to sheet for each missing row
 - [x] Add scheduler status/last-run info visible in Admin Analytics page
 - [x] Add vitest tests for getLicenseNumber and schedulerState (11/11 passing)
+
+## Client-Facing Completed Inspection Reports Tab
+- [x] Add backend tRPC procedure to fetch inspection reports filtered by user's company
+- [x] Create Completed Inspection Reports page/tab for client dashboard
+- [x] Show only reports matching the client's company (company-filtered)
+- [x] Display project name, inspection type, date, status, and PDF link per report
+- [x] Ensure admin (company=ALL) can see all reports on this page too
+- [x] Reports grouped by project with View Report button (no download for clients)
