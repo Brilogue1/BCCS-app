@@ -203,9 +203,8 @@ const INSPECTOR_LICENSES: Record<string, { building?: string; plumbing?: string;
  * Returns the license number string, or empty string if not found.
  */
 export function getLicenseNumber(inspectorName: string, inspectionType: string): string {
-  const name = (inspectorName || '').toUpperCase().trim();
-  const licenses = INSPECTOR_LICENSES[name];
-  if (!licenses) return '';
+  // Tim Miller is the owner — always use his license numbers regardless of assigned inspector
+  const licenses = INSPECTOR_LICENSES['TIM MILLER'];
 
   const type = (inspectionType || '').toUpperCase();
 

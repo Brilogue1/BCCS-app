@@ -608,3 +608,7 @@
 - [x] Display project name, inspection type, date, status, and PDF link per report
 - [x] Ensure admin (company=ALL) can see all reports on this page too
 - [x] Reports grouped by project with View Report button (no download for clients)
+
+## Tim Miller License Number on All Reports
+- [x] Update getLicenseNumber to always use Tim Miller's license numbers regardless of inspector name
+- [x] Regenerate all reports with the correct license number
