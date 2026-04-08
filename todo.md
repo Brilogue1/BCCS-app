@@ -618,3 +618,8 @@
 - [x] Remove duplicate records, keep only the 14 matching current sheet rows
 - [x] Fix upsert logic to update existing records instead of always inserting (prevents future duplicates)
 - [x] Verify client-facing tab shows clean 14 deduplicated reports
+
+## Skip Blank/Underscore Inspection Types
+- [x] Skip report generation when inspection type is blank or "_"
+- [x] Apply to generateAllReports and reportScheduler
+- [x] Delete existing DB records where inspectionType is blank or "_" (removed 1 record)

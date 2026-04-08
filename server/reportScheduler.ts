@@ -71,6 +71,14 @@ export async function runAutoReportGeneration(): Promise<{ generated: number; sk
       }
 
       const inspectionType = row["inspection type"] || row["Inspection Type"] || row["__col_8"] || "";
+
+      // Skip rows with blank or placeholder inspection types (e.g. "_" or empty)
+      const cleanType = inspectionType.trim().replace(/^_+$/, "").trim();
+      if (!cleanType) {
+        skipped++;
+        continue;
+      }
+
       const approvedStatus = row["approved/ denied"] || row["Approved/ Denied"] || row["__col_9"] || "";
       const dateApproved = row["approved date"] || row["Approved Date"] || row["__col_10"] || "";
       const company = row["company"] || row["COMPANY"] || row["__col_5"] || "";

@@ -545,6 +545,14 @@ export const appRouter = router({
             }
 
             const inspectionType = row['inspection type'] || row['Inspection Type'] || row['__col_8'] || '';
+
+            // Skip rows with blank or placeholder inspection types
+            const cleanType = inspectionType.trim().replace(/^_+$/, '').trim();
+            if (!cleanType) {
+              skipped++;
+              continue;
+            }
+
             const approvedStatus = row['approved/ denied'] || row['Approved/ Denied'] || row['__col_9'] || '';
             const dateApproved = row['approved date'] || row['Approved Date'] || row['__col_10'] || '';
             const company = row['company'] || row['COMPANY'] || row['__col_5'] || '';
