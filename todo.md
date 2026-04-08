@@ -623,3 +623,9 @@
 - [x] Skip report generation when inspection type is blank or "_"
 - [x] Apply to generateAllReports and reportScheduler
 - [x] Delete existing DB records where inspectionType is blank or "_" (removed 1 record)
+
+## Bug Fix: Google Sheets Rate Limit Error
+- [x] Add rate limit detection when fetching CSV from Google Sheets
+- [x] Add retry logic with backoff (3 attempts, 5s/10s delays) when rate limited
+- [x] Show user-friendly error message instead of JSON parse crash
+- [x] Also handle HTML error pages and network errors with retry

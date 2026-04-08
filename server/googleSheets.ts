@@ -13,16 +13,59 @@ interface SheetRow {
 /**
  * Fetch data from Google Sheets using CSV export (no API key needed)
  * Sheet must be shared with "Anyone with the link can view"
+ * Includes retry logic for rate limit errors
  */
-async function fetchSheetAsCSV(gid: string): Promise<string> {
+async function fetchSheetAsCSV(gid: string, retries = 3): Promise<string> {
   // Export with range A:BB to ensure all columns are included
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&range=A:BB`;
-  const response = await axios.get(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0',
-    },
-  });
-  return response.data;
+  
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.get(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        responseType: 'text',
+      });
+      
+      const data = typeof response.data === 'string' ? response.data : String(response.data);
+      
+      // Detect Google Sheets rate limit response (plain text, not CSV)
+      if (data.includes('Rate exceeded') || data.includes('Too Many Requests') || data.includes('Service Unavailable')) {
+        if (attempt < retries) {
+          const delay = attempt * 5000; // 5s, 10s backoff
+          console.warn(`[Sheets] Rate limited on attempt ${attempt}/${retries}. Retrying in ${delay / 1000}s...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw new Error('Google Sheets rate limit exceeded. Please try again in a few minutes.');
+      }
+      
+      // Detect HTML error page (not CSV)
+      if (data.trim().startsWith('<!DOCTYPE') || data.trim().startsWith('<html')) {
+        if (attempt < retries) {
+          const delay = attempt * 3000;
+          console.warn(`[Sheets] Received HTML error page on attempt ${attempt}/${retries}. Retrying in ${delay / 1000}s...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw new Error('Google Sheets returned an error page. The sheet may be temporarily unavailable.');
+      }
+      
+      return data;
+    } catch (err: any) {
+      // Re-throw our custom errors immediately
+      if (err.message?.includes('rate limit') || err.message?.includes('error page')) throw err;
+      // For network errors, retry
+      if (attempt < retries) {
+        const delay = attempt * 3000;
+        console.warn(`[Sheets] Network error on attempt ${attempt}/${retries}: ${err.message}. Retrying in ${delay / 1000}s...`);
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+  
+  throw new Error('Failed to fetch Google Sheets data after all retries.');
 }
 
 /**
