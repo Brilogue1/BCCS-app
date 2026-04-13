@@ -629,3 +629,12 @@
 - [x] Add retry logic with backoff (3 attempts, 5s/10s delays) when rate limited
 - [x] Show user-friendly error message instead of JSON parse crash
 - [x] Also handle HTML error pages and network errors with retry
+
+## Bug Fix: Trimm Roofing LLC blank projects
+- [ ] Investigate company name mismatch between login sheet and All Sheet
+- [ ] Fix company name matching so Trimm Roofing can see their projects
+
+## Bug Fix: Trimm Roofing LLC cannot book inspections
+- [x] Found root cause: admin@trimmconstruction.com had double space in company name ("Trimm  Roofing, LLC" vs "Trimm Roofing, LLC")
+- [x] Fixed the double-space in the database for admin@trimmconstruction.com
+- [x] Added whitespace normalization when reading company from login sheet (prevents future recurrence)

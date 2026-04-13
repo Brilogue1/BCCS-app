@@ -240,8 +240,8 @@ export async function validateCredentials(email: string, password: string): Prom
     const isAdmin = user['Admin?']?.toUpperCase() === 'YES';
     const role = isAdmin ? 'admin' : 'user';
     
-    // Get company assignment from Column C
-    const company = user['Company'] || 'ALL';
+    // Get company assignment from Column C — normalize whitespace to prevent double-space mismatches
+    const company = (user['Company'] || 'ALL').replace(/\s+/g, ' ').trim();
     
     return { valid: true, role, company };
   } catch (error) {
