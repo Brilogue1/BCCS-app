@@ -20,14 +20,31 @@ const FORGE_API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
-  const projectId = parseInt(id || "0");
   const { user } = useAuth();
 
-  const { data: project, isLoading } = trpc.projects.getById.useQuery({ id: projectId });
-  const { data: inspections } = trpc.inspections.list.useQuery({ projectId });
-  const { data: contacts } = trpc.contacts.list.useQuery({ projectId });
+  // id can be either an opportunityId (string) or a numeric DB id (fallback)
+  // Prefer opportunityId-based lookup for stable URLs across syncs
+  const isNumericId = /^\d+$/.test(id || '');
+  const opportunityId = isNumericId ? '' : (id || '');
+  const numericId = isNumericId ? parseInt(id || '0') : 0;
+
+  const { data: projectByOppId, isLoading: loadingByOppId } = trpc.projects.getByOpportunityId.useQuery(
+    { opportunityId },
+    { enabled: !!opportunityId }
+  );
+  const { data: projectById, isLoading: loadingById } = trpc.projects.getById.useQuery(
+    { id: numericId },
+    { enabled: isNumericId && numericId > 0 }
+  );
+
+  const project = projectByOppId || projectById;
+  const isLoading = opportunityId ? loadingByOppId : loadingById;
+  const projectId = project?.id || numericId;
+
+  const { data: inspections } = trpc.inspections.list.useQuery({ projectId }, { enabled: projectId > 0 });
+  const { data: contacts } = trpc.contacts.list.useQuery({ projectId }, { enabled: projectId > 0 });
   const { data: pastInspections } = trpc.pastInspections.list.useQuery();
-  const { data: files, refetch: refetchFiles } = trpc.files.list.useQuery({ projectId });
+  const { data: files, refetch: refetchFiles } = trpc.files.list.useQuery({ projectId }, { enabled: projectId > 0 });
 
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
@@ -56,7 +73,11 @@ export default function ProjectDetail() {
       setInspectionType("");
       setInspectionNotes("");
       utils.inspections.list.invalidate({ projectId });
-      utils.projects.getById.invalidate({ id: projectId });
+      if (opportunityId) {
+        utils.projects.getByOpportunityId.invalidate({ opportunityId });
+      } else {
+        utils.projects.getById.invalidate({ id: numericId });
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to schedule inspection");

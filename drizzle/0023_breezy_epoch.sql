@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD CONSTRAINT `projects_opportunityId_unique` UNIQUE(`opportunityId`);

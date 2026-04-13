@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -192,6 +192,29 @@ export const appRouter = router({
         return project;
       }),
     
+    getByOpportunityId: protectedProcedure
+      .input(z.object({ opportunityId: z.string() }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectByOpportunityId(input.opportunityId);
+        
+        if (!project) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Project not found',
+          });
+        }
+        
+        // Verify user has access to this project
+        if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company)) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You do not have access to this project',
+          });
+        }
+        
+        return project;
+      }),
+    
     sync: protectedProcedure.mutation(async () => {
       try {
         console.log('[Sync] Starting Google Sheets sync...');
@@ -217,14 +240,6 @@ export const appRouter = router({
             code: 'INTERNAL_SERVER_ERROR',
             message: 'No data fetched from Google Sheets. Please check the sheet is accessible and has data.',
           });
-        }
-        
-        // Clear existing projects only after successful fetch
-        const database = await db.getDb();
-        if (database) {
-          const { projects: projectsTable } = await import('../drizzle/schema');
-          await database.delete(projectsTable);
-          console.log('[Sync] Cleared existing projects');
         }
         
         const db_instance = await db.getDb();
@@ -316,8 +331,65 @@ export const appRouter = router({
           console.log(`[Sync DEBUG] ${p.opportunityName}: oppId=${JSON.stringify(p.opportunityId)}, contactId=${JSON.stringify(p.contactId)}, completedInspections=${JSON.stringify(p.completedInspections?.substring(0, 80))}`);
         });
         
-        if (validProjects.length > 0) {
-          await db_instance.insert(projects).values(validProjects);
+        // Upsert by opportunityId to preserve stable project IDs across syncs
+        // Projects with no opportunityId fall back to insert-only (no stable key to upsert on)
+        const withOppId = validProjects.filter(p => p.opportunityId && p.opportunityId.trim() !== '');
+        const withoutOppId = validProjects.filter(p => !p.opportunityId || p.opportunityId.trim() === '');
+        console.log(`[Sync] withOppId: ${withOppId.length}, withoutOppId: ${withoutOppId.length}`);
+        if (withOppId.length > 0) console.log('[Sync] Sample oppIds:', withOppId.slice(0, 3).map(p => p.opportunityId));
+        if (withoutOppId.length > 0) console.log('[Sync] Projects without oppId:', withoutOppId.map(p => p.opportunityName?.substring(0, 30)));
+        
+        if (withOppId.length > 0) {
+          // Upsert in batches of 50 to avoid query size limits
+          for (let i = 0; i < withOppId.length; i += 50) {
+            const batch = withOppId.slice(i, i + 50);
+            await db_instance.insert(projects).values(batch).onDuplicateKeyUpdate({
+              set: {
+                opportunityName: sql`VALUES(opportunityName)`,
+                contactName: sql`VALUES(contactName)`,
+                phone: sql`VALUES(phone)`,
+                email: sql`VALUES(email)`,
+                pipeline: sql`VALUES(pipeline)`,
+                stage: sql`VALUES(stage)`,
+                leadValue: sql`VALUES(leadValue)`,
+                source: sql`VALUES(source)`,
+                assigned: sql`VALUES(assigned)`,
+                address: sql`VALUES(address)`,
+                subdivision: sql`VALUES(subdivision)`,
+                lotNumber: sql`VALUES(lotNumber)`,
+                permitNumber: sql`VALUES(permitNumber)`,
+                assignedPermitTech: sql`VALUES(assignedPermitTech)`,
+                assignedPlansExaminer: sql`VALUES(assignedPlansExaminer)`,
+                assignedInspector: sql`VALUES(assignedInspector)`,
+                planningChecklist: sql`VALUES(planningChecklist)`,
+                permittingChecklist: sql`VALUES(permittingChecklist)`,
+                inspectionChecklist: sql`VALUES(inspectionChecklist)`,
+                completedInspections: sql`VALUES(completedInspections)`,
+                inspection1Result: sql`VALUES(inspection1Result)`,
+                inspection2Result: sql`VALUES(inspection2Result)`,
+                inspection3Result: sql`VALUES(inspection3Result)`,
+                inspection1Type: sql`VALUES(inspection1Type)`,
+                inspection2Type: sql`VALUES(inspection2Type)`,
+                inspection3Type: sql`VALUES(inspection3Type)`,
+                inspection4Type: sql`VALUES(inspection4Type)`,
+                inspection5Type: sql`VALUES(inspection5Type)`,
+                proposalSent: sql`VALUES(proposalSent)`,
+                proposalSigned: sql`VALUES(proposalSigned)`,
+                company: sql`VALUES(company)`,
+                completionStatus: sql`VALUES(completionStatus)`,
+                contactId: sql`VALUES(contactId)`,
+                completionDate: sql`VALUES(completionDate)`,
+                lastUpdated: sql`VALUES(lastUpdated)`,
+                syncedAt: sql`VALUES(syncedAt)`,
+              }
+            });
+          }
+        }
+        
+        // For projects without an opportunityId, do a simple insert (rare edge case)
+        if (withoutOppId.length > 0) {
+          console.log(`[Sync] Inserting ${withoutOppId.length} projects without opportunityId`);
+          await db_instance.insert(projects).values(withoutOppId);
         }
         
         console.log('[Sync] Sync completed successfully');

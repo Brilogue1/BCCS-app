@@ -259,7 +259,7 @@ export default function Projects() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.map((project) => (
-                  <Link key={project.id} href={`/projects/${project.id}`}>
+                  <Link key={project.id} href={project.opportunityId ? `/projects/${project.opportunityId}` : `/projects/id/${project.id}`}>
                     <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                       <CardHeader>
                         <CardTitle className="flex items-start gap-2">
@@ -408,7 +408,7 @@ export default function Projects() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProjects.map((project) => (
-                  <Link key={project.id} href={`/projects/${project.id}`}>
+                  <Link key={project.id} href={project.opportunityId ? `/projects/${project.opportunityId}` : `/projects/id/${project.id}`}>
                     <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                       <CardHeader>
                         <CardTitle className="text-lg flex items-start gap-2">

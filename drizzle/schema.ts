@@ -66,7 +66,7 @@ export const projects = mysqlTable("projects", {
   inspection3Type: text("inspection3Type"), // Column X - Inspection Type 3
   inspection4Type: text("inspection4Type"), // Column Z - Inspection Type 4
   inspection5Type: text("inspection5Type"), // Column AA - Inspection Type 5
-  opportunityId: varchar("opportunityId", { length: 100 }), // Column AQ - Opportunity ID for system integration
+  opportunityId: varchar("opportunityId", { length: 100 }).unique(), // Column AQ - Opportunity ID for system integration (unique for upsert)
   contactId: varchar("contactId", { length: 100 }), // Column AR - Contact ID from ALL sheet for inspection sync
   completionDate: text("completionDate"), // Column AP - Completion Date for monthly reporting
   lastUpdated: timestamp("lastUpdated"),

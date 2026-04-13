@@ -162,6 +162,13 @@
       "when": 1774902785502,
       "tag": "0022_far_chronomancer",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1776102005477,
+      "tag": "0023_breezy_epoch",
+      "breakpoints": true
     }
   ]
 }

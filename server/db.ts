@@ -137,6 +137,14 @@ export async function getProjectById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getProjectByOpportunityId(opportunityId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(projects).where(eq(projects.opportunityId, opportunityId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function syncProject(project: InsertProject) {
   const db = await getDb();
   if (!db) return;

@@ -645,3 +645,18 @@
 - [x] Applied to project list filtering (3 places)
 - [x] Applied to inspection reports filtering
 - [x] Applied whitespace normalization when reading company from login sheet
+
+## Bug Fix: "Exceeding type" and "Project details not found" errors
+- [ ] Identify the "exceeding type" error source
+- [ ] Identify the "project details not found" error source
+- [ ] Fix both errors
+
+## Critical Bug Fix: Stable Project IDs Across Syncs
+- [x] Root cause identified: DB auto-increment IDs change on every sync (delete+insert pattern), breaking client URLs
+- [x] Added getProjectByOpportunityId function to db.ts
+- [x] Added projects.getByOpportunityId tRPC procedure to routers.ts
+- [x] Updated Projects.tsx to link to /projects/:opportunityId (stable GHL ID) instead of /projects/:id
+- [x] Updated ProjectDetail.tsx to detect opportunityId vs numeric ID from URL and use appropriate query
+- [x] Added backward compatibility: numeric IDs still work via getById (fallback for old bookmarks)
+- [x] Verified: URL /projects/T2GBPKGCkVDC0gbD2JRu remains stable after sync
+- [x] Added 7 vitest tests in server/projects.test.ts covering access control and routing logic
