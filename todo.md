@@ -638,3 +638,10 @@
 - [x] Found root cause: admin@trimmconstruction.com had double space in company name ("Trimm  Roofing, LLC" vs "Trimm Roofing, LLC")
 - [x] Fixed the double-space in the database for admin@trimmconstruction.com
 - [x] Added whitespace normalization when reading company from login sheet (prevents future recurrence)
+
+## Bug Fix: Company name matching across all clients
+- [x] Add companiesMatch/normalizeCompany helper in shared/utils.ts (strips punctuation, collapses spaces, lowercases)
+- [x] Applied to all 9 project access checks in routers.ts
+- [x] Applied to project list filtering (3 places)
+- [x] Applied to inspection reports filtering
+- [x] Applied whitespace normalization when reading company from login sheet
