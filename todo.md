@@ -660,3 +660,8 @@
 - [x] Added backward compatibility: numeric IDs still work via getById (fallback for old bookmarks)
 - [x] Verified: URL /projects/T2GBPKGCkVDC0gbD2JRu remains stable after sync
 - [x] Added 7 vitest tests in server/projects.test.ts covering access control and routing logic
+
+## Bug Fix: Duplicate Inspections in Scheduled Inspections Section
+- [x] Understand how scheduled (from Google Sheets U-AA) and requested (from DB) inspections are fetched and merged
+- [x] Implement deduplication: hide a "Requested" DB inspection when a matching "Scheduled" entry exists for the same inspection type
+- [x] Test that requested inspections auto-disappear once they appear in the sheet

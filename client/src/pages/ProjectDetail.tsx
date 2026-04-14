@@ -267,7 +267,18 @@ export default function ProjectDetail() {
     { type: project.inspection5Type, result: null },
   ].filter(i => isValidInspection(i.type));
 
-  const hasScheduledInspections = scheduledTypes.length > 0 || (inspections && inspections.length > 0);
+  // Build a set of inspection types already confirmed in the Google Sheets (U-AA columns)
+  // so we can hide DB "Requested" entries that have already been picked up by the sheet.
+  const sheetScheduledTypeSet = new Set(
+    scheduledTypes.map(i => (i.type || '').trim().toUpperCase())
+  );
+
+  // Only show DB inspections whose type is NOT already in the sheet
+  const pendingDbInspections = (inspections || []).filter(
+    (insp: any) => !sheetScheduledTypeSet.has((insp.inspectionType || '').trim().toUpperCase())
+  );
+
+  const hasScheduledInspections = scheduledTypes.length > 0 || pendingDbInspections.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -506,8 +517,8 @@ export default function ProjectDetail() {
                     </span>
                   </div>
                 ))}
-                {/* Show inspections from database */}
-                {inspections?.map((inspection: any) => (
+                {/* Show DB inspections that haven't been picked up by the sheet yet ("Requested") */}
+                {pendingDbInspections.map((inspection: any) => (
                   <div key={inspection.id} className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
                       <p className="font-medium">{inspection.inspectionType}</p>
