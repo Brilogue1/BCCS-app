@@ -470,12 +470,12 @@ export default function ProjectDetail() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="notes">Notes (optional)</Label>
+                    <Label htmlFor="notes">Specific Date Request &amp; Notes <span className="text-slate-400 font-normal">(Optional)</span></Label>
                     <Textarea
                       id="notes"
                       value={inspectionNotes}
                       onChange={(e) => setInspectionNotes(e.target.value)}
-                      placeholder="Any additional notes for the inspector..."
+                      placeholder="e.g. Please schedule for 4/18/2026 if possible. Any additional notes for the inspector..."
                     />
                   </div>
                   <Button
