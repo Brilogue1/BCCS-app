@@ -670,3 +670,6 @@
 - [x] Replace dynamic status badge on pending DB inspections with a fixed yellow "Requested" badge
 - [x] Style the pending row with yellow-tinted background and border to visually distinguish from confirmed sheet entries
 - [x] Update subtitle text to "Submitted [date] · Pending confirmation" for clarity
+
+## Add BLDG STEM WALL Inspection Type
+- [x] Add "BLDG STEM WALL" to shared/inspectionTypes.json
