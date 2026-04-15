@@ -665,3 +665,8 @@
 - [x] Understand how scheduled (from Google Sheets U-AA) and requested (from DB) inspections are fetched and merged
 - [x] Implement deduplication: hide a "Requested" DB inspection when a matching "Scheduled" entry exists for the same inspection type
 - [x] Test that requested inspections auto-disappear once they appear in the sheet
+
+## UX: Requested Badge on Pending Inspections
+- [x] Replace dynamic status badge on pending DB inspections with a fixed yellow "Requested" badge
+- [x] Style the pending row with yellow-tinted background and border to visually distinguish from confirmed sheet entries
+- [x] Update subtitle text to "Submitted [date] · Pending confirmation" for clarity

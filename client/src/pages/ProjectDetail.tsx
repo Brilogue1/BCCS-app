@@ -519,20 +519,15 @@ export default function ProjectDetail() {
                 ))}
                 {/* Show DB inspections that haven't been picked up by the sheet yet ("Requested") */}
                 {pendingDbInspections.map((inspection: any) => (
-                  <div key={inspection.id} className="flex items-center justify-between p-4 border rounded-lg bg-white">
+                  <div key={inspection.id} className="flex items-center justify-between p-4 border border-yellow-200 rounded-lg bg-yellow-50">
                     <div>
-                      <p className="font-medium">{inspection.inspectionType}</p>
-                      <p className="text-sm text-slate-500">
-                        Requested {new Date(inspection.createdAt).toLocaleDateString()}
+                      <p className="font-medium text-slate-800">{inspection.inspectionType}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Submitted {new Date(inspection.createdAt).toLocaleDateString()} · Pending confirmation
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      inspection.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      inspection.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                      inspection.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {inspection.status.charAt(0).toUpperCase() + inspection.status.slice(1)}
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                      Requested
                     </span>
                   </div>
                 ))}
