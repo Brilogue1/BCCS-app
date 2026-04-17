@@ -97,8 +97,9 @@ export default function Projects() {
   // Filter active projects
   const filteredProjects = projects?.filter((project) => {
     const query = searchQuery.toLowerCase();
-    const matchesSearch = (
+    const matchesSearch = !query || (
       project.opportunityName?.toLowerCase().includes(query) ||
+      project.company?.toLowerCase().includes(query) ||
       project.address?.toLowerCase().includes(query) ||
       project.contactName?.toLowerCase().includes(query)
     );
@@ -232,7 +233,7 @@ export default function Projects() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               type="text"
-              placeholder={activeTab === 'completed' ? "Search inspections..." : "Search projects..."}
+              placeholder={activeTab === 'completed' ? "Search inspections..." : "Search by project name or company..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
