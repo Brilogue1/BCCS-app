@@ -233,7 +233,7 @@ export default function Projects() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               type="text"
-              placeholder={activeTab === 'completed' ? "Search inspections..." : "Search by project name or company..."}
+              placeholder={activeTab === 'reports' ? "Search by project name..." : activeTab === 'completed' ? "Search inspections..." : "Search by project name or company..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -336,15 +336,29 @@ export default function Projects() {
               </Card>
             ) : (
               <div className="space-y-3">
-                {/* Group reports by project */}
+                {/* Group reports by project, filtered by search query */}
                 {(() => {
+                  const query = searchQuery.toLowerCase();
                   const grouped: Record<string, typeof myReports> = {};
                   myReports.forEach(r => {
                     const key = r.projectName || 'Unknown Project';
+                    // Filter by project name search
+                    if (query && !key.toLowerCase().includes(query)) return;
                     if (!grouped[key]) grouped[key] = [];
                     grouped[key]!.push(r);
                   });
-                  return Object.entries(grouped).map(([projectName, reports]) => (
+                  const entries = Object.entries(grouped);
+                  if (entries.length === 0) {
+                    return (
+                      <Card key="no-results">
+                        <CardContent className="py-12 text-center">
+                          <FileText className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+                          <p className="text-slate-600">No reports found matching "{searchQuery}"</p>
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+                  return entries.map(([projectName, reports]) => (
                     <Card key={projectName} className="overflow-hidden">
                       <CardHeader className="pb-3 bg-slate-50 border-b">
                         <CardTitle className="text-base flex items-center gap-2">

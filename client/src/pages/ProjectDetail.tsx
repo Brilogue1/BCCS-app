@@ -45,6 +45,10 @@ export default function ProjectDetail() {
   const { data: contacts } = trpc.contacts.list.useQuery({ projectId }, { enabled: projectId > 0 });
   const { data: pastInspections } = trpc.pastInspections.list.useQuery();
   const { data: files, refetch: refetchFiles } = trpc.files.list.useQuery({ projectId }, { enabled: projectId > 0 });
+  const { data: inspectorPhone } = trpc.projects.getInspectorPhone.useQuery(
+    { inspectorName: project?.assignedInspector || '' },
+    { enabled: !!project?.assignedInspector }
+  );
 
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
@@ -360,6 +364,15 @@ export default function ProjectDetail() {
             <div>
               <p className="text-sm font-medium text-slate-500">Assigned Inspector</p>
               <p className="text-lg">{project.assignedInspector || "N/A"}</p>
+              {inspectorPhone && (
+                <a
+                  href={`tel:${inspectorPhone}`}
+                  className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 mt-1"
+                >
+                  <Phone className="h-3.5 w-3.5" />
+                  {inspectorPhone}
+                </a>
+              )}
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500">Last Updated</p>
@@ -755,6 +768,32 @@ export default function ProjectDetail() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Upload Plans */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Upload Plans</CardTitle>
+              <CardDescription>Submit architectural plans and drawings for this project</CardDescription>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => toast.info('Upload Plans form coming soon! Please contact info@bccsfl.com to submit plans.')}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Plans
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500">
+              <Upload className="h-10 w-10 mb-3 text-slate-300" />
+              <p className="font-medium text-slate-600">Plans upload form coming soon</p>
+              <p className="text-sm mt-1">In the meantime, please email your plans to{" "}
+                <a href="mailto:info@bccsfl.com" className="text-blue-600 hover:underline">info@bccsfl.com</a>
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

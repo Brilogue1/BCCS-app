@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const SHEET_ID = '1by8YXY2Ra63K6XrT2y0w-o7Wb7gFNN1ICzVYntTNagU';
+const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const ALL_SHEET_GID = '0';
 const LOGINS_SHEET_GID = '5432432';
 const INSPECTION_REQUESTS_SHEET_GID = '353951797';
@@ -185,6 +186,32 @@ function parseCSVLine(line: string): string[] {
   
   result.push(current);
   return result;
+}
+
+/**
+ * Fetch employee phone numbers from the Employee Numbers sheet
+ * Returns a map of inspector name (lowercase) -> phone number
+ */
+export async function fetchEmployeeNumbers(): Promise<Record<string, string>> {
+  try {
+    const url = `${GVIZ_BASE}&sheet=Employee%20Numbers`;
+    const response = await axios.get(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      responseType: 'text',
+    });
+    const data = typeof response.data === 'string' ? response.data : String(response.data);
+    const rows = parseCSV(data);
+    const map: Record<string, string> = {};
+    for (const row of rows) {
+      const name = (row['Inspector Name'] || row['__col_0'] || '').trim();
+      const number = (row['Number'] || row['__col_1'] || '').trim();
+      if (name) map[name.toLowerCase()] = number;
+    }
+    return map;
+  } catch (error) {
+    console.error('Error fetching employee numbers:', error);
+    return {};
+  }
 }
 
 /**

@@ -673,3 +673,9 @@
 
 ## Add BLDG STEM WALL Inspection Type
 - [x] Add "BLDG STEM WALL" to shared/inspectionTypes.json
+
+## Small Edits Batch
+- [x] Fetch inspector phone numbers from "Employee Numbers" Google Sheet and display under inspector name on project detail
+- [x] Add "Stem Wall" inspection type to inspectionTypes.json (already added in prior session)
+- [x] Add "Upload Plans" button placeholder on project detail page for clients
+- [x] Fix inspection reports search to filter by project name

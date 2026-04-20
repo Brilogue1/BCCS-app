@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects, inspectionReports } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers } from "./googleSheets";
 import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
 import { schedulerState, runAutoReportGeneration } from "./reportScheduler";
 import { storagePut } from "./storage";
@@ -190,6 +190,15 @@ export const appRouter = router({
         }
         
         return project;
+      }),
+    
+    getInspectorPhone: protectedProcedure
+      .input(z.object({ inspectorName: z.string() }))
+      .query(async ({ input }) => {
+        if (!input.inspectorName) return null;
+        const phoneMap = await fetchEmployeeNumbers();
+        const phone = phoneMap[input.inspectorName.toLowerCase()];
+        return phone || null;
       }),
     
     getByOpportunityId: protectedProcedure
