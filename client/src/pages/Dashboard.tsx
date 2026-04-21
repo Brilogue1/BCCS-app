@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3, Mail } from "lucide-react";
+import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3, Mail, Calendar } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -158,6 +158,68 @@ export default function Dashboard() {
         </div>
 
 
+
+        {/* Requested Inspections */}
+        {(() => {
+          // Filter out inspections that are already scheduled (in sheet U-AA) or completed (in column H)
+          const pendingRequests = (summary?.upcomingInspections || []).filter((insp: any) => {
+            const t = (insp.inspectionType || '').trim().toUpperCase();
+            // Check against scheduled types from sheet
+            const scheduledSet = new Set<string>(
+              (insp.scheduledTypes || []).map((s: string) => s.trim().toUpperCase())
+            );
+            if (scheduledSet.has(t)) return false;
+            // Check against completed inspections text
+            const completedText = insp.completedInspections || '';
+            if (completedText) {
+              const segments = completedText.split('|');
+              for (const seg of segments) {
+                const dashIdx = seg.indexOf('\u2014');
+                if (dashIdx !== -1) {
+                  const typePart = seg.substring(dashIdx + 1).trim().toUpperCase();
+                  if (typePart === t) return false;
+                }
+              }
+            }
+            return true;
+          });
+
+          if (pendingRequests.length === 0) return null;
+
+          return (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-yellow-500" />
+                  Requested Inspections
+                </CardTitle>
+                <CardDescription>Inspection requests pending confirmation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {pendingRequests.map((insp: any) => (
+                    <Link key={insp.id} href={insp.opportunityId ? `/projects/${insp.opportunityId}` : `/projects`}>
+                      <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-slate-900 truncate">{insp.inspectionType || 'Inspection'}</p>
+                          <p className="text-xs text-slate-500 truncate mt-0.5">{insp.projectName}</p>
+                          {insp.createdAt && (
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              Submitted {new Date(insp.createdAt).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                        <span className="ml-3 flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                          Requested
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         {/* Quick Actions */}
         <div className="mt-8 flex gap-4">

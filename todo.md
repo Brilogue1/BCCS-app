@@ -682,3 +682,6 @@
 
 ## Bug Fix: Requested inspections not hidden when already completed
 - [x] Also hide "Requested" DB inspection when the type appears in the Completed Inspections text (column H)
+
+## Feature: Show Requested Inspections on Home Page
+- [x] Add pending "Requested" DB inspections to the home page dashboard alongside scheduled inspections

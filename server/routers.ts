@@ -1186,12 +1186,27 @@ export const appRouter = router({
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 5);
 
-      // Get upcoming inspections
+      // Get upcoming inspections (Requested DB entries) with project name attached
       const allInspections = await dbInstance.select().from(inspections);
+      const projectMap = new Map(userProjects.map(p => [p.id, p]));
       const upcomingInspections = allInspections
         .filter(i => userProjectIds.has(i.projectId))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 10);
+        .slice(0, 10)
+        .map(i => ({
+          ...i,
+          projectName: projectMap.get(i.projectId)?.opportunityName || 'Unknown Project',
+          opportunityId: projectMap.get(i.projectId)?.opportunityId || '',
+          completedInspections: projectMap.get(i.projectId)?.completedInspections || '',
+          // Scheduled types from sheet columns U-AA
+          scheduledTypes: [
+            projectMap.get(i.projectId)?.inspection1Type,
+            projectMap.get(i.projectId)?.inspection2Type,
+            projectMap.get(i.projectId)?.inspection3Type,
+            projectMap.get(i.projectId)?.inspection4Type,
+            projectMap.get(i.projectId)?.inspection5Type,
+          ].filter((t): t is string => !!t && t.trim() !== '' && t.trim() !== '_'),
+        }));
 
       return {
         totalProjects: userProjects.length,
