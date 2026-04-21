@@ -679,3 +679,6 @@
 - [x] Add "Stem Wall" inspection type to inspectionTypes.json (already added in prior session)
 - [x] Add "Upload Plans" button placeholder on project detail page for clients
 - [x] Fix inspection reports search to filter by project name
+
+## Bug Fix: Requested inspections not hidden when already completed
+- [x] Also hide "Requested" DB inspection when the type appears in the Completed Inspections text (column H)

@@ -277,9 +277,27 @@ export default function ProjectDetail() {
     scheduledTypes.map(i => (i.type || '').trim().toUpperCase())
   );
 
-  // Only show DB inspections whose type is NOT already in the sheet
+  // Also build a set of inspection types that appear in the Completed Inspections text (column H).
+  // Format is: "2026-04-21 — TYPE | 2026-04-14 — TYPE2 | ..."
+  // We extract the type portion after " — " and before " |" or end of string.
+  const completedTypeSet = new Set<string>();
+  if (completedInspectionsText) {
+    const segments = completedInspectionsText.split('|');
+    for (const seg of segments) {
+      const dashIdx = seg.indexOf('—');
+      if (dashIdx !== -1) {
+        const typePart = seg.substring(dashIdx + 1).trim().toUpperCase();
+        if (typePart && typePart !== '_') completedTypeSet.add(typePart);
+      }
+    }
+  }
+
+  // Only show DB inspections whose type is NOT already in the sheet (scheduled or completed)
   const pendingDbInspections = (inspections || []).filter(
-    (insp: any) => !sheetScheduledTypeSet.has((insp.inspectionType || '').trim().toUpperCase())
+    (insp: any) => {
+      const t = (insp.inspectionType || '').trim().toUpperCase();
+      return !sheetScheduledTypeSet.has(t) && !completedTypeSet.has(t);
+    }
   );
 
   const hasScheduledInspections = scheduledTypes.length > 0 || pendingDbInspections.length > 0;
