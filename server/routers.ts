@@ -894,6 +894,20 @@ export const appRouter = router({
         return await db.getInspectionsByProjectId(input.projectId);
       }),
     
+    listAllForUser: protectedProcedure.query(async ({ ctx }) => {
+      const dbInstance = await db.getDb();
+      if (!dbInstance) return [];
+      const { inspections: inspTable } = await import('../drizzle/schema');
+      const allProjects = await dbInstance.select().from(projects);
+      let userProjects = allProjects;
+      if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company) {
+        userProjects = allProjects.filter(p => companiesMatch(p.company, ctx.user.company));
+      }
+      const projectIdSet = new Set(userProjects.map(p => p.id));
+      const allInspections = await dbInstance.select().from(inspTable);
+      return allInspections.filter(i => projectIdSet.has(i.projectId));
+    }),
+
     create: protectedProcedure
       .input(z.object({
         projectId: z.number(),

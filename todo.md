@@ -689,3 +689,6 @@
 ## Report Generator Updates
 - [x] Always use "Tim Miller" as inspector name on all reports (remove dynamic inspector name)
 - [x] Replace inspection date with blank "Date: __________" line for manual fill-in
+
+## Feature: Show Requested Inspections on Project Cards
+- [x] Add "Requested" inspection badges to project cards in Projects.tsx, matching the Scheduled badge style

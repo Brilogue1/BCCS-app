@@ -30,6 +30,42 @@ export default function Projects() {
   const { data: projects, isLoading: projectsLoading, refetch } = trpc.projects.list.useQuery();
   const { data: pastInspections, isLoading: pastInspectionsLoading } = trpc.pastInspections.list.useQuery();
   const { data: myReports, isLoading: reportsLoading } = trpc.pastInspections.getMyReports.useQuery();
+  const { data: allDbInspections } = trpc.inspections.listAllForUser.useQuery();
+
+  // Build a map of projectId -> pending requested inspection types
+  // (exclude those already in scheduled sheet columns or completed text)
+  const requestedByProjectId = (() => {
+    const map = new Map<number, string[]>();
+    if (!allDbInspections || !projects) return map;
+    const projectMap = new Map((projects as any[]).map((p: any) => [p.id, p]));
+    for (const insp of allDbInspections as any[]) {
+      const proj = projectMap.get(insp.projectId);
+      if (!proj) continue;
+      const t = (insp.inspectionType || '').trim().toUpperCase();
+      // Check scheduled types from sheet (U-AA)
+      const scheduledSet = new Set<string>([
+        proj.inspection1Type, proj.inspection2Type, proj.inspection3Type,
+        proj.inspection4Type, proj.inspection5Type,
+      ].filter((s: any) => s && s.trim() !== '' && s.trim() !== '_').map((s: string) => s.trim().toUpperCase()));
+      if (scheduledSet.has(t)) continue;
+      // Check completed inspections text
+      const completedText = proj.completedInspections || '';
+      let isCompleted = false;
+      if (completedText) {
+        for (const seg of completedText.split('|')) {
+          const dashIdx = seg.indexOf('\u2014');
+          if (dashIdx !== -1) {
+            const typePart = seg.substring(dashIdx + 1).trim().toUpperCase();
+            if (typePart === t) { isCompleted = true; break; }
+          }
+        }
+      }
+      if (isCompleted) continue;
+      if (!map.has(insp.projectId)) map.set(insp.projectId, []);
+      map.get(insp.projectId)!.push(insp.inspectionType || '');
+    }
+    return map;
+  })();
   
   // Auto-sync every 60 seconds
   useEffect(() => {
@@ -289,7 +325,7 @@ export default function Projects() {
                             </div>
                           )}
                           
-                          {/* In Progress Inspections - filter out blank and "_" values */}
+                          {/* Scheduled Inspections from sheet (U-AA) */}
                           {(() => {
                             const isValid = (val: string | null | undefined) => val && val.trim() !== '' && val.trim() !== '_';
                             const types = [
@@ -307,6 +343,24 @@ export default function Projects() {
                                     <div key={idx} className="flex items-center justify-between text-xs">
                                       <span className="text-slate-600">{type}</span>
                                       <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">Scheduled</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null;
+                          })()}
+
+                          {/* Requested Inspections from DB (pending confirmation) */}
+                          {(() => {
+                            const requested = requestedByProjectId.get(project.id) || [];
+                            return requested.length > 0 ? (
+                              <div className="pt-2 border-t">
+                                <p className="text-xs font-semibold text-slate-600 mb-2">Requested Inspections:</p>
+                                <div className="space-y-1">
+                                  {requested.map((type, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs">
+                                      <span className="text-slate-600">{type}</span>
+                                      <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium border border-yellow-300">Requested</span>
                                     </div>
                                   ))}
                                 </div>
