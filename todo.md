@@ -685,3 +685,7 @@
 
 ## Feature: Show Requested Inspections on Home Page
 - [x] Add pending "Requested" DB inspections to the home page dashboard alongside scheduled inspections
+
+## Report Generator Updates
+- [x] Always use "Tim Miller" as inspector name on all reports (remove dynamic inspector name)
+- [x] Replace inspection date with blank "Date: __________" line for manual fill-in

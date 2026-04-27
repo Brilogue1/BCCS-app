@@ -103,7 +103,7 @@ export function generateInspectionRecordPDF(data: ReportData): Promise<Buffer> {
     doc.moveDown(0.4);
     doc.text(`Address: ${data.address || 'N/A'}`);
     doc.moveDown(0.4);
-    doc.text(`Date: ${data.date || ''}`);
+    doc.text('Date: __________');
 
     doc.moveDown(1.2);
 
@@ -160,25 +160,23 @@ export function generateInspectionRecordPDF(data: ReportData): Promise<Buffer> {
     // ── Footer with Signature ─────────────────────────────────────────────────
     doc.y = y + 24;
     doc.font('Helvetica').fontSize(11);
-    doc.text(`Inspector Name: ${data.inspectorName || ''}`);
+    doc.text('Inspector Name: Tim Miller');
     doc.moveDown(0.4);
     doc.text('License Number');
 
-    // Cursive signature
-    if (data.inspectorName) {
-      doc.moveDown(1.5);
-      try {
-        const fontPath = path.join(__dirname, 'fonts', 'DancingScript.ttf');
-        doc.registerFont('Signature', fontPath);
-        doc.font('Signature').fontSize(28).fillColor('#1a1a6e');
-        doc.text(data.inspectorName, { align: 'left' });
-        doc.font('Helvetica').fontSize(10).fillColor('#000000');
-      } catch (e) {
-        // Fallback: use Helvetica-Oblique if custom font fails
-        doc.font('Helvetica-Oblique').fontSize(22).fillColor('#1a1a6e');
-        doc.text(data.inspectorName, { align: 'left' });
-        doc.font('Helvetica').fontSize(10).fillColor('#000000');
-      }
+    // Cursive signature — always Tim Miller
+    doc.moveDown(1.5);
+    try {
+      const fontPath = path.join(__dirname, 'fonts', 'DancingScript.ttf');
+      doc.registerFont('Signature', fontPath);
+      doc.font('Signature').fontSize(28).fillColor('#1a1a6e');
+      doc.text('Tim Miller', { align: 'left' });
+      doc.font('Helvetica').fontSize(10).fillColor('#000000');
+    } catch (e) {
+      // Fallback: use Helvetica-Oblique if custom font fails
+      doc.font('Helvetica-Oblique').fontSize(22).fillColor('#1a1a6e');
+      doc.text('Tim Miller', { align: 'left' });
+      doc.font('Helvetica').fontSize(10).fillColor('#000000');
     }
 
     doc.end();
@@ -357,7 +355,7 @@ export function generateSingleInspectionPDF(data: SingleInspectionReportData): P
     doc.fillColor('#000000').font('Helvetica').fontSize(10);
     doc.text(data.inspectionType || '', col1X + 8, y + 8, { width: pageWidth * 0.43, ellipsis: true });
     doc.text(data.approvedStatus || '', col2X + 4, y + 8, { width: pageWidth * 0.25 });
-    doc.text(data.dateApproved || '', col3X + 4, y + 8, { width: pageWidth * 0.26 });
+    doc.text('__________', col3X + 4, y + 8, { width: pageWidth * 0.26 });
 
     // Vertical dividers
     doc.moveTo(col2X, y).lineTo(col2X, y + rowHeight).strokeColor('#e0e0e0').stroke();
@@ -375,23 +373,21 @@ export function generateSingleInspectionPDF(data: SingleInspectionReportData): P
     doc.font('Helvetica-Bold').fontSize(11);
     doc.text('Inspector:', { continued: true });
     doc.font('Helvetica').fontSize(11);
-    doc.text(` ${data.inspectorName || ''}`);
+    doc.text(' Tim Miller');
 
-    // Cursive signature
-    if (data.inspectorName) {
-      doc.moveDown(1);
-      try {
-        const fontPath = path.join(__dirname, 'fonts', 'DancingScript.ttf');
-        doc.registerFont('SignatureFont', fontPath);
-        doc.font('SignatureFont').fontSize(28).fillColor('#1a1a6e');
-        doc.text(data.inspectorName, { align: 'left' });
-        doc.font('Helvetica').fontSize(10).fillColor('#000000');
-      } catch (e) {
-        // Fallback: use Helvetica-Oblique if custom font fails
-        doc.font('Helvetica-Oblique').fontSize(22).fillColor('#1a1a6e');
-        doc.text(data.inspectorName, { align: 'left' });
-        doc.font('Helvetica').fontSize(10).fillColor('#000000');
-      }
+    // Cursive signature — always Tim Miller
+    doc.moveDown(1);
+    try {
+      const fontPath = path.join(__dirname, 'fonts', 'DancingScript.ttf');
+      doc.registerFont('SignatureFont', fontPath);
+      doc.font('SignatureFont').fontSize(28).fillColor('#1a1a6e');
+      doc.text('Tim Miller', { align: 'left' });
+      doc.font('Helvetica').fontSize(10).fillColor('#000000');
+    } catch (e) {
+      // Fallback: use Helvetica-Oblique if custom font fails
+      doc.font('Helvetica-Oblique').fontSize(22).fillColor('#1a1a6e');
+      doc.text('Tim Miller', { align: 'left' });
+      doc.font('Helvetica').fontSize(10).fillColor('#000000');
     }
 
     // License number line below signature
