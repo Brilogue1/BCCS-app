@@ -72,6 +72,15 @@ export default function ProjectDetail() {
   );
   const sheetCompletedTypeSet = new Set<string>((completedTypesFromSheet || []).map((t: string) => t.toUpperCase()));
 
+  // Fetch full completed inspection rows from Past Inspections sheet for display
+  const { data: completedInspectionsFromSheet } = trpc.pastInspections.getCompletedByOpportunityId.useQuery(
+    { opportunityId },
+    {
+      enabled: !!opportunityId,
+      refetchInterval: 30 * 60 * 1000, // 30 minutes
+    }
+  );
+
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -614,18 +623,45 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
-        {/* Completed Inspections - from Column H of ALL sheet */}
+        {/* Completed Inspections - from Past Inspections Google Sheet */}
         <Card>
           <CardHeader>
             <CardTitle>Completed Inspections</CardTitle>
             <CardDescription>Inspections that have been completed for this project</CardDescription>
           </CardHeader>
           <CardContent>
-            {!completedInspectionsText ? (
+            {!completedInspectionsFromSheet || completedInspectionsFromSheet.length === 0 ? (
               <p className="text-slate-500 text-center py-8">No completed inspections</p>
             ) : (
-              <div className="whitespace-pre-line p-4 border rounded-lg bg-white text-sm leading-relaxed">
-                {completedInspectionsText}
+              <div className="divide-y">
+                {completedInspectionsFromSheet.map((insp: any, idx: number) => {
+                  const result = (insp.result || '').toLowerCase();
+                  const isApproved = result.includes('approv') || result.includes('pass');
+                  const isFailed = result.includes('fail') || result.includes('den');
+                  return (
+                    <div key={idx} className="flex items-center justify-between py-3 gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-slate-900">{insp.inspectionType}</p>
+                        {insp.dateApproved && (
+                          <p className="text-xs text-slate-500 mt-0.5">{insp.dateApproved}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {insp.result && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${
+                            isApproved
+                              ? 'bg-green-50 text-green-700 border-green-200'
+                              : isFailed
+                              ? 'bg-red-50 text-red-700 border-red-200'
+                              : 'bg-slate-50 text-slate-600 border-slate-200'
+                          }`}>
+                            {insp.result}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </CardContent>

@@ -705,3 +705,7 @@
 - [x] Poll scheduled columns (U-AA) every 5 min to clear Requested badges once scheduled
 - [x] Poll Past Inspections sheet every 30 min to clear Requested badges once completed
 - [x] Use getCompletedTypesByOpportunityId for deduplication instead of parsing column H text
+
+## Feature: Completed Inspections from Past Inspections Sheet
+- [x] Add pastInspections.getByOpportunityId procedure to fetch completed inspections for a project
+- [x] Replace column H text display with structured list from Past Inspections sheet

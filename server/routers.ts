@@ -898,6 +898,32 @@ export const appRouter = router({
           return [];
         }
       }),
+
+    // Returns full completed inspection rows for a given opportunityId from the Past Inspections sheet.
+    // Used to display the Completed Inspections list on the project detail page.
+    getCompletedByOpportunityId: protectedProcedure
+      .input(z.object({ opportunityId: z.string() }))
+      .query(async ({ input }) => {
+        if (!input.opportunityId) return [];
+        try {
+          const rows = await fetchPastInspections();
+          return rows
+            .filter(row => {
+              const oppId = row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || row['__col_6'] || '';
+              return oppId.trim() === input.opportunityId.trim();
+            })
+            .map(row => ({
+              inspectionType: (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim(),
+              result: (row['approved/ denied'] || row['Approved/ Denied'] || row['approved status'] || row['Approved Status'] || row['__col_8'] || '').trim(),
+              dateApproved: (row['approved date'] || row['Approved Date'] || row['date approved'] || row['Date Approved'] || row['__col_9'] || '').trim(),
+              reportLink: (row['report link'] || row['Report Link'] || row['__col_12'] || '').trim(),
+            }))
+            .filter(r => r.inspectionType && r.inspectionType !== '_');
+        } catch (err) {
+          console.error('[getCompletedByOpportunityId] Error:', err);
+          return [];
+        }
+      }),
   }),
 
   inspections: router({
