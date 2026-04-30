@@ -715,3 +715,6 @@
 
 ## Bug Fix: Skip blank or _ inspection types in Past Inspections sheet
 - [x] Skip rows where Inspection Type is blank, "_", or whitespace-only in all Past Inspections procedures
+
+## Remove Requested Inspections from Home Page
+- [x] Remove the Requested Inspections card from Dashboard.tsx (inaccurate data)
