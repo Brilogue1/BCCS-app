@@ -718,3 +718,6 @@
 
 ## Remove Requested Inspections from Home Page
 - [x] Remove the Requested Inspections card from Dashboard.tsx (inaccurate data)
+
+## Bug Fix: Inspection type mismatch in deduplication (AND OR FOOTER vs AND FOOTER)
+- [x] Add normalized matching so minor wording differences (e.g. "AND OR" vs "AND") still deduplicate correctly

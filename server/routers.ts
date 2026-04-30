@@ -14,7 +14,7 @@ import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
-import { companiesMatch } from "../shared/utils";
+import { companiesMatch, normalizeInspectionType } from "../shared/utils";
 
 const JWT_SECRET = new TextEncoder().encode(ENV.cookieSecret);
 
@@ -890,8 +890,8 @@ export const appRouter = router({
               const oppId = row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || row['__col_6'] || '';
               return oppId.trim() === input.opportunityId.trim();
             })
-            .map(row => (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim().toUpperCase())
-            .filter(t => t && t !== '_' && t !== ' _ ' && t.replace(/_/g, '').trim() !== '');
+            .map(row => normalizeInspectionType(row['inspection type'] || row['Inspection Type'] || row['__col_7'] || ''))
+            .filter(t => t && t !== '_' && t.replace(/_/g, '').trim() !== '');
           return Array.from(new Set(types));
         } catch (err) {
           console.error('[getCompletedTypesByOpportunityId] Error:', err);
@@ -907,8 +907,8 @@ export const appRouter = router({
         const map: Record<string, string[]> = {};
         for (const row of rows) {
           const oppId = (row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || row['__col_6'] || '').trim();
-          const type = (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim().toUpperCase();
-          if (!oppId || !type || type === '_' || type === ' _ ' || type.replace(/_/g, '').trim() === '') continue;
+          const type = normalizeInspectionType(row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '');
+          if (!oppId || !type || type === '_' || type.replace(/_/g, '').trim() === '') continue;
           if (!map[oppId]) map[oppId] = [];
           if (!map[oppId].includes(type)) map[oppId].push(type);
         }

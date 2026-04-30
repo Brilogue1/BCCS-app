@@ -12,6 +12,7 @@ import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
+import { normalizeInspectionType } from "../../../shared/utils";
 
 // Frontend API URL for file uploads - ensure trailing slash for URL construction
 const FORGE_BASE = import.meta.env.VITE_FRONTEND_FORGE_API_URL || 'https://forge.butterfly-effect.dev';
@@ -70,7 +71,8 @@ export default function ProjectDetail() {
       refetchInterval: 30 * 60 * 1000, // 30 minutes
     }
   );
-  const sheetCompletedTypeSet = new Set<string>((completedTypesFromSheet || []).map((t: string) => t.toUpperCase()));
+  // completedTypesFromSheet already contains normalized types from the backend
+  const sheetCompletedTypeSet = new Set<string>(completedTypesFromSheet || []);
 
   // Fetch full completed inspection rows from Past Inspections sheet for display
   const { data: completedInspectionsFromSheet } = trpc.pastInspections.getCompletedByOpportunityId.useQuery(
@@ -351,8 +353,11 @@ export default function ProjectDetail() {
   //   3. Already in the Past Inspections sheet tab (authoritative source, polled every 30 min)
   const pendingDbInspections = (inspections || []).filter(
     (insp: any) => {
-      const t = (insp.inspectionType || '').trim().toUpperCase();
-      return !sheetScheduledTypeSet.has(t) && !completedTypeSet.has(t) && !sheetCompletedTypeSet.has(t);
+      const tRaw = (insp.inspectionType || '').trim().toUpperCase();
+      const tNorm = normalizeInspectionType(insp.inspectionType);
+      // Check raw against scheduled set (sheet U-AA) and legacy column H set
+      // Check normalized against the Past Inspections sheet completed set
+      return !sheetScheduledTypeSet.has(tRaw) && !completedTypeSet.has(tRaw) && !sheetCompletedTypeSet.has(tNorm);
     }
   );
 

@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
+import { normalizeInspectionType } from "../../../shared/utils";
 
 export default function Projects() {
   const { user, logout } = useAuth();
@@ -57,7 +58,8 @@ export default function Projects() {
       const oppId = (proj.opportunityId || '').trim();
       if (oppId && completedTypeMap) {
         const completedTypes = (completedTypeMap as Record<string, string[]>)[oppId] || [];
-        if (completedTypes.map((ct: string) => ct.toUpperCase()).includes(t)) continue;
+        const tNorm = normalizeInspectionType(insp.inspectionType);
+        if (completedTypes.includes(tNorm)) continue;
       }
       if (!map.has(insp.projectId)) map.set(insp.projectId, []);
       map.get(insp.projectId)!.push(insp.inspectionType || '');
