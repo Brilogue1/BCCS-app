@@ -31,9 +31,14 @@ export default function Projects() {
   const { data: pastInspections, isLoading: pastInspectionsLoading } = trpc.pastInspections.list.useQuery();
   const { data: myReports, isLoading: reportsLoading } = trpc.pastInspections.getMyReports.useQuery();
   const { data: allDbInspections } = trpc.inspections.listAllForUser.useQuery();
+  // Fetch completed inspection types from Past Inspections sheet, grouped by opportunityId
+  const { data: completedTypeMap } = trpc.pastInspections.getCompletedOpportunityTypeMap.useQuery(
+    undefined,
+    { refetchInterval: 30 * 60 * 1000 } // 30 minutes
+  );
 
   // Build a map of projectId -> pending requested inspection types
-  // (exclude those already in scheduled sheet columns or completed text)
+  // (exclude those already in scheduled sheet columns OR in the Past Inspections sheet)
   const requestedByProjectId = (() => {
     const map = new Map<number, string[]>();
     if (!allDbInspections || !projects) return map;
@@ -48,19 +53,12 @@ export default function Projects() {
         proj.inspection4Type, proj.inspection5Type,
       ].filter((s: any) => s && s.trim() !== '' && s.trim() !== '_').map((s: string) => s.trim().toUpperCase()));
       if (scheduledSet.has(t)) continue;
-      // Check completed inspections text
-      const completedText = proj.completedInspections || '';
-      let isCompleted = false;
-      if (completedText) {
-        for (const seg of completedText.split('|')) {
-          const dashIdx = seg.indexOf('\u2014');
-          if (dashIdx !== -1) {
-            const typePart = seg.substring(dashIdx + 1).trim().toUpperCase();
-            if (typePart === t) { isCompleted = true; break; }
-          }
-        }
+      // Check Past Inspections sheet (authoritative completed source)
+      const oppId = (proj.opportunityId || '').trim();
+      if (oppId && completedTypeMap) {
+        const completedTypes = (completedTypeMap as Record<string, string[]>)[oppId] || [];
+        if (completedTypes.map((ct: string) => ct.toUpperCase()).includes(t)) continue;
       }
-      if (isCompleted) continue;
       if (!map.has(insp.projectId)) map.set(insp.projectId, []);
       map.get(insp.projectId)!.push(insp.inspectionType || '');
     }

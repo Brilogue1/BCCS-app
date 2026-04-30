@@ -709,3 +709,9 @@
 ## Feature: Completed Inspections from Past Inspections Sheet
 - [x] Add pastInspections.getByOpportunityId procedure to fetch completed inspections for a project
 - [x] Replace column H text display with structured list from Past Inspections sheet
+
+## Bug Fix: Project cards still show Requested badges for completed inspections
+- [ ] Update listAllForUser to cross-check Past Inspections sheet and exclude completed types from Requested badges
+
+## Bug Fix: Skip blank or _ inspection types in Past Inspections sheet
+- [x] Skip rows where Inspection Type is blank, "_", or whitespace-only in all Past Inspections procedures

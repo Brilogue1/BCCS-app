@@ -891,13 +891,33 @@ export const appRouter = router({
               return oppId.trim() === input.opportunityId.trim();
             })
             .map(row => (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim().toUpperCase())
-            .filter(t => t && t !== '_');
+            .filter(t => t && t !== '_' && t !== ' _ ' && t.replace(/_/g, '').trim() !== '');
           return Array.from(new Set(types));
         } catch (err) {
           console.error('[getCompletedTypesByOpportunityId] Error:', err);
           return [];
         }
       }),
+
+    // Returns a map of { opportunityId -> completedInspectionTypes[] } for all projects.
+    // Used by the Projects list page to deduplicate Requested badges across all project cards in one call.
+    getCompletedOpportunityTypeMap: protectedProcedure.query(async () => {
+      try {
+        const rows = await fetchPastInspections();
+        const map: Record<string, string[]> = {};
+        for (const row of rows) {
+          const oppId = (row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || row['__col_6'] || '').trim();
+          const type = (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim().toUpperCase();
+          if (!oppId || !type || type === '_' || type === ' _ ' || type.replace(/_/g, '').trim() === '') continue;
+          if (!map[oppId]) map[oppId] = [];
+          if (!map[oppId].includes(type)) map[oppId].push(type);
+        }
+        return map;
+      } catch (err) {
+        console.error('[getCompletedOpportunityTypeMap] Error:', err);
+        return {};
+      }
+    }),
 
     // Returns full completed inspection rows for a given opportunityId from the Past Inspections sheet.
     // Used to display the Completed Inspections list on the project detail page.
@@ -918,7 +938,10 @@ export const appRouter = router({
               dateApproved: (row['approved date'] || row['Approved Date'] || row['date approved'] || row['Date Approved'] || row['__col_9'] || '').trim(),
               reportLink: (row['report link'] || row['Report Link'] || row['__col_12'] || '').trim(),
             }))
-            .filter(r => r.inspectionType && r.inspectionType !== '_');
+            .filter(r => {
+              const t = r.inspectionType.trim().toUpperCase();
+              return t && t !== '_' && t !== ' _ ' && t.replace(/_/g, '').trim() !== '';
+            });
         } catch (err) {
           console.error('[getCompletedByOpportunityId] Error:', err);
           return [];
