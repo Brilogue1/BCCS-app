@@ -876,6 +876,28 @@ export const appRouter = router({
         runAutoReportGeneration().catch(err => console.error('[AutoReport] Manual trigger error:', err));
         return { success: true, message: 'Scheduler triggered manually' };
       }),
+
+    // Returns the set of completed inspection types for a given opportunityId
+    // by reading directly from the Past Inspections Google Sheet tab.
+    getCompletedTypesByOpportunityId: protectedProcedure
+      .input(z.object({ opportunityId: z.string() }))
+      .query(async ({ input }) => {
+        if (!input.opportunityId) return [];
+        try {
+          const rows = await fetchPastInspections();
+          const types = rows
+            .filter(row => {
+              const oppId = row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || row['__col_6'] || '';
+              return oppId.trim() === input.opportunityId.trim();
+            })
+            .map(row => (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || '').trim().toUpperCase())
+            .filter(t => t && t !== '_');
+          return Array.from(new Set(types));
+        } catch (err) {
+          console.error('[getCompletedTypesByOpportunityId] Error:', err);
+          return [];
+        }
+      }),
   }),
 
   inspections: router({

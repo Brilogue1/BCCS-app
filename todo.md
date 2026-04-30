@@ -692,3 +692,16 @@
 
 ## Feature: Show Requested Inspections on Project Cards
 - [x] Add "Requested" inspection badges to project cards in Projects.tsx, matching the Scheduled badge style
+
+## Bug Fix: Requested inspections not clearing when completed (format mismatch)
+- [ ] Fix completed inspection text parsing — handle both comma-separated ("PLUMB ROUGH - 1ST - Approved, ...") and pipe-separated ("2026-04-21 — BLDG LINTEL | ...") formats
+
+## Bug Fix: Check "Inspections Completed" Google Sheet tab for deduplication
+- [ ] Fetch the "Inspections Completed" sheet tab to get completed inspection types per project
+- [ ] Use that data to hide "Requested" badges when the inspection type is already completed
+
+## Feature: Auto-refresh polling on Project Detail page
+- [x] Fix TS error in getCompletedTypesByOpportunityId (Set spread)
+- [x] Poll scheduled columns (U-AA) every 5 min to clear Requested badges once scheduled
+- [x] Poll Past Inspections sheet every 30 min to clear Requested badges once completed
+- [x] Use getCompletedTypesByOpportunityId for deduplication instead of parsing column H text

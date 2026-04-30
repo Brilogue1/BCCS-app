@@ -41,6 +41,7 @@ export default function ProjectDetail() {
   const isLoading = opportunityId ? loadingByOppId : loadingById;
   const projectId = project?.id || numericId;
 
+  // Poll scheduled columns (U-AA) every 5 min so Requested badges clear once scheduled
   const { data: inspections } = trpc.inspections.list.useQuery({ projectId }, { enabled: projectId > 0 });
   const { data: contacts } = trpc.contacts.list.useQuery({ projectId }, { enabled: projectId > 0 });
   const { data: pastInspections } = trpc.pastInspections.list.useQuery();
@@ -49,6 +50,27 @@ export default function ProjectDetail() {
     { inspectorName: project?.assignedInspector || '' },
     { enabled: !!project?.assignedInspector }
   );
+
+  // Poll project data (scheduled columns U-AA) every 5 min
+  // We re-use the project query's refetch by invalidating on an interval
+  // (the query is already defined above; we set refetchInterval via options)
+  const { data: _projectScheduledPoll } = trpc.projects.getByOpportunityId.useQuery(
+    { opportunityId },
+    {
+      enabled: !!opportunityId,
+      refetchInterval: 5 * 60 * 1000, // 5 minutes
+    }
+  );
+
+  // Poll Past Inspections sheet every 30 min to clear Requested badges once completed
+  const { data: completedTypesFromSheet } = trpc.pastInspections.getCompletedTypesByOpportunityId.useQuery(
+    { opportunityId },
+    {
+      enabled: !!opportunityId,
+      refetchInterval: 30 * 60 * 1000, // 30 minutes
+    }
+  );
+  const sheetCompletedTypeSet = new Set<string>((completedTypesFromSheet || []).map((t: string) => t.toUpperCase()));
 
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
@@ -261,7 +283,7 @@ export default function ProjectDetail() {
   // Raw completed inspections text from column H
   const completedInspectionsText = (project.completedInspections || '').trim();
 
-  // Filter scheduled inspection types - only show if not blank and not "_"
+  // Filter scheduled inspection types - only show if not blank, not "_", and not already completed in Past Inspections sheet
   const isValidInspection = (val: string | null | undefined) => val && val.trim() !== '' && val.trim() !== '_';
   const scheduledTypes = [
     { type: project.inspection1Type, result: project.inspection1Result },
@@ -269,7 +291,7 @@ export default function ProjectDetail() {
     { type: project.inspection3Type, result: project.inspection3Result },
     { type: project.inspection4Type, result: null },
     { type: project.inspection5Type, result: null },
-  ].filter(i => isValidInspection(i.type));
+  ].filter(i => isValidInspection(i.type) && !sheetCompletedTypeSet.has((i.type || '').trim().toUpperCase()));
 
   // Build a set of inspection types already confirmed in the Google Sheets (U-AA columns)
   // so we can hide DB "Requested" entries that have already been picked up by the sheet.
@@ -278,25 +300,50 @@ export default function ProjectDetail() {
   );
 
   // Also build a set of inspection types that appear in the Completed Inspections text (column H).
-  // Format is: "2026-04-21 — TYPE | 2026-04-14 — TYPE2 | ..."
-  // We extract the type portion after " — " and before " |" or end of string.
+  // Build a set of completed inspection types from the completed inspections text.
+  // Handles two formats:
+  //   1. Pipe-separated with em-dash date prefix: "2026-04-21 — BLDG LINTEL | 2026-04-14 — BLDG SLAB"
+  //   2. Comma-separated with result suffix:       "PLUMB ROUGH - 1ST - Approved, PLUMB SEWER LATERAL - Approved"
+  // For format 2, we strip the trailing " - <result>" suffix to get the bare type.
   const completedTypeSet = new Set<string>();
   if (completedInspectionsText) {
-    const segments = completedInspectionsText.split('|');
-    for (const seg of segments) {
-      const dashIdx = seg.indexOf('—');
-      if (dashIdx !== -1) {
-        const typePart = seg.substring(dashIdx + 1).trim().toUpperCase();
+    // Try pipe-separated format first (contains em-dash '—')
+    if (completedInspectionsText.includes('—')) {
+      const segments = completedInspectionsText.split('|');
+      for (const seg of segments) {
+        const dashIdx = seg.indexOf('—');
+        if (dashIdx !== -1) {
+          const typePart = seg.substring(dashIdx + 1).trim().toUpperCase();
+          if (typePart && typePart !== '_') completedTypeSet.add(typePart);
+        }
+      }
+    } else {
+      // Comma-separated format: "TYPE - Result, TYPE2 - Result2"
+      // Known result suffixes to strip
+      const resultSuffixes = [' - APPROVED', ' - FAILED', ' - PARTIAL', ' - CANCELLED', ' - PENDING', ' - PASS', ' - FAIL'];
+      const segments = completedInspectionsText.split(',');
+      for (const seg of segments) {
+        let typePart = seg.trim().toUpperCase();
+        for (const suffix of resultSuffixes) {
+          if (typePart.endsWith(suffix)) {
+            typePart = typePart.slice(0, typePart.length - suffix.length).trim();
+            break;
+          }
+        }
         if (typePart && typePart !== '_') completedTypeSet.add(typePart);
       }
     }
   }
 
   // Only show DB inspections whose type is NOT already in the sheet (scheduled or completed)
+  // Hide a Requested badge if the type is:
+  //   1. Already in the sheet's scheduled columns (U-AA)
+  //   2. Already in the column H completed text (legacy fallback)
+  //   3. Already in the Past Inspections sheet tab (authoritative source, polled every 30 min)
   const pendingDbInspections = (inspections || []).filter(
     (insp: any) => {
       const t = (insp.inspectionType || '').trim().toUpperCase();
-      return !sheetScheduledTypeSet.has(t) && !completedTypeSet.has(t);
+      return !sheetScheduledTypeSet.has(t) && !completedTypeSet.has(t) && !sheetCompletedTypeSet.has(t);
     }
   );
 
