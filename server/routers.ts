@@ -1525,38 +1525,49 @@ export const appRouter = router({
         if (!db_instance) throw new Error('Database not available');
         const allProjects: (typeof projects.$inferSelect)[] = await db_instance.select().from(projects);
 
-        // Filter projects completed in the selected month/year
-        const completedInMonth = allProjects.filter((p: typeof projects.$inferSelect) => {
-          if (!p.completionDate) return false;
-          // Try to parse the completion date
-          const dateStr = p.completionDate.trim();
-          const parsed = new Date(dateStr);
-          if (isNaN(parsed.getTime())) {
-            // Try MM/DD/YYYY format
-            const parts = dateStr.split('/');
-            if (parts.length === 3) {
-              const m = parseInt(parts[0]);
-              const y = parseInt(parts[2]);
-              return m === input.month && y === input.year;
+        // Helper: parse a date string that may be DD/MM/YYYY or MM/DD/YYYY or ISO
+        // Returns { month (1-12), year } or null if unparseable
+        const parseDateForMonth = (dateStr: string): { month: number; year: number } | null => {
+          if (!dateStr) return null;
+          const s = dateStr.trim();
+          // Try DD/MM/YYYY or D/M/YYYY (Google Sheets format used in this sheet)
+          const slashParts = s.split('/');
+          if (slashParts.length === 3) {
+            const first = parseInt(slashParts[0]);
+            const second = parseInt(slashParts[1]);
+            const third = parseInt(slashParts[2]);
+            if (!isNaN(first) && !isNaN(second) && !isNaN(third)) {
+              // If first > 12, it must be DD/MM/YYYY
+              if (first > 12) {
+                return { month: second, year: third };
+              }
+              // If second > 12, it must be MM/DD/YYYY
+              if (second > 12) {
+                return { month: first, year: third };
+              }
+              // Ambiguous: prefer DD/MM/YYYY since that's the Google Sheets format
+              return { month: second, year: third };
             }
-            return false;
           }
-          return (parsed.getMonth() + 1) === input.month && parsed.getFullYear() === input.year;
-        });
+          // Try ISO / standard JS parse as fallback
+          const parsed = new Date(s);
+          if (!isNaN(parsed.getTime())) {
+            return { month: parsed.getMonth() + 1, year: parsed.getFullYear() };
+          }
+          return null;
+        };
 
-        // Also include projects with stage = Complete/Closeout that have updatedOn in the month
-        const completedByStage = allProjects.filter((p: typeof projects.$inferSelect) => {
-          if (p.completionDate) return false; // Already captured above
+        // Filter projects with stage = Completed/Closeout where updatedOn falls in the selected month/year
+        // Note: completionDate column actually stores checklist text, not a date — use updatedOn instead
+        const allCompleted = allProjects.filter((p: typeof projects.$inferSelect) => {
           const stage = (p.stage || '').toLowerCase();
           if (!stage.includes('complete') && !stage.includes('closeout')) return false;
           const dateStr = (p.updatedOn || '').trim();
           if (!dateStr) return false;
-          const parsed = new Date(dateStr);
-          if (isNaN(parsed.getTime())) return false;
-          return (parsed.getMonth() + 1) === input.month && parsed.getFullYear() === input.year;
+          const parsed = parseDateForMonth(dateStr);
+          if (!parsed) return false;
+          return parsed.month === input.month && parsed.year === input.year;
         });
-
-        const allCompleted = [...completedInMonth, ...completedByStage];
 
         // Build employee project map
         type EmployeeProject = {
@@ -1680,9 +1691,19 @@ export const appRouter = router({
           if (p.assignedInspector) allEmployees.add(p.assignedInspector);
         });
 
+        // Count inspection reports generated in the selected month/year
+        // from the inspectionReports table (createdAt timestamp)
+        const allReports = await db_instance.select().from(inspectionReports);
+        const reportsInMonth = allReports.filter(r => {
+          if (!r.createdAt) return false;
+          const d = new Date(r.createdAt);
+          return (d.getMonth() + 1) === input.month && d.getFullYear() === input.year;
+        });
+
         return {
           employees: result,
           totalCompletedProjects: allCompleted.length,
+          totalReportsGenerated: reportsInMonth.length,
           availableEmployees: Array.from(allEmployees).sort(),
           month: input.month,
           year: input.year,

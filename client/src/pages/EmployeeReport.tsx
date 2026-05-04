@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, BarChart3, Download, Users, FileText, 
   ChevronDown, ChevronUp, Calendar, Building2, MapPin,
-  ClipboardCheck, Shield, Search, Mail
+  ClipboardCheck, Shield, Search, Mail, FileCheck
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
 
@@ -208,7 +208,7 @@ export default function EmployeeReport() {
         </Card>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -218,6 +218,19 @@ export default function EmployeeReport() {
                 <div>
                   <p className="text-sm text-gray-500">Completed Projects</p>
                   <p className="text-2xl font-bold">{data?.totalCompletedProjects ?? 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <FileCheck className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Reports Generated</p>
+                  <p className="text-2xl font-bold">{data?.totalReportsGenerated ?? 0}</p>
                 </div>
               </div>
             </CardContent>

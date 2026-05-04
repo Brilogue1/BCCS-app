@@ -721,3 +721,8 @@
 
 ## Bug Fix: Inspection type mismatch in deduplication (AND OR FOOTER vs AND FOOTER)
 - [x] Add normalized matching so minor wording differences (e.g. "AND OR" vs "AND") still deduplicate correctly
+
+## Employee Report Fixes (May 2026)
+- [x] Fix "Projects Finished" not showing April data (updatedOn was parsed as MM/DD/YYYY instead of DD/MM/YYYY)
+- [x] Add "Inspection Reports Generated" count card to Employee Report summary
+
