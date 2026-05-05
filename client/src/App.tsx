@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminProjectsReport from "./pages/AdminProjectsReport";
 import StaffWorkload from "./pages/StaffWorkload";
 import EmployeeReport from "./pages/EmployeeReport";
+import PlansUpload from "./pages/PlansUpload";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -68,6 +69,9 @@ function Router() {
       </Route>
       <Route path="/admin/employee-report">
         <ProtectedRoute component={EmployeeReport} path="/admin/employee-report" />
+      </Route>
+      <Route path="/plans-upload">
+        <ProtectedRoute component={PlansUpload} path="/plans-upload" />
       </Route>
       <Route path="/">
         {isAuthenticated ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}

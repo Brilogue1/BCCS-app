@@ -550,3 +550,56 @@ export async function updatePastInspectionReportLink(
     return false;
   }
 }
+
+/**
+ * Plans Upload — create a Google Drive subfolder, upload files, log to Client Uploads sheet,
+ * and send an email notification. All handled by the Google Apps Script webhook.
+ *
+ * The Apps Script receives:
+ *   action: 'plansUpload'
+ *   parentFolderId: string  — the parent Drive folder ID
+ *   folderName: string      — name for the new subfolder
+ *   address: string
+ *   uploaderEmail: string
+ *   company: string
+ *   files: Array<{ fileName, url, mimeType }>  — S3 URLs the script will fetch & re-upload to Drive
+ *   notifyEmail: string
+ *   ccEmail: string
+ *
+ * The Apps Script responds with:
+ *   { success: true, folderUrl: string }  or  { success: false, error: string }
+ */
+export async function appendPlansUpload(params: {
+  parentFolderId: string;
+  folderName: string;
+  address: string;
+  uploaderEmail: string;
+  company: string;
+  files: { fileName: string; url: string; mimeType: string }[];
+  notifyEmail: string;
+  ccEmail: string;
+}): Promise<{ success: boolean; folderUrl?: string; error?: string }> {
+  try {
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
+
+    const response = await axios.post(webhookUrl, {
+      action: 'plansUpload',
+      ...params,
+    }, {
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      maxRedirects: 5,
+      timeout: 60000, // Drive operations can take up to 60s
+    });
+
+    if (response.data?.success) {
+      console.log(`[Plans Upload] Folder created: ${response.data.folderUrl} for "${params.folderName}"`);
+      return { success: true, folderUrl: response.data.folderUrl };
+    } else {
+      console.error('[Plans Upload] Apps Script error:', response.data?.error);
+      return { success: false, error: response.data?.error || 'Apps Script returned failure' };
+    }
+  } catch (error: any) {
+    console.error('[Plans Upload] Failed to call Apps Script:', error?.message || error);
+    return { success: false, error: error?.message || 'Network error calling Apps Script' };
+  }
+}

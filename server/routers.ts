@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects, inspectionReports } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers, appendPlansUpload } from "./googleSheets";
 import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
 import { schedulerState, runAutoReportGeneration } from "./reportScheduler";
 import { storagePut } from "./storage";
@@ -1708,6 +1708,57 @@ export const appRouter = router({
           month: input.month,
           year: input.year,
         };
+      }),
+  }),
+
+  // Plans Upload — creates a Drive folder via Apps Script and logs to Client Uploads sheet
+  plansUpload: router({
+    upload: protectedProcedure
+      .input(z.object({
+        address: z.string().min(1),
+        projectName: z.string().optional(),
+        files: z.array(z.object({
+          fileName: z.string(),
+          fileData: z.string(), // base64
+          mimeType: z.string(),
+        })).min(1).max(20),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const DRIVE_PARENT_FOLDER_ID = '1ReuRTSfoOzql90tc2CgB7LA664fQAGKe';
+        const folderName = input.projectName
+          ? `${input.address} - ${input.projectName}`
+          : input.address;
+
+        // Upload each file to S3 so we have URLs to pass to Apps Script
+        const uploadedFiles: { fileName: string; url: string; mimeType: string }[] = [];
+        for (const f of input.files) {
+          const buffer = Buffer.from(f.fileData, 'base64');
+          const safeName = f.fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const key = `plans-uploads/${Date.now()}-${safeName}`;
+          const { url } = await storagePut(key, buffer, f.mimeType);
+          uploadedFiles.push({ fileName: f.fileName, url, mimeType: f.mimeType });
+        }
+
+        // Ask Apps Script to create Drive folder, upload files, return folder link
+        const result = await appendPlansUpload({
+          parentFolderId: DRIVE_PARENT_FOLDER_ID,
+          folderName,
+          address: input.address,
+          uploaderEmail: ctx.user.email || 'unknown',
+          company: ctx.user.company || '',
+          files: uploadedFiles,
+          notifyEmail: 'bccsfla@gmail.com',
+          ccEmail: 'bccsfladtm@gmail.com',
+        });
+
+        if (!result.success) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: result.error || 'Failed to upload plans to Google Drive',
+          });
+        }
+
+        return { success: true, folderUrl: result.folderUrl };
       }),
   }),
 });

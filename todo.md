@@ -726,3 +726,11 @@
 - [x] Fix "Projects Finished" not showing April data (updatedOn was parsed as MM/DD/YYYY instead of DD/MM/YYYY)
 - [x] Add "Inspection Reports Generated" count card to Employee Report summary
 
+
+## Plans Upload Feature (May 2026)
+- [x] Create PlansUpload page with address input, optional project name, and drag-and-drop file upload
+- [x] Add appendPlansUpload function to googleSheets.ts (calls Apps Script webhook)
+- [x] Add plansUpload.upload tRPC mutation (uploads files to S3, calls Apps Script for Drive folder + sheet logging + email)
+- [x] Register /plans-upload route in App.tsx
+- [x] Add "Plans Uploader" button to Dashboard Quick Actions
+- [ ] Update Google Apps Script to handle 'plansUpload' action (create Drive folder, upload files, log to sheet, send email)
