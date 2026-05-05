@@ -581,7 +581,7 @@ export async function appendPlansUpload(params: {
   ccEmail: string;
 }): Promise<{ success: boolean; folderUrl?: string; error?: string }> {
   try {
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzyGGo8sq1VCl6tIgeGtyydSpD4A-Fzvf1dyVSdaPwdUbdVvTidpClGXqClPG2EfA86qA/exec';
 
     const response = await axios.post(webhookUrl, {
       action: 'plansUpload',
