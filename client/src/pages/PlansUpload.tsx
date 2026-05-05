@@ -50,7 +50,7 @@ export default function PlansUpload() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [address, setAddress] = useState("");
-  const [projectName, setProjectName] = useState("");
+  const [notes, setNotes] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState<{ folderUrl?: string } | null>(null);
@@ -141,14 +141,14 @@ export default function PlansUpload() {
 
     uploadMutation.mutate({
       address: address.trim(),
-      projectName: projectName.trim() || undefined,
+      notes: notes.trim() || undefined,
       files: filesPayload,
     });
   };
 
   const handleReset = () => {
     setAddress("");
-    setProjectName("");
+    setNotes("");
     setSelectedFiles([]);
     setUploadSuccess(null);
   };
@@ -273,21 +273,20 @@ export default function PlansUpload() {
               />
             </div>
 
-            {/* Optional project name */}
+            {/* Notes */}
             <div className="space-y-2">
-              <Label htmlFor="projectName">
-                Project / Opportunity Name <span className="text-slate-400 text-xs">(optional)</span>
+              <Label htmlFor="notes">
+                Notes <span className="text-slate-400 text-xs">(optional)</span>
               </Label>
-              <Input
-                id="projectName"
-                placeholder="e.g. Smith Residence"
-                value={projectName}
-                onChange={e => setProjectName(e.target.value)}
+              <textarea
+                id="notes"
+                placeholder="Any additional notes for the BCCS team…"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
                 disabled={uploadMutation.isPending}
+                rows={3}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               />
-              <p className="text-xs text-slate-500">
-                The Drive folder will be named: <em>{address || "Address"}{projectName ? ` - ${projectName}` : ""}</em>
-              </p>
             </div>
 
             {/* Drop zone */}

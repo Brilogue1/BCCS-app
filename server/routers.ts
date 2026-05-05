@@ -1716,7 +1716,7 @@ export const appRouter = router({
     upload: protectedProcedure
       .input(z.object({
         address: z.string().min(1),
-        projectName: z.string().optional(),
+        notes: z.string().optional(),
         files: z.array(z.object({
           fileName: z.string(),
           fileData: z.string(), // base64
@@ -1725,9 +1725,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const DRIVE_PARENT_FOLDER_ID = '1ReuRTSfoOzql90tc2CgB7LA664fQAGKe';
-        const folderName = input.projectName
-          ? `${input.address} - ${input.projectName}`
-          : input.address;
+        const folderName = input.address;
 
         // Upload each file to S3 so we have URLs to pass to Apps Script
         const uploadedFiles: { fileName: string; url: string; mimeType: string }[] = [];
@@ -1744,6 +1742,7 @@ export const appRouter = router({
           parentFolderId: DRIVE_PARENT_FOLDER_ID,
           folderName,
           address: input.address,
+          notes: input.notes || '',
           uploaderEmail: ctx.user.email || 'unknown',
           company: ctx.user.company || '',
           files: uploadedFiles,

@@ -573,6 +573,7 @@ export async function appendPlansUpload(params: {
   parentFolderId: string;
   folderName: string;
   address: string;
+  notes?: string;
   uploaderEmail: string;
   company: string;
   files: { fileName: string; url: string; mimeType: string }[];
