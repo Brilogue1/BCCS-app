@@ -101,6 +101,51 @@ export default function ProjectDetail() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Plans upload state
+  const [plansFiles, setPlansFiles] = useState<{ file: File; id: string; error?: string }[]>([]);
+  const [plansDragging, setPlansDragging] = useState(false);
+  const [plansNotes, setPlansNotes] = useState("");
+  const [plansSuccess, setPlansSuccess] = useState<{ folderUrl?: string } | null>(null);
+  const plansInputRef = useRef<HTMLInputElement>(null);
+
+  const plansUploadMutation = trpc.plansUpload.upload.useMutation({
+    onSuccess: (data) => {
+      setPlansSuccess({ folderUrl: data.folderUrl });
+      toast.success("Plans uploaded! The BCCS team has been notified.");
+    },
+    onError: (err) => {
+      toast.error(err.message || "Plans upload failed. Please try again.");
+    },
+  });
+
+  const addPlansFiles = (newFiles: FileList | File[]) => {
+    const arr = Array.from(newFiles);
+    const toAdd: { file: File; id: string; error?: string }[] = [];
+    for (const file of arr) {
+      if (plansFiles.length + toAdd.length >= 20) { toast.error("Maximum 20 files."); break; }
+      const sizeMB = file.size / (1024 * 1024);
+      toAdd.push({ file, id: `${file.name}-${Date.now()}-${Math.random()}`, error: sizeMB > 15 ? `Too large (${sizeMB.toFixed(1)} MB, max 15 MB)` : undefined });
+    }
+    setPlansFiles(prev => [...prev, ...toAdd]);
+  };
+
+  const handlePlansSubmit = async () => {
+    const address = project?.address || project?.opportunityId || 'Unknown Address';
+    const validFiles = plansFiles.filter(f => !f.error);
+    if (validFiles.length === 0) { toast.error("Please add at least one file."); return; }
+    const filesPayload: { fileName: string; fileData: string; mimeType: string }[] = [];
+    for (const sf of validFiles) {
+      const b64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
+        reader.onerror = reject;
+        reader.readAsDataURL(sf.file);
+      });
+      filesPayload.push({ fileName: sf.file.name, fileData: b64, mimeType: sf.file.type || "application/octet-stream" });
+    }
+    plansUploadMutation.mutate({ address, notes: plansNotes.trim() || undefined, files: filesPayload });
+  };
+
   const utils = trpc.useUtils();
 
   const createInspectionMutation = trpc.inspections.create.useMutation({
@@ -879,27 +924,97 @@ export default function ProjectDetail() {
 
         {/* Upload Plans */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Upload Plans</CardTitle>
-              <CardDescription>Submit architectural plans and drawings for this project</CardDescription>
-            </div>
-            <Button
-              size="sm"
-              onClick={() => toast.info('Upload Plans form coming soon! Please contact info@bccsfl.com to submit plans.')}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Plans
-            </Button>
+          <CardHeader>
+            <CardTitle>Upload Plans</CardTitle>
+            <CardDescription>Submit architectural plans and drawings for this project</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500">
-              <Upload className="h-10 w-10 mb-3 text-slate-300" />
-              <p className="font-medium text-slate-600">Plans upload form coming soon</p>
-              <p className="text-sm mt-1">In the meantime, please email your plans to{" "}
-                <a href="mailto:info@bccsfl.com" className="text-blue-600 hover:underline">info@bccsfl.com</a>
-              </p>
-            </div>
+            {plansSuccess ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center gap-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-800">Plans uploaded successfully!</p>
+                  <p className="text-sm text-slate-500 mt-1">The BCCS team has been notified by email.</p>
+                </div>
+                {plansSuccess.folderUrl && (
+                  <a href={plansSuccess.folderUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                    <Upload className="h-3 w-3" /> View in Google Drive
+                  </a>
+                )}
+                <Button variant="outline" size="sm" onClick={() => { setPlansSuccess(null); setPlansFiles([]); setPlansNotes(""); }}>
+                  Upload More
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Drop zone */}
+                <div
+                  onDrop={(e) => { e.preventDefault(); setPlansDragging(false); if (e.dataTransfer.files.length > 0) addPlansFiles(e.dataTransfer.files); }}
+                  onDragOver={(e) => { e.preventDefault(); setPlansDragging(true); }}
+                  onDragLeave={() => setPlansDragging(false)}
+                  onClick={() => !plansUploadMutation.isPending && plansInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                    plansDragging ? "border-blue-500 bg-blue-50" : "border-slate-300 hover:border-blue-400 hover:bg-slate-50"
+                  } ${plansUploadMutation.isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <Upload className="h-7 w-7 text-slate-400 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-slate-700">Drag & drop files here, or click to browse</p>
+                  <p className="text-xs text-slate-500 mt-1">PDF, images, Word, Excel, ZIP — up to 15 MB each</p>
+                  <input ref={plansInputRef} type="file" multiple className="hidden" onChange={(e) => { if (e.target.files) { addPlansFiles(e.target.files); e.target.value = ""; } }} disabled={plansUploadMutation.isPending} />
+                </div>
+
+                {/* File list */}
+                {plansFiles.length > 0 && (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {plansFiles.map(sf => (
+                      <div key={sf.id} className={`flex items-center gap-3 p-2 rounded border text-sm ${
+                        sf.error ? "border-red-200 bg-red-50" : "border-slate-200 bg-white"
+                      }`}>
+                        <FileText className={`h-4 w-4 flex-shrink-0 ${sf.error ? "text-red-400" : "text-slate-400"}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate font-medium text-slate-800">{sf.file.name}</p>
+                          {sf.error ? <p className="text-xs text-red-600">{sf.error}</p> : <p className="text-xs text-slate-500">{(sf.file.size / 1024 / 1024).toFixed(2)} MB</p>}
+                        </div>
+                        <button onClick={() => setPlansFiles(prev => prev.filter(f => f.id !== sf.id))} disabled={plansUploadMutation.isPending} className="text-slate-400 hover:text-red-500 p-1">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Notes */}
+                <div>
+                  <Label htmlFor="plans-notes" className="text-sm">Notes <span className="text-slate-400">(optional)</span></Label>
+                  <Textarea
+                    id="plans-notes"
+                    placeholder="Any notes for the BCCS team…"
+                    value={plansNotes}
+                    onChange={e => setPlansNotes(e.target.value)}
+                    disabled={plansUploadMutation.isPending}
+                    rows={2}
+                    className="mt-1 resize-none"
+                  />
+                </div>
+
+                <Button
+                  className="w-full gap-2"
+                  onClick={handlePlansSubmit}
+                  disabled={plansUploadMutation.isPending || plansFiles.filter(f => !f.error).length === 0}
+                >
+                  {plansUploadMutation.isPending ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Uploading to Google Drive…</>
+                  ) : (
+                    <><Upload className="h-4 w-4" /> Upload {plansFiles.filter(f => !f.error).length > 0 ? `${plansFiles.filter(f => !f.error).length} File${plansFiles.filter(f => !f.error).length !== 1 ? "s" : ""}` : "Plans"}</>
+                  )}
+                </Button>
+                {plansUploadMutation.isPending && (
+                  <p className="text-xs text-center text-slate-500">This may take up to 60 seconds…</p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
