@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3, Mail, Calendar, Upload } from "lucide-react";
+import { ArrowRight, FileText, Loader2, CheckCircle2, Clock, BarChart3, Mail, Calendar } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -166,12 +166,7 @@ export default function Dashboard() {
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <Link href="/plans-upload">
-            <Button variant="outline" className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-50">
-              <Upload className="h-4 w-4" />
-              Plans Uploader
-            </Button>
-          </Link>
+
         </div>
       </div>
     </div>
