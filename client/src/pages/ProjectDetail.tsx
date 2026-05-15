@@ -99,6 +99,8 @@ export default function ProjectDetail() {
   // File upload state
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<{ count: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Plans upload state
@@ -248,10 +250,15 @@ export default function ProjectDetail() {
   const handleFileUpload = async () => {
     if (selectedFiles.length === 0 || !project) return;
 
+    const total = selectedFiles.length;
     setUploading(true);
+    setUploadProgress({ current: 0, total });
+    setUploadSuccess(null);
     try {
       // Upload each file sequentially
-      for (const file of selectedFiles) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        setUploadProgress({ current: i + 1, total });
         const timestamp = Date.now();
         const randomSuffix = Math.random().toString(36).substring(2, 8);
         const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -263,8 +270,6 @@ export default function ProjectDetail() {
 
         const uploadUrl = `/api/upload?path=${encodeURIComponent(fileKey)}`;
 
-        console.log('Uploading to server:', uploadUrl);
-        
         const response = await fetch(uploadUrl, {
           method: 'POST',
           body: formData,
@@ -273,12 +278,10 @@ export default function ProjectDetail() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
-          console.error('Upload failed:', response.status, errorData);
           throw new Error(errorData.error || `Upload failed: ${response.status}`);
         }
 
         const result = await response.json();
-        console.log('Upload result:', result);
         const fileUrl = result.url;
 
         // Save file record to database (which also logs to Google Sheets)
@@ -292,18 +295,16 @@ export default function ProjectDetail() {
         });
       }
 
-      toast.success(`${selectedFiles.length} file(s) uploaded successfully`);
+      setUploadSuccess({ count: total });
       setSelectedFiles([]);
-      setUploadDialogOpen(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
       utils.files.list.invalidate({ projectId });
     } catch (error) {
       console.error('Upload error:', error);
       toast.error("Failed to upload file. Please try again.");
     } finally {
       setUploading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -826,55 +827,103 @@ export default function ProjectDetail() {
                     Upload a document or photo for {project.opportunityName}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="file">Select File</Label>
-                    <Input
-                      id="file"
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileSelect}
-                      accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                      className="cursor-pointer"
-                      multiple
-                    />
-                    <p className="text-xs text-slate-500 mt-1">
-                      Max file size: 10MB. Supported: Images, PDF, Word, Excel
-                    </p>
+
+                {/* Success state */}
+                {uploadSuccess ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center gap-4">
+                    <div className="p-3 bg-green-100 rounded-full">
+                      <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {uploadSuccess.count === 1 ? '1 file uploaded successfully!' : `${uploadSuccess.count} files uploaded successfully!`}
+                      </p>
+                      <p className="text-sm text-slate-500 mt-1">Your files are now saved to this project.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => { setUploadSuccess(null); }}>
+                        Upload More
+                      </Button>
+                      <Button size="sm" onClick={() => { setUploadSuccess(null); setUploadDialogOpen(false); }}>
+                        Done
+                      </Button>
+                    </div>
                   </div>
-                  {selectedFiles.length > 0 && (
-                    <div className="space-y-2">
-                      {selectedFiles.map((file, index) => (
-                        <div key={index} className="p-3 bg-slate-50 rounded-lg">
-                          <p className="text-sm font-medium">{file.name}</p>
-                          <p className="text-xs text-slate-500">
-                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                ) : uploading ? (
+                  /* Loading state */
+                  <div className="flex flex-col items-center justify-center py-10 text-center gap-4">
+                    <div className="relative">
+                      <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {uploadProgress
+                          ? uploadProgress.total > 1
+                            ? `Uploading file ${uploadProgress.current} of ${uploadProgress.total}…`
+                            : 'Uploading your file…'
+                          : 'Uploading…'}
+                      </p>
+                      {uploadProgress && uploadProgress.total > 1 && (
+                        <div className="mt-3 w-48 mx-auto">
+                          <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-600 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.round((uploadProgress.current / uploadProgress.total) * 100)}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {Math.round((uploadProgress.current / uploadProgress.total) * 100)}%
                           </p>
                         </div>
-                      ))}
-                      <p className="text-xs text-slate-600 font-medium">
-                        {selectedFiles.length} file(s) selected
+                      )}
+                      <p className="text-xs text-slate-500 mt-2">Please don't close this window</p>
+                    </div>
+                  </div>
+                ) : (
+                  /* Default file picker state */
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="file">Select File</Label>
+                      <Input
+                        id="file"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileSelect}
+                        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                        className="cursor-pointer"
+                        multiple
+                      />
+                      <p className="text-xs text-slate-500 mt-1">
+                        Max file size: 10MB. Supported: Images, PDF, Word, Excel
                       </p>
                     </div>
-                  )}
-                  <Button
-                    onClick={handleFileUpload}
-                    className="w-full"
-                    disabled={selectedFiles.length === 0 || uploading || uploadFileMutation.isPending}
-                  >
-                    {uploading || uploadFileMutation.isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload {selectedFiles.length > 0 ? `${selectedFiles.length} File(s)` : 'File'}
-                      </>
+                    {selectedFiles.length > 0 && (
+                      <div className="space-y-2">
+                        {selectedFiles.map((file, index) => (
+                          <div key={index} className="p-3 bg-slate-50 rounded-lg">
+                            <p className="text-sm font-medium">{file.name}</p>
+                            <p className="text-xs text-slate-500">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        ))}
+                        <p className="text-xs text-slate-600 font-medium">
+                          {selectedFiles.length} file(s) selected
+                        </p>
+                      </div>
                     )}
-                  </Button>
-                </div>
+                    <Button
+                      onClick={handleFileUpload}
+                      className="w-full"
+                      disabled={selectedFiles.length === 0}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload {selectedFiles.length > 0 ? `${selectedFiles.length} File(s)` : 'File'}
+                    </Button>
+                  </div>
+                )}
               </DialogContent>
             </Dialog>
           </CardHeader>
