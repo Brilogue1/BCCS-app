@@ -13,6 +13,7 @@ import { generateInspectionRecordPDF, buildInspectionRows } from "../reportGener
 import * as db from "../db";
 import { sdk } from "./sdk";
 import { startReportScheduler } from "../reportScheduler";
+import { startFileCleanupScheduler } from "../fileCleanupScheduler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -195,6 +196,8 @@ async function startServer() {
     console.log(`Server running on http://localhost:${port}/`);
     // Start the automated report generation scheduler (7am-5pm CST, Mon-Fri, hourly)
     startReportScheduler();
+    // Start the file cleanup scheduler (runs daily at 2am UTC, deletes files older than 14 days)
+    startFileCleanupScheduler();
   });
 }
 
