@@ -86,6 +86,9 @@ export default function ProjectDetail() {
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [updateNotesDialogOpen, setUpdateNotesDialogOpen] = useState(false);
+  const [editingInspection, setEditingInspection] = useState<{ id: number; type: string; notes: string } | null>(null);
+  const [editNotesValue, setEditNotesValue] = useState('');
 
   // Inspection form state
   const [inspectionType, setInspectionType] = useState('');
@@ -165,6 +168,18 @@ export default function ProjectDetail() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to schedule inspection");
+    },
+  });
+
+  const updateNotesMutation = trpc.inspections.updateNotes.useMutation({
+    onSuccess: () => {
+      toast.success('Date request updated successfully');
+      setUpdateNotesDialogOpen(false);
+      setEditingInspection(null);
+      utils.inspections.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update date request');
     },
   });
 
@@ -657,18 +672,83 @@ export default function ProjectDetail() {
                 ))}
                 {/* Show DB inspections that haven't been picked up by the sheet yet ("Requested") */}
                 {pendingDbInspections.map((inspection: any) => (
-                  <div key={inspection.id} className="flex items-center justify-between p-4 border border-yellow-200 rounded-lg bg-yellow-50">
-                    <div>
+                  <div key={inspection.id} className="flex items-start justify-between p-4 border border-yellow-200 rounded-lg bg-yellow-50 gap-3">
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-slate-800">{inspection.inspectionType}</p>
                       <p className="text-xs text-slate-500 mt-0.5">
                         Submitted {new Date(inspection.createdAt).toLocaleDateString()} · Pending confirmation
                       </p>
+                      {inspection.notes && (
+                        <p className="text-xs text-slate-600 mt-1 italic">📅 {inspection.notes}</p>
+                      )}
                     </div>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
-                      Requested
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7 px-2 border-yellow-400 text-yellow-800 hover:bg-yellow-100"
+                        onClick={() => {
+                          setEditingInspection({ id: inspection.id, type: inspection.inspectionType, notes: inspection.notes || '' });
+                          setEditNotesValue(inspection.notes || '');
+                          setUpdateNotesDialogOpen(true);
+                        }}
+                      >
+                        Update Date
+                      </Button>
+                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                        Requested
+                      </span>
+                    </div>
                   </div>
                 ))}
+
+                {/* Update Date Dialog */}
+                <Dialog open={updateNotesDialogOpen} onOpenChange={(open) => { setUpdateNotesDialogOpen(open); if (!open) setEditingInspection(null); }}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Update Date Request</DialogTitle>
+                      <DialogDescription>
+                        {editingInspection ? `Update the requested date for: ${editingInspection.type}` : 'Update inspection date request'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="update-notes">Requested Date &amp; Notes</Label>
+                        <Textarea
+                          id="update-notes"
+                          value={editNotesValue}
+                          onChange={(e) => setEditNotesValue(e.target.value)}
+                          placeholder="e.g. Please schedule for 5/28/2026 if possible..."
+                          rows={3}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-slate-500 mt-1">This will update the date/notes on your inspection request.</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => { setUpdateNotesDialogOpen(false); setEditingInspection(null); }}
+                          disabled={updateNotesMutation.isPending}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1"
+                          onClick={() => {
+                            if (!editingInspection) return;
+                            updateNotesMutation.mutate({ id: editingInspection.id, notes: editNotesValue });
+                          }}
+                          disabled={updateNotesMutation.isPending}
+                        >
+                          {updateNotesMutation.isPending ? (
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</>
+                          ) : 'Save Update'}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </CardContent>

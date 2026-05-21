@@ -979,6 +979,27 @@ export const appRouter = router({
       return allInspections.filter(i => projectIdSet.has(i.projectId));
     }),
 
+    updateNotes: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        notes: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB unavailable' });
+        const { inspections: inspTable } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        // Verify the inspection exists and user has access
+        const [existing] = await dbInstance.select().from(inspTable).where(eq(inspTable.id, input.id));
+        if (!existing) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inspection not found' });
+        const project = await db.getProjectById(existing.projectId);
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this inspection' });
+        }
+        await dbInstance.update(inspTable).set({ notes: input.notes }).where(eq(inspTable.id, input.id));
+        return { success: true };
+      }),
+
     create: protectedProcedure
       .input(z.object({
         projectId: z.number(),

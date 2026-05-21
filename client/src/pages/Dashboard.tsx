@@ -6,7 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { data: summary, isLoading } = trpc.dashboard.summary.useQuery();
 
   if (isLoading) {
@@ -46,7 +46,7 @@ export default function Dashboard() {
               <Link href="/projects">
                 <Button variant="outline">View Projects</Button>
               </Link>
-              <Button variant="ghost">Logout</Button>
+              <Button variant="ghost" onClick={() => logout()}>Logout</Button>
             </div>
           </div>
         </div>
