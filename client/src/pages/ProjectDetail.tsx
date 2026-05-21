@@ -253,10 +253,10 @@ export default function ProjectDetail() {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    // Check file sizes (max 10MB each)
-    const oversizedFiles = files.filter(f => f.size > 10 * 1024 * 1024);
+    // Check file sizes (max 25MB each)
+    const oversizedFiles = files.filter(f => f.size > 25 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      toast.error(`${oversizedFiles.length} file(s) exceed 10MB limit`);
+      toast.error(`${oversizedFiles.length} file(s) exceed 25MB limit`);
       return;
     }
     setSelectedFiles(files);
@@ -976,7 +976,7 @@ export default function ProjectDetail() {
                         multiple
                       />
                       <p className="text-xs text-slate-500 mt-1">
-                        Max file size: 10MB. Supported: Images, PDF, Word, Excel
+                        Max file size: 25MB. Supported: Images, PDF, Word, Excel
                       </p>
                     </div>
                     {selectedFiles.length > 0 && (
