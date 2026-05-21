@@ -570,37 +570,36 @@ export async function updatePastInspectionReportLink(
  *   { success: true, folderUrl: string }  or  { success: false, error: string }
  */
 export async function appendPlansUpload(params: {
-  parentFolderId: string;
-  folderName: string;
   address: string;
+  dropboxLink: string;
   notes?: string;
   uploaderEmail: string;
   company: string;
-  files: { fileName: string; url: string; mimeType: string }[];
   notifyEmail: string;
   ccEmail: string;
-}): Promise<{ success: boolean; folderUrl?: string; error?: string }> {
+}): Promise<void> {
   try {
     const webhookUrl = 'https://script.google.com/macros/s/AKfycbzyGGo8sq1VCl6tIgeGtyydSpD4A-Fzvf1dyVSdaPwdUbdVvTidpClGXqClPG2EfA86qA/exec';
 
-    const response = await axios.post(webhookUrl, {
-      action: 'plansUpload',
-      ...params,
+    await axios.post(webhookUrl, {
+      action: 'plansLinkSubmit',
+      address: params.address,
+      dropboxLink: params.dropboxLink,
+      notes: params.notes || '',
+      uploaderEmail: params.uploaderEmail,
+      company: params.company,
+      notifyEmail: params.notifyEmail,
+      ccEmail: params.ccEmail,
+      submittedAt: new Date().toLocaleDateString('en-US'),
     }, {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       maxRedirects: 5,
-      timeout: 60000, // Drive operations can take up to 60s
+      timeout: 30000,
     });
 
-    if (response.data?.success) {
-      console.log(`[Plans Upload] Folder created: ${response.data.folderUrl} for "${params.folderName}"`);
-      return { success: true, folderUrl: response.data.folderUrl };
-    } else {
-      console.error('[Plans Upload] Apps Script error:', response.data?.error);
-      return { success: false, error: response.data?.error || 'Apps Script returned failure' };
-    }
+    console.log(`[Plans Submit] Dropbox link submitted for "${params.address}"`);
   } catch (error: any) {
-    console.error('[Plans Upload] Failed to call Apps Script:', error?.message || error);
-    return { success: false, error: error?.message || 'Network error calling Apps Script' };
+    console.error('[Plans Submit] Failed to call Apps Script:', error?.message || error);
+    // Don't throw — log and continue so the user still gets a success response
   }
 }

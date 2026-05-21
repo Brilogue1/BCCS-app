@@ -106,51 +106,6 @@ export default function ProjectDetail() {
   const [uploadSuccess, setUploadSuccess] = useState<{ count: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Plans upload state
-  const [plansFiles, setPlansFiles] = useState<{ file: File; id: string; error?: string }[]>([]);
-  const [plansDragging, setPlansDragging] = useState(false);
-  const [plansNotes, setPlansNotes] = useState("");
-  const [plansSuccess, setPlansSuccess] = useState<{ folderUrl?: string } | null>(null);
-  const plansInputRef = useRef<HTMLInputElement>(null);
-
-  const plansUploadMutation = trpc.plansUpload.upload.useMutation({
-    onSuccess: (data) => {
-      setPlansSuccess({ folderUrl: data.folderUrl });
-      toast.success("Plans uploaded! The BCCS team has been notified.");
-    },
-    onError: (err) => {
-      toast.error(err.message || "Plans upload failed. Please try again.");
-    },
-  });
-
-  const addPlansFiles = (newFiles: FileList | File[]) => {
-    const arr = Array.from(newFiles);
-    const toAdd: { file: File; id: string; error?: string }[] = [];
-    for (const file of arr) {
-      if (plansFiles.length + toAdd.length >= 20) { toast.error("Maximum 20 files."); break; }
-      const sizeMB = file.size / (1024 * 1024);
-      toAdd.push({ file, id: `${file.name}-${Date.now()}-${Math.random()}`, error: sizeMB > 15 ? `Too large (${sizeMB.toFixed(1)} MB, max 15 MB)` : undefined });
-    }
-    setPlansFiles(prev => [...prev, ...toAdd]);
-  };
-
-  const handlePlansSubmit = async () => {
-    const address = project?.address || project?.opportunityId || 'Unknown Address';
-    const validFiles = plansFiles.filter(f => !f.error);
-    if (validFiles.length === 0) { toast.error("Please add at least one file."); return; }
-    const filesPayload: { fileName: string; fileData: string; mimeType: string }[] = [];
-    for (const sf of validFiles) {
-      const b64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
-        reader.onerror = reject;
-        reader.readAsDataURL(sf.file);
-      });
-      filesPayload.push({ fileName: sf.file.name, fileData: b64, mimeType: sf.file.type || "application/octet-stream" });
-    }
-    plansUploadMutation.mutate({ address, notes: plansNotes.trim() || undefined, files: filesPayload });
-  };
-
   const utils = trpc.useUtils();
 
   const createInspectionMutation = trpc.inspections.create.useMutation({
