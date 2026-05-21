@@ -579,18 +579,18 @@ export async function appendPlansUpload(params: {
   ccEmail: string;
 }): Promise<void> {
   try {
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbzyGGo8sq1VCl6tIgeGtyydSpD4A-Fzvf1dyVSdaPwdUbdVvTidpClGXqClPG2EfA86qA/exec';
+    // Use the existing inspection webhook — it handles the Plan uploads sheet tab
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbwvNST4bSLr_y_y4FPLQYGoQIA84C1k6gm1hU-fettg9RRkB-T3lVw4FliahYWkcF2n/exec';
 
     await axios.post(webhookUrl, {
       action: 'plansLinkSubmit',
-      address: params.address,
+      clientEmail: params.uploaderEmail,
       dropboxLink: params.dropboxLink,
+      projectAddress: params.address,
+      submittedDate: new Date().toLocaleDateString('en-US'),
       notes: params.notes || '',
-      uploaderEmail: params.uploaderEmail,
-      company: params.company,
       notifyEmail: params.notifyEmail,
       ccEmail: params.ccEmail,
-      submittedAt: new Date().toLocaleDateString('en-US'),
     }, {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       maxRedirects: 5,
