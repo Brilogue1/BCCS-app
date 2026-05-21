@@ -303,7 +303,7 @@ export async function appendNewProjectEmail(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMuNThzN89fR1lvklDJ2CeMweuzC7VXSa_qskhQZhLF0xRGvsSfeUfmtLvcMe35Bmo/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
@@ -345,7 +345,7 @@ export async function appendClientUpload(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMuNThzN89fR1lvklDJ2CeMweuzC7VXSa_qskhQZhLF0xRGvsSfeUfmtLvcMe35Bmo/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
@@ -393,7 +393,7 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMuNThzN89fR1lvklDJ2CeMweuzC7VXSa_qskhQZhLF0xRGvsSfeUfmtLvcMe35Bmo/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
     
     const payload = {
       action: 'inspectionRequest',
@@ -445,7 +445,7 @@ export async function appendNewProjectInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMuNThzN89fR1lvklDJ2CeMweuzC7VXSa_qskhQZhLF0xRGvsSfeUfmtLvcMe35Bmo/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'newProjectInspectionRequest',
@@ -579,8 +579,8 @@ export async function appendPlansUpload(params: {
   ccEmail: string;
 }): Promise<void> {
   try {
-    // Use the existing inspection webhook — it handles the Plan uploads sheet tab
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyMuNThzN89fR1lvklDJ2CeMweuzC7VXSa_qskhQZhLF0xRGvsSfeUfmtLvcMe35Bmo/exec';
+    // Use the Projects script webhook — handles the Plan uploads sheet tab
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyTen0v60tiy3CuSEjYZfUSAZ_mhBj7m3Lv10U4cP0qDTttdjJdo1_n7in_Y3EwvLYH/exec';
 
     await axios.post(webhookUrl, {
       action: 'plansLinkSubmit',
