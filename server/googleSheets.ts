@@ -573,6 +573,7 @@ export async function appendPlansUpload(params: {
   address: string;
   dropboxLink: string;
   notes?: string;
+  oppId?: string;
   uploaderEmail: string;
   company: string;
   notifyEmail: string;
@@ -589,6 +590,7 @@ export async function appendPlansUpload(params: {
       projectAddress: params.address,
       submittedDate: new Date().toLocaleDateString('en-US'),
       notes: params.notes || '',
+      oppId: params.oppId || '',
       notifyEmail: params.notifyEmail,
       ccEmail: params.ccEmail,
     }, {

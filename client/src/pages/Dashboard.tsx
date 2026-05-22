@@ -43,6 +43,12 @@ export default function Dashboard() {
                   </Button>
                 </Link>
               )}
+              <Link href="/plans-upload">
+                <Button variant="outline" className="gap-2">
+                  <Link2 className="h-4 w-4" />
+                  Submit Plans
+                </Button>
+              </Link>
               <Link href="/projects">
                 <Button variant="outline">View Projects</Button>
               </Link>

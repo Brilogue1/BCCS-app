@@ -1739,12 +1739,14 @@ export const appRouter = router({
         address: z.string().min(1),
         dropboxLink: z.string().url(),
         notes: z.string().optional(),
+        oppId: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         await appendPlansUpload({
           address: input.address,
           dropboxLink: input.dropboxLink,
           notes: input.notes || '',
+          oppId: input.oppId || '',
           uploaderEmail: ctx.user.email || 'unknown',
           company: ctx.user.company || '',
           notifyEmail: 'bccsfla@gmail.com',

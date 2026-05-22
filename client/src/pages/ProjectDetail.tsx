@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { ArrowLeft, Calendar, Download, FileText, Loader2, Mail, Phone, Plus, Trash2, Upload, User, X } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, Download, FileText, Link2, Loader2, Mail, Phone, Plus, Trash2, Upload, User, X } from "lucide-react";
 import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -98,6 +98,39 @@ export default function ProjectDetail() {
   // Contact form state
   const [contactEmail, setContactEmail] = useState("");
   const [contactName, setContactName] = useState("");
+
+  // Plans submit state
+  const [plansDropboxLink, setPlansDropboxLink] = useState('');
+  const [plansNotes, setPlansNotes] = useState('');
+  const [plansSubmitting, setPlansSubmitting] = useState(false);
+  const [plansSubmitSuccess, setPlansSubmitSuccess] = useState(false);
+
+  const plansSubmitMutation = trpc.plansUpload.submitLink.useMutation({
+    onSuccess: () => {
+      setPlansSubmitting(false);
+      setPlansSubmitSuccess(true);
+      setPlansDropboxLink('');
+      setPlansNotes('');
+    },
+    onError: (error) => {
+      setPlansSubmitting(false);
+      toast.error(error.message || 'Failed to submit plans link');
+    },
+  });
+
+  const handlePlansSubmit = () => {
+    if (!plansDropboxLink.trim()) {
+      toast.error('Please enter a Dropbox link');
+      return;
+    }
+    setPlansSubmitting(true);
+    plansSubmitMutation.mutate({
+      address: project?.address || '',
+      dropboxLink: plansDropboxLink.trim(),
+      notes: plansNotes.trim(),
+      oppId: project?.opportunityId || '',
+    });
+  };
 
   // File upload state
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -1006,6 +1039,62 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
+
+      {/* Submit Plans Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Link2 className="h-5 w-5 text-blue-600" />
+              Submit Plans
+            </CardTitle>
+            <CardDescription>Submit a Dropbox link with your architectural plans for this project</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {plansSubmitSuccess ? (
+              <div className="flex flex-col items-center gap-3 py-6 text-center">
+                <CheckCircle2 className="h-12 w-12 text-green-500" />
+                <p className="font-semibold text-green-700">Plans submitted successfully!</p>
+                <p className="text-sm text-slate-500">The BCCS team has been notified.</p>
+                <Button variant="outline" onClick={() => setPlansSubmitSuccess(false)}>Submit Another</Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <Label>Project Address</Label>
+                  <Input value={project?.address || ''} disabled className="bg-slate-50" />
+                </div>
+                <div>
+                  <Label>Dropbox Link <span className="text-red-500">*</span></Label>
+                  <Input
+                    placeholder="https://www.dropbox.com/sh/..."
+                    value={plansDropboxLink}
+                    onChange={(e) => setPlansDropboxLink(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Notes (optional)</Label>
+                  <Textarea
+                    placeholder="Any notes for the team..."
+                    value={plansNotes}
+                    onChange={(e) => setPlansNotes(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <Button
+                  onClick={handlePlansSubmit}
+                  disabled={plansSubmitting || !plansDropboxLink.trim()}
+                  className="w-full"
+                >
+                  {plansSubmitting ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Submitting...</>
+                  ) : (
+                    'Submit Plans Link'
+                  )}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
       </div>
     </div>
