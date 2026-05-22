@@ -33,7 +33,7 @@ export default function PlansUpload() {
       return;
     }
     if (!dropboxLink.trim()) {
-      toast.error("Please enter your Dropbox link.");
+      toast.error("Please enter your Dropbox or Google Drive link.");
       return;
     }
     submitMutation.mutate({
@@ -62,7 +62,7 @@ export default function PlansUpload() {
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Link Submitted!</h2>
             <p className="text-slate-500 mb-6">
-              Your Dropbox link has been sent to the BCCS team and logged for review.
+              Your Dropbox / Google Drive link has been sent to the BCCS team and logged for review.
             </p>
             <div className="space-y-3">
               <Button onClick={handleReset} className="w-full">
@@ -92,7 +92,7 @@ export default function PlansUpload() {
             </Button>
           </Link>
           <h1 className="text-2xl font-bold text-slate-800">Submit Plans</h1>
-          <p className="text-slate-500 mt-1">Share your Dropbox link with the BCCS team</p>
+          <p className="text-slate-500 mt-1">Share your Dropbox or Google Drive link with the BCCS team</p>
         </div>
 
         <Card className="shadow-sm">
@@ -102,7 +102,7 @@ export default function PlansUpload() {
               Plans Submission
             </CardTitle>
             <CardDescription>
-              Upload your plans to Dropbox first, then paste the shared link below.
+              Upload your plans to Dropbox or Google Drive first, then paste the shared link below.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,18 +124,18 @@ export default function PlansUpload() {
               {/* Dropbox Link */}
               <div className="space-y-1.5">
                 <Label htmlFor="dropboxLink">
-                  Dropbox Link <span className="text-red-500">*</span>
+                  Dropbox / Google Drive Link <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="dropboxLink"
                   type="url"
-                  placeholder="https://www.dropbox.com/sh/..."
+                  placeholder="https://www.dropbox.com/sh/... or https://drive.google.com/..."
                   value={dropboxLink}
                   onChange={(e) => setDropboxLink(e.target.value)}
                   required
                 />
                 <p className="text-xs text-slate-400">
-                  Make sure the link is set to "Anyone with the link can view" in Dropbox.
+                  Make sure the link is set to "Anyone with the link can view" in Dropbox or Google Drive.
                 </p>
               </div>
 

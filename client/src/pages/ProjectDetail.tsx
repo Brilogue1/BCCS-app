@@ -120,7 +120,7 @@ export default function ProjectDetail() {
 
   const handlePlansSubmit = () => {
     if (!plansDropboxLink.trim()) {
-      toast.error('Please enter a Dropbox link');
+      toast.error('Please enter a Dropbox or Google Drive link');
       return;
     }
     setPlansSubmitting(true);
@@ -1047,7 +1047,7 @@ export default function ProjectDetail() {
               <Link2 className="h-5 w-5 text-blue-600" />
               Submit Plans
             </CardTitle>
-            <CardDescription>Submit a Dropbox link with your architectural plans for this project</CardDescription>
+            <CardDescription>Submit a Dropbox or Google Drive link with your architectural plans for this project</CardDescription>
           </CardHeader>
           <CardContent>
             {plansSubmitSuccess ? (
@@ -1064,9 +1064,9 @@ export default function ProjectDetail() {
                   <Input value={project?.address || ''} disabled className="bg-slate-50" />
                 </div>
                 <div>
-                  <Label>Dropbox Link <span className="text-red-500">*</span></Label>
+                  <Label>Dropbox / Google Drive Link <span className="text-red-500">*</span></Label>
                   <Input
-                    placeholder="https://www.dropbox.com/sh/..."
+                    placeholder="https://www.dropbox.com/sh/... or https://drive.google.com/..."
                     value={plansDropboxLink}
                     onChange={(e) => setPlansDropboxLink(e.target.value)}
                   />
