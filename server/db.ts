@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, projects, inspections, contactEmails, projectFiles, InsertProject, InsertInspection, InsertContactEmail, InsertProjectFile } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -178,7 +178,22 @@ export async function getInspectionsByProjectId(projectId: number) {
 export async function createInspection(inspection: InsertInspection, project?: { opportunityName?: string | null; address?: string | null }) {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
-  
+
+  // Duplicate guard: prevent double-submit within 2 minutes (same project + type + user)
+  const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+  const recent = await db.select().from(inspections).where(
+    and(
+      eq(inspections.projectId, inspection.projectId),
+      eq(inspections.inspectionType, inspection.inspectionType),
+      eq(inspections.createdBy, inspection.createdBy || ''),
+      gte(inspections.createdAt, twoMinutesAgo)
+    )
+  ).limit(1);
+  if (recent.length > 0) {
+    console.log('[Inspection] Duplicate submission blocked for project', inspection.projectId, inspection.inspectionType);
+    return; // silently succeed — already exists
+  }
+
   const inspectionData = {
     ...inspection,
     projectName: project?.opportunityName || null,

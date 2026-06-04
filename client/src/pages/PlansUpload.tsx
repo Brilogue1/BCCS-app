@@ -16,13 +16,17 @@ export default function PlansUpload() {
   const [dropboxLink, setDropboxLink] = useState("");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [cooldown, setCooldown] = useState(false);
 
   const submitMutation = trpc.plansUpload.submitLink.useMutation({
     onSuccess: () => {
       setSubmitted(true);
+      setCooldown(false);
     },
     onError: (err) => {
-      toast.error(err.message || "Failed to submit. Please try again.");
+      setCooldown(true);
+      setTimeout(() => setCooldown(false), 5000);
+      toast.error(err.message || "Failed to submit. Please wait a moment before trying again.");
     },
   });
 
@@ -36,6 +40,7 @@ export default function PlansUpload() {
       toast.error("Please enter your Dropbox or Google Drive link.");
       return;
     }
+    if (cooldown) return;
     submitMutation.mutate({
       address: address.trim(),
       dropboxLink: dropboxLink.trim(),
@@ -154,7 +159,7 @@ export default function PlansUpload() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={submitMutation.isPending}
+                disabled={submitMutation.isPending || cooldown}
               >
                 {submitMutation.isPending ? (
                   <>

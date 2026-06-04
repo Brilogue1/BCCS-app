@@ -83,6 +83,7 @@ export default function ProjectDetail() {
     }
   );
 
+  const [inspectionCooldown, setInspectionCooldown] = useState(false);
   const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -103,6 +104,7 @@ export default function ProjectDetail() {
   const [plansDropboxLink, setPlansDropboxLink] = useState('');
   const [plansNotes, setPlansNotes] = useState('');
   const [plansSubmitting, setPlansSubmitting] = useState(false);
+  const [plansCooldown, setPlansCooldown] = useState(false);
   const [plansSubmitSuccess, setPlansSubmitSuccess] = useState(false);
 
   const plansSubmitMutation = trpc.plansUpload.submitLink.useMutation({
@@ -114,7 +116,9 @@ export default function ProjectDetail() {
     },
     onError: (error) => {
       setPlansSubmitting(false);
-      toast.error(error.message || 'Failed to submit plans link');
+      setPlansCooldown(true);
+      setTimeout(() => setPlansCooldown(false), 5000);
+      toast.error(error.message || 'Failed to submit. Please wait a moment before trying again.');
     },
   });
 
@@ -123,6 +127,7 @@ export default function ProjectDetail() {
       toast.error('Please enter a Dropbox or Google Drive link');
       return;
     }
+    if (plansCooldown) return;
     setPlansSubmitting(true);
     plansSubmitMutation.mutate({
       address: project?.address || '',
@@ -147,6 +152,7 @@ export default function ProjectDetail() {
       setInspectionDialogOpen(false);
       setInspectionType("");
       setInspectionNotes("");
+      setInspectionCooldown(false);
       utils.inspections.list.invalidate({ projectId });
       if (opportunityId) {
         utils.projects.getByOpportunityId.invalidate({ opportunityId });
@@ -155,7 +161,10 @@ export default function ProjectDetail() {
       }
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to schedule inspection");
+      // Apply 5-second cooldown after error to prevent double-submit
+      setInspectionCooldown(true);
+      setTimeout(() => setInspectionCooldown(false), 5000);
+      toast.error(error.message || "Failed to schedule inspection. Please wait a moment before trying again.");
     },
   });
 
@@ -219,6 +228,7 @@ export default function ProjectDetail() {
 
   const handleScheduleInspection = (e: React.FormEvent) => {
     e.preventDefault();
+    if (inspectionCooldown) return;
     createInspectionMutation.mutate({
       projectId,
       inspectionType,
@@ -622,13 +632,15 @@ export default function ProjectDetail() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={!inspectionType || createInspectionMutation.isPending}
+                    disabled={!inspectionType || createInspectionMutation.isPending || inspectionCooldown}
                   >
                     {createInspectionMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Scheduling...
                       </>
+                    ) : inspectionCooldown ? (
+                      "Please wait..."
                     ) : (
                       "Schedule Inspection"
                     )}
@@ -1082,7 +1094,7 @@ export default function ProjectDetail() {
                 </div>
                 <Button
                   onClick={handlePlansSubmit}
-                  disabled={plansSubmitting || !plansDropboxLink.trim()}
+                  disabled={plansSubmitting || plansCooldown || !plansDropboxLink.trim()}
                   className="w-full"
                 >
                   {plansSubmitting ? (
