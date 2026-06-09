@@ -169,6 +169,13 @@
       "when": 1776102005477,
       "tag": "0023_breezy_epoch",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1781021006946,
+      "tag": "0024_far_tusk",
+      "breakpoints": true
     }
   ]
 }

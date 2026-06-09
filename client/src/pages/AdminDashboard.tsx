@@ -1,4 +1,5 @@
 import { Link, Redirect } from "wouter";
+import SubcontractorManager from "@/components/SubcontractorManager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail, FileCheck, Zap, ExternalLink, RefreshCw } from "lucide-react";
@@ -814,6 +815,7 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
+      <SubcontractorManager />
       </div>
     </div>
   );

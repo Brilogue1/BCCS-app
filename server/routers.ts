@@ -1,11 +1,11 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, sql, and, inArray } from "drizzle-orm";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { projects, inspectionReports } from "../drizzle/schema";
+import { projects, inspectionReports, projectAccess, users } from "../drizzle/schema";
 import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers, appendPlansUpload } from "./googleSheets";
 import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
 import { schedulerState, runAutoReportGeneration } from "./reportScheduler";
@@ -144,6 +144,15 @@ export const appRouter = router({
       const dbInstance = await db.getDb();
       if (!dbInstance) return [];
       
+      // Subcontractors only see explicitly assigned projects
+      if (ctx.user.role === 'subcontractor') {
+        const accessRows = await dbInstance.select().from(projectAccess).where(eq(projectAccess.userId, ctx.user.id));
+        const projectIds = accessRows.map(r => r.projectId);
+        if (projectIds.length === 0) return [];
+        const assignedProjects = await dbInstance.select().from(projects).where(inArray(projects.id, projectIds)).orderBy(desc(projects.id));
+        return assignedProjects;
+      }
+
       const userCompany = ctx.user.company;
       console.log('[DEBUG] projects.list - user company:', userCompany);
       
@@ -181,8 +190,15 @@ export const appRouter = router({
           });
         }
         
-        // Verify user has access to this project (admins, ALL company users, and null company users can see all)
-        if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company)) {
+        // Subcontractors: verify explicit project access
+        if (ctx.user.role === 'subcontractor') {
+          const dbInstance = await db.getDb();
+          if (!dbInstance) throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
+          const accessRows = await dbInstance.select().from(projectAccess)
+            .where(and(eq(projectAccess.userId, ctx.user.id), eq(projectAccess.projectId, input.id)));
+          if (accessRows.length === 0) throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this project' });
+        } else if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company)) {
+          // Verify user has access to this project (admins, ALL company users, and null company users can see all)
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1729,6 +1745,97 @@ export const appRouter = router({
           month: input.month,
           year: input.year,
         };
+      }),
+  }),
+
+  // Subcontractor management — admin assigns projects to subcontractor users
+  subcontractors: router({
+    // List all users with subcontractor role
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+      const database = await db.getDb();
+      if (!database) return [];
+      const subs = await database.select().from(users).where(eq(users.role, 'subcontractor'));
+      return subs;
+    }),
+
+    // List all users (for admin to promote/demote)
+    listAllUsers: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+      const database = await db.getDb();
+      if (!database) return [];
+      const allUsers = await database.select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        company: users.company,
+        createdAt: users.createdAt,
+        lastSignedIn: users.lastSignedIn,
+      }).from(users);
+      return allUsers;
+    }),
+
+    // Update a user's role
+    updateRole: protectedProcedure
+      .input(z.object({ userId: z.number(), role: z.enum(['user', 'admin', 'subcontractor']) }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+        const database = await db.getDb();
+        if (!database) throw new Error('Database unavailable');
+        await database.update(users).set({ role: input.role }).where(eq(users.id, input.userId));
+        return { success: true };
+      }),
+
+    // Get projects assigned to a subcontractor
+    getAssignedProjects: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+        const database = await db.getDb();
+        if (!database) return [];
+        const rows = await database.select().from(projectAccess).where(eq(projectAccess.userId, input.userId));
+        const projectIds = rows.map(r => r.projectId);
+        if (projectIds.length === 0) return [];
+        const assigned = await database.select({
+          id: projects.id,
+          opportunityName: projects.opportunityName,
+          address: projects.address,
+          stage: projects.stage,
+          company: projects.company,
+        }).from(projects).where(inArray(projects.id, projectIds));
+        return assigned;
+      }),
+
+    // Assign a project to a subcontractor
+    assignProject: protectedProcedure
+      .input(z.object({ userId: z.number(), projectId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+        const database = await db.getDb();
+        if (!database) throw new Error('Database unavailable');
+        // Check if already assigned
+        const existing = await database.select().from(projectAccess)
+          .where(and(eq(projectAccess.userId, input.userId), eq(projectAccess.projectId, input.projectId)));
+        if (existing.length > 0) return { success: true, alreadyExists: true };
+        await database.insert(projectAccess).values({
+          userId: input.userId,
+          projectId: input.projectId,
+          grantedBy: ctx.user.email || 'admin',
+        });
+        return { success: true };
+      }),
+
+    // Remove a project from a subcontractor
+    removeProject: protectedProcedure
+      .input(z.object({ userId: z.number(), projectId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') throw new Error('Forbidden');
+        const database = await db.getDb();
+        if (!database) throw new Error('Database unavailable');
+        await database.delete(projectAccess)
+          .where(and(eq(projectAccess.userId, input.userId), eq(projectAccess.projectId, input.projectId)));
+        return { success: true };
       }),
   }),
 

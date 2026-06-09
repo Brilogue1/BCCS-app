@@ -11,7 +11,7 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   password: varchar("password", { length: 255 }), // Hashed password
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "subcontractor"]).default("user").notNull(),
   company: text("company"), // Company assignment ("ALL" for admin access to all, or specific company name)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -153,3 +153,17 @@ export const inspectionReports = mysqlTable("inspectionReports", {
 
 export type InspectionReport = typeof inspectionReports.$inferSelect;
 export type InsertInspectionReport = typeof inspectionReports.$inferInsert;
+
+/**
+ * Project access table - controls which projects subcontractors can see
+ */
+export const projectAccess = mysqlTable("projectAccess", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  projectId: int("projectId").notNull(),
+  grantedBy: varchar("grantedBy", { length: 320 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProjectAccess = typeof projectAccess.$inferSelect;
+export type InsertProjectAccess = typeof projectAccess.$inferInsert;

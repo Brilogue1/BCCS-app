@@ -734,3 +734,19 @@
 - [x] Register /plans-upload route in App.tsx
 - [x] Add "Plans Uploader" button to Dashboard Quick Actions
 - [ ] Update Google Apps Script to handle 'plansUpload' action (create Drive folder, upload files, log to sheet, send email)
+
+## Subcontractor Role Feature
+- [x] Add 'subcontractor' role to users table enum in schema.ts
+- [x] Create projectAccess table (userId, projectId, grantedBy, createdAt) in schema.ts
+- [x] Run pnpm db:push to migrate schema changes to production DB
+- [x] Add subcontractors router with list, listAllUsers, updateRole, getAssignedProjects, assignProject, removeProject procedures
+- [x] Update projects.list to filter by projectAccess for subcontractor role
+- [x] Update projects.getById to check projectAccess for subcontractor role
+- [x] Build SubcontractorManager component (client/src/components/SubcontractorManager.tsx)
+  - [x] User list with search and role filter
+  - [x] Role dropdown per user (user / subcontractor / admin)
+  - [x] Expandable project assignment panel for subcontractors
+  - [x] Add Project dialog with project search
+  - [x] Remove project button
+- [x] Add SubcontractorManager to AdminDashboard.tsx
+- [x] Write vitest tests for subcontractor access filtering logic (server/subcontractors.test.ts)
