@@ -566,7 +566,7 @@ export async function appendReschedule(params: {
   newNotesDate: string;
 }): Promise<void> {
   try {
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxfcGhhVT1w9Y1xSwWNdI0-de0ZSG2K1f6W5AHr7NUnNkePgWPj310yl29RpVIUkHAn/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
 
     await axios.post(webhookUrl, {
       action: 'rescheduleInspection',
