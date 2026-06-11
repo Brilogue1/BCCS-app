@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { projects, inspectionReports, projectAccess, users } from "../drizzle/schema";
-import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers, appendPlansUpload } from "./googleSheets";
+import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers, appendPlansUpload, appendReschedule } from "./googleSheets";
 import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
 import { schedulerState, runAutoReportGeneration } from "./reportScheduler";
 import { storagePut } from "./storage";
@@ -1840,6 +1840,32 @@ export const appRouter = router({
   }),
 
   // Plans Upload — creates a Drive folder via Apps Script and logs to Client Uploads sheet
+  reschedule: router({
+    submit: protectedProcedure
+      .input(z.object({
+        opportunityName: z.string(),
+        pipeline: z.string().optional(),
+        company: z.string().optional(),
+        opportunityId: z.string().optional(),
+        contactId: z.string().optional(),
+        inspectionType: z.string().min(1),
+        newNotesDate: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await appendReschedule({
+          opportunityName: input.opportunityName,
+          email: ctx.user.email || 'unknown',
+          pipeline: input.pipeline || '',
+          company: input.company || ctx.user.company || '',
+          opportunityId: input.opportunityId || '',
+          contactId: input.contactId || '',
+          inspectionType: input.inspectionType,
+          newNotesDate: input.newNotesDate,
+        });
+        return { success: true };
+      }),
+  }),
+
   plansUpload: router({
     submitLink: protectedProcedure
       .input(z.object({

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { ArrowLeft, Calendar, CheckCircle2, Download, FileText, Link2, Loader2, Mail, Phone, Plus, Trash2, Upload, User, X } from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle2, Download, FileText, Link2, Loader2, Mail, Phone, Plus, RefreshCw, Trash2, Upload, User, X } from "lucide-react";
 import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -90,6 +90,41 @@ export default function ProjectDetail() {
   const [updateNotesDialogOpen, setUpdateNotesDialogOpen] = useState(false);
   const [editingInspection, setEditingInspection] = useState<{ id: number; type: string; notes: string } | null>(null);
   const [editNotesValue, setEditNotesValue] = useState('');
+
+  // Reschedule state
+  const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
+  const [rescheduleInspType, setRescheduleInspType] = useState('');
+  const [rescheduleNewNotes, setRescheduleNewNotes] = useState('');
+  const [rescheduleCooldown, setRescheduleCooldown] = useState(false);
+
+  const rescheduleMutation = trpc.reschedule.submit.useMutation({
+    onSuccess: () => {
+      toast.success('Reschedule request submitted successfully');
+      setRescheduleDialogOpen(false);
+      setRescheduleInspType('');
+      setRescheduleNewNotes('');
+      setRescheduleCooldown(false);
+    },
+    onError: (error) => {
+      setRescheduleCooldown(true);
+      setTimeout(() => setRescheduleCooldown(false), 5000);
+      toast.error(error.message || 'Failed to submit reschedule request. Please wait a moment and try again.');
+    },
+  });
+
+  const handleRescheduleSubmit = () => {
+    if (!rescheduleInspType.trim() || !rescheduleNewNotes.trim()) return;
+    if (rescheduleCooldown) return;
+    rescheduleMutation.mutate({
+      opportunityName: project?.opportunityName || '',
+      pipeline: project?.stage || '',
+      company: project?.company || '',
+      opportunityId: project?.opportunityId || '',
+      contactId: project?.contactId || '',
+      inspectionType: rescheduleInspType.trim(),
+      newNotesDate: rescheduleNewNotes.trim(),
+    });
+  };
 
   // Inspection form state
   const [inspectionType, setInspectionType] = useState('');
@@ -551,7 +586,78 @@ export default function ProjectDetail() {
               <CardTitle>Scheduled Inspections</CardTitle>
               <CardDescription>Inspections scheduled for this project</CardDescription>
             </div>
-            <Dialog open={inspectionDialogOpen} onOpenChange={setInspectionDialogOpen}>
+            <div className="flex items-center gap-2">
+              {/* Reschedule Inspection Dialog */}
+              <Dialog open={rescheduleDialogOpen} onOpenChange={(open) => { setRescheduleDialogOpen(open); if (!open) { setRescheduleInspType(''); setRescheduleNewNotes(''); } }}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Reschedule
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Reschedule Inspection</DialogTitle>
+                    <DialogDescription>
+                      Request a reschedule for an inspection on {project.opportunityName}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                    <p className="text-sm text-amber-900">
+                      <strong>Note:</strong> This will log your reschedule request to our team. We will contact you to confirm the new date.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Project Name</Label>
+                      <Input value={project.opportunityName || ''} disabled className="bg-slate-50" />
+                    </div>
+                    <div>
+                      <Label htmlFor="reschedule-type">Inspection Type <span className="text-red-500">*</span></Label>
+                      <Input
+                        id="reschedule-type"
+                        value={rescheduleInspType}
+                        onChange={(e) => setRescheduleInspType(e.target.value)}
+                        placeholder="e.g. BLDG FRAMING ROUGH"
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">Enter the inspection type you need rescheduled.</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="reschedule-notes">New Requested Date &amp; Notes <span className="text-red-500">*</span></Label>
+                      <Textarea
+                        id="reschedule-notes"
+                        value={rescheduleNewNotes}
+                        onChange={(e) => setRescheduleNewNotes(e.target.value)}
+                        placeholder="e.g. Please reschedule to 7/15/2026. Inspector was unavailable on original date."
+                        rows={4}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => { setRescheduleDialogOpen(false); setRescheduleInspType(''); setRescheduleNewNotes(''); }}
+                        disabled={rescheduleMutation.isPending}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        className="flex-1"
+                        onClick={handleRescheduleSubmit}
+                        disabled={!rescheduleInspType.trim() || !rescheduleNewNotes.trim() || rescheduleMutation.isPending || rescheduleCooldown}
+                      >
+                        {rescheduleMutation.isPending ? (
+                          <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</>
+                        ) : rescheduleCooldown ? 'Please wait…' : 'Submit Reschedule Request'}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={inspectionDialogOpen} onOpenChange={setInspectionDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">
                   <Calendar className="h-4 w-4 mr-2" />
@@ -648,6 +754,7 @@ export default function ProjectDetail() {
                 </form>
               </DialogContent>
             </Dialog>
+            </div>
           </CardHeader>
           <CardContent>
             {!hasScheduledInspections ? (

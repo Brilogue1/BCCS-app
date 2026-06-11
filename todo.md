@@ -750,3 +750,18 @@
   - [x] Remove project button
 - [x] Add SubcontractorManager to AdminDashboard.tsx
 - [x] Write vitest tests for subcontractor access filtering logic (server/subcontractors.test.ts)
+
+## New Inspection Types (June 2026)
+- [x] Add MECH A/C CHANGEOUT to inspectionTypes.json
+- [x] Add BLDG WALL SHEATHING/DRY-IN to inspectionTypes.json
+- [x] Add BLDG VINYL IN PROGRESS/ SIDING NAILING to inspectionTypes.json
+- [x] Add BLDG ROOF DRY-IN /FLASHING to inspectionTypes.json
+- [x] Add BLDG SIDING PRE-INSPECTION to inspectionTypes.json
+- [x] Add BLDG MONOLITHIC SLAB to inspectionTypes.json
+
+## Reschedule Inspection Feature
+- [x] Add appendReschedule helper to googleSheets.ts (writes to "Rescheduled Inspections" tab, columns A-H: Opportunity Name, Email, Pipeline, Company, Opportunity ID, Contact ID, Inspection Type, NEW NOTES/DATE)
+- [x] Add reschedule tRPC mutation to routers.ts
+- [x] Add Reschedule button to pending/scheduled inspections on ProjectDetail page
+- [x] Build Reschedule dialog (pre-fills Inspection Type, NEW NOTES/DATE textarea)
+- [x] Write vitest test for reschedule sheet helper

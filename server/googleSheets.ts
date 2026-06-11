@@ -552,6 +552,46 @@ export async function updatePastInspectionReportLink(
 }
 
 /**
+ * Append a reschedule request to the "Rescheduled Inspections" sheet.
+ * Columns A–H: Opportunity Name, Email, Pipeline, Company, Opportunity ID, Contact ID, Inspection Type, NEW NOTES/DATE
+ */
+export async function appendReschedule(params: {
+  opportunityName: string;
+  email: string;
+  pipeline: string;
+  company: string;
+  opportunityId: string;
+  contactId: string;
+  inspectionType: string;
+  newNotesDate: string;
+}): Promise<void> {
+  try {
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
+
+    await axios.post(webhookUrl, {
+      action: 'rescheduleInspection',
+      opportunityName: params.opportunityName,
+      email: params.email,
+      pipeline: params.pipeline,
+      company: params.company,
+      opportunityId: params.opportunityId,
+      contactId: params.contactId,
+      inspectionType: params.inspectionType,
+      newNotesDate: params.newNotesDate,
+    }, {
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      maxRedirects: 5,
+      timeout: 30000,
+    });
+
+    console.log(`[Reschedule] Logged reschedule for "${params.opportunityName}" - ${params.inspectionType}`);
+  } catch (error: any) {
+    console.error('[Reschedule] Failed to call Apps Script:', error?.message || error);
+    // Don't throw — log and continue so the user still gets a success response
+  }
+}
+
+/**
  * Plans Upload — create a Google Drive subfolder, upload files, log to Client Uploads sheet,
  * and send an email notification. All handled by the Google Apps Script webhook.
  *
