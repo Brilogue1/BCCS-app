@@ -553,7 +553,8 @@ export async function updatePastInspectionReportLink(
 
 /**
  * Append a reschedule request to the "Rescheduled Inspections" sheet.
- * Columns A–H: Opportunity Name, Email, Pipeline, Company, Opportunity ID, Contact ID, Inspection Type, NEW NOTES/DATE
+ * Finds the matching row in Inspection Requests by Opportunity ID + Inspection Type and updates column K (Reschedule Requests).
+ * If no match is found, appends a new row.
  */
 export async function appendReschedule(params: {
   opportunityName: string;
@@ -566,21 +567,19 @@ export async function appendReschedule(params: {
   newNotesDate: string;
 }): Promise<void> {
   try {
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycbyk4NNDYohMRzvAV9iOJcy_x6ANmoHG-hGjLhQ_4QVEuDy8loXWmHMcTPSEAr2PQTFd/exec';
 
     const payload = {
-      action: 'rescheduleInspection',
+      action: 'updateRescheduleNote',
+      opportunityId: params.opportunityId,
+      inspectionType: params.inspectionType,
+      rescheduleNote: params.newNotesDate,
+      // fallback fields if no matching row found
       opportunityName: params.opportunityName,
       email: params.email,
-      pipeline: params.pipeline,
       company: params.company,
-      opportunityId: params.opportunityId,
-      contactId: params.contactId,
-      inspectionType: params.inspectionType,
-      newNotesDate: params.newNotesDate,
     };
     console.log('[Reschedule] Sending payload:', JSON.stringify(payload));
-    console.log('[Reschedule] Using URL:', webhookUrl);
 
     const response = await axios.post(webhookUrl, payload, {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -590,14 +589,13 @@ export async function appendReschedule(params: {
 
     console.log('[Reschedule] Response status:', response.status);
     console.log('[Reschedule] Response data:', JSON.stringify(response.data));
-    console.log(`[Reschedule] Logged reschedule for "${params.opportunityName}" - ${params.inspectionType}`);
+    console.log(`[Reschedule] Updated reschedule note for "${params.opportunityName}" - ${params.inspectionType}`);
   } catch (error: any) {
     const errMsg = error?.message || String(error);
     const errStatus = error?.response?.status;
     const errData = JSON.stringify(error?.response?.data);
     console.error('[Reschedule] Failed to call Apps Script:', errMsg);
     console.error('[Reschedule] Error details:', errStatus, errData);
-    // Re-throw so the tRPC mutation surfaces the real error to the client
     throw new Error(`Reschedule webhook failed (${errStatus || 'no status'}): ${errMsg}`);
   }
 }
