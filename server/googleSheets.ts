@@ -592,9 +592,13 @@ export async function appendReschedule(params: {
     console.log('[Reschedule] Response data:', JSON.stringify(response.data));
     console.log(`[Reschedule] Logged reschedule for "${params.opportunityName}" - ${params.inspectionType}`);
   } catch (error: any) {
-    console.error('[Reschedule] Failed to call Apps Script:', error?.message || error);
-    console.error('[Reschedule] Error details:', error?.response?.status, JSON.stringify(error?.response?.data));
-    // Don't throw — log and continue so the user still gets a success response
+    const errMsg = error?.message || String(error);
+    const errStatus = error?.response?.status;
+    const errData = JSON.stringify(error?.response?.data);
+    console.error('[Reschedule] Failed to call Apps Script:', errMsg);
+    console.error('[Reschedule] Error details:', errStatus, errData);
+    // Re-throw so the tRPC mutation surfaces the real error to the client
+    throw new Error(`Reschedule webhook failed (${errStatus || 'no status'}): ${errMsg}`);
   }
 }
 
