@@ -303,7 +303,7 @@ export async function appendNewProjectEmail(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'additionalContactEmail',
@@ -345,7 +345,7 @@ export async function appendClientUpload(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'clientUpload',
@@ -393,7 +393,7 @@ export async function appendInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
     
     const payload = {
       action: 'inspectionRequest',
@@ -445,7 +445,7 @@ export async function appendNewProjectInspectionRequest(
 ): Promise<boolean> {
   try {
     // Send data to Google Apps Script webhook
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
     
     const response = await axios.post(webhookUrl, {
       action: 'newProjectInspectionRequest',
@@ -491,7 +491,7 @@ export async function updatePastInspectionReportLink(
   console.log(`[Report Link] Attempting to update column M for sheet row ${targetRow} (data index ${sheetRowIndex}): ${projectName} - ${inspectionType}`);
   
   try {
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbw3_l-eNE91Fp1eLYXNu03erqtgtkUVt7nTu5gGO08tjOjwL9N963ZaSW7pMpMA4r9N/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
     
     const payload = {
       action: 'updateReportLink',
@@ -566,7 +566,7 @@ export async function appendReschedule(params: {
   newNotesDate: string;
 }): Promise<void> {
   try {
-    const webhookUrl = 'https://script.google.com/macros/s/AKfycbxu9PpMnesGiBSxkOp8UmPDLzYQfdMAEd1naMRLgZU68wKjCW3KCuJeHfdHlXPhQUr0/exec';
+    const webhookUrl = 'https://script.google.com/macros/s/AKfycby5RCaV3xJjr2T49KXIsUY9Suq6f-oGtIu-qo6ddqyF8bsDxsTRJIIELwLNQWqTXC7K/exec';
 
     const payload = {
       action: 'rescheduleInspection',
