@@ -727,18 +727,32 @@ export default function ProjectDetail() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="notes">Specific Date Request &amp; Notes <span className="text-slate-400 font-normal">(Optional)</span></Label>
+                    <Label htmlFor="notes">
+                      Specific Date Request &amp; Notes{" "}
+                      {inspectionType && inspectionType.toUpperCase().includes('OTHER') ? (
+                        <span className="text-red-500">* Required for "Other" types</span>
+                      ) : (
+                        <span className="text-slate-400 font-normal">(Optional)</span>
+                      )}
+                    </Label>
                     <Textarea
                       id="notes"
                       value={inspectionNotes}
                       onChange={(e) => setInspectionNotes(e.target.value)}
-                      placeholder="e.g. Please schedule for 4/18/2026 if possible. Any additional notes for the inspector..."
+                      placeholder={inspectionType && inspectionType.toUpperCase().includes('OTHER')
+                        ? "Required: Please describe the inspection you need (e.g. 'Rough plumbing inspection for kitchen remodel')..."
+                        : "e.g. Please schedule for 4/18/2026 if possible. Any additional notes for the inspector..."
+                      }
+                      className={inspectionType && inspectionType.toUpperCase().includes('OTHER') && !inspectionNotes.trim() ? "border-red-400 focus:ring-red-400" : ""}
                     />
+                    {inspectionType && inspectionType.toUpperCase().includes('OTHER') && !inspectionNotes.trim() && (
+                      <p className="text-xs text-red-500 mt-1">Please describe what inspection you need before submitting.</p>
+                    )}
                   </div>
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={!inspectionType || createInspectionMutation.isPending || inspectionCooldown}
+                    disabled={!inspectionType || createInspectionMutation.isPending || inspectionCooldown || (inspectionType.toUpperCase().includes('OTHER') && !inspectionNotes.trim())}
                   >
                     {createInspectionMutation.isPending ? (
                       <>
