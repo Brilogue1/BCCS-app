@@ -1,5 +1,10 @@
 import PDFDocument from 'pdfkit';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM-safe __dirname (works in both tsx dev and esbuild production)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface InspectionRow {
   type: string;
