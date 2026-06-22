@@ -126,6 +126,22 @@ export default function ProjectDetail() {
     });
   };
 
+  // Delete inspection state (admin only)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingInspection, setDeletingInspection] = useState<{ id: number; type: string } | null>(null);
+
+  const deleteInspectionMutation = trpc.inspections.delete.useMutation({
+    onSuccess: () => {
+      toast.success('Inspection deleted successfully');
+      setDeleteConfirmOpen(false);
+      setDeletingInspection(null);
+      utils.inspections.list.invalidate({ projectId });
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete inspection');
+    },
+  });
+
   // Inspection form state
   const [inspectionType, setInspectionType] = useState('');
   const [inspectionTypeSearch, setInspectionTypeSearch] = useState('');
@@ -819,9 +835,53 @@ export default function ProjectDetail() {
                       <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
                         Requested
                       </span>
+                      {user?.role === 'admin' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 w-7 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-700"
+                          title="Delete inspection"
+                          onClick={() => {
+                            setDeletingInspection({ id: inspection.id, type: inspection.inspectionType });
+                            setDeleteConfirmOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={deleteConfirmOpen} onOpenChange={(open) => { setDeleteConfirmOpen(open); if (!open) setDeletingInspection(null); }}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Delete Inspection</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete <strong>{deletingInspection?.type}</strong>? This cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => { setDeleteConfirmOpen(false); setDeletingInspection(null); }}
+                        disabled={deleteInspectionMutation.isPending}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="flex-1"
+                        onClick={() => { if (deletingInspection) deleteInspectionMutation.mutate({ id: deletingInspection.id }); }}
+                        disabled={deleteInspectionMutation.isPending}
+                      >
+                        {deleteInspectionMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Deleting…</> : 'Delete'}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 {/* Update Date Dialog */}
                 <Dialog open={updateNotesDialogOpen} onOpenChange={(open) => { setUpdateNotesDialogOpen(open); if (!open) setEditingInspection(null); }}>

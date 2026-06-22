@@ -1016,6 +1016,16 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can delete inspections' });
+        }
+        await db.deleteInspection(input.id);
+        return { success: true };
+      }),
+
     create: protectedProcedure
       .input(z.object({
         projectId: z.number(),

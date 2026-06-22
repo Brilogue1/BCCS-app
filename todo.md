@@ -765,3 +765,10 @@
 - [x] Add Reschedule button to pending/scheduled inspections on ProjectDetail page
 - [x] Build Reschedule dialog (pre-fills Inspection Type, NEW NOTES/DATE textarea)
 - [x] Write vitest test for reschedule sheet helper
+
+## Admin Delete Inspections (June 22, 2026)
+- [x] Add deleteInspection tRPC procedure (admin-only) to routers.ts
+- [x] Add deleteInspection helper to db.ts
+- [x] Add trash icon delete button (admin-only) to scheduled inspection cards in ProjectDetail.tsx
+- [x] Add trash icon delete button (admin-only) to requested inspection cards in ProjectDetail.tsx
+- [x] Add confirmation dialog before deleting

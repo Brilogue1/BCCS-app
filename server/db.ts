@@ -210,6 +210,13 @@ export async function updateInspection(id: number, updates: Partial<InsertInspec
   await db.update(inspections).set(updates).where(eq(inspections.id, id));
 }
 
+export async function deleteInspection(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(inspections).where(eq(inspections.id, id));
+}
+
 // Contact email queries
 export async function getContactEmailsByProjectId(projectId: number) {
   const db = await getDb();
