@@ -1051,15 +1051,6 @@ export const appRouter = router({
           });
         }
 
-        // Safeguard 2: Block duplicate same-day inspection type
-        const existingToday = await db.getInspectionsSameDay(input.projectId, input.inspectionType);
-        if (existingToday.length > 0) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: `An inspection for "${input.inspectionType}" is already scheduled for today. Please contact BCCS if you need to reschedule.`,
-          });
-        }
-        
         // Get Contact ID from project data (will be synced from ALL sheet)
         const contactId = project.contactId || '';
         
