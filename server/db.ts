@@ -217,6 +217,29 @@ export async function deleteInspection(id: number) {
   await db.delete(inspections).where(eq(inspections.id, id));
 }
 
+/**
+ * Returns any active (non-cancelled) inspections for the same project + type scheduled today.
+ * Used to block duplicate same-day inspection requests.
+ */
+export async function getInspectionsSameDay(projectId: number, inspectionType: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Start of today (midnight UTC)
+  const startOfToday = new Date();
+  startOfToday.setUTCHours(0, 0, 0, 0);
+
+  const result = await db.select().from(inspections).where(
+    and(
+      eq(inspections.projectId, projectId),
+      eq(inspections.inspectionType, inspectionType),
+      gte(inspections.createdAt, startOfToday)
+    )
+  ).limit(1);
+
+  return result;
+}
+
 // Contact email queries
 export async function getContactEmailsByProjectId(projectId: number) {
   const db = await getDb();

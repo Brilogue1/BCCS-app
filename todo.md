@@ -772,3 +772,9 @@
 - [x] Add trash icon delete button (admin-only) to scheduled inspection cards in ProjectDetail.tsx
 - [x] Add trash icon delete button (admin-only) to requested inspection cards in ProjectDetail.tsx
 - [x] Add confirmation dialog before deleting
+
+## Inspection Scheduling Safeguards (June 23, 2026)
+- [x] Block duplicate same-day inspection type on server (inspections.create procedure)
+- [x] Block scheduling if project has no permit number (N/A or blank) on server
+- [x] Show clear error message on client when duplicate same-day inspection attempted
+- [x] Show clear error message on client when no permit number on file

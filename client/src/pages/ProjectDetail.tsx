@@ -687,6 +687,17 @@ export default function ProjectDetail() {
                     Book a new inspection for {project.opportunityName}
                   </DialogDescription>
                 </DialogHeader>
+                {(() => {
+                  const pNum = (project.permitNumber || '').trim();
+                  const missingPermit = !pNum || pNum.toUpperCase() === 'N/A' || pNum === '-';
+                  return missingPermit ? (
+                    <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
+                      <p className="text-sm text-red-800 font-medium">
+                        ⚠️ No permit number on file. You cannot schedule an inspection until a permit number has been assigned. Please contact BCCS to update your permit information.
+                      </p>
+                    </div>
+                  ) : null;
+                })()}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-blue-900">
                     <strong>Note:</strong> Only 5 inspections can be scheduled per 24-hour period for this project.
