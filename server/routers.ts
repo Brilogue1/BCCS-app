@@ -1042,13 +1042,17 @@ export const appRouter = router({
           });
         }
 
-        // Safeguard 1: Require a permit number on file
+        // Safeguard 1: Allow up to 3 inspections without a permit number, then block
         const permitNum = (project.permitNumber || '').trim();
-        if (!permitNum || permitNum.toUpperCase() === 'N/A' || permitNum === '-') {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'A permit number must be on file before scheduling an inspection. Please contact BCCS to update your permit number.',
-          });
+        const missingPermit = !permitNum || permitNum.toUpperCase() === 'N/A' || permitNum === '-';
+        if (missingPermit) {
+          const existingInspections = await db.getInspectionsByProjectId(input.projectId);
+          if (existingInspections.length >= 3) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'You have reached the 3-inspection limit for projects without a permit number on file. Please contact BCCS to update your permit number before scheduling additional inspections.',
+            });
+          }
         }
 
         // Get Contact ID from project data (will be synced from ALL sheet)

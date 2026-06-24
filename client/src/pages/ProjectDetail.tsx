@@ -690,13 +690,25 @@ export default function ProjectDetail() {
                 {(() => {
                   const pNum = (project.permitNumber || '').trim();
                   const missingPermit = !pNum || pNum.toUpperCase() === 'N/A' || pNum === '-';
-                  return missingPermit ? (
-                    <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
-                      <p className="text-sm text-red-800 font-medium">
-                        ⚠️ No permit number on file. You cannot schedule an inspection until a permit number has been assigned. Please contact BCCS to update your permit information.
+                  if (!missingPermit) return null;
+                  const scheduledCount = inspections?.length ?? 0;
+                  const remaining = Math.max(0, 3 - scheduledCount);
+                  if (scheduledCount >= 3) {
+                    return (
+                      <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
+                        <p className="text-sm text-red-800 font-medium">
+                          🚫 No permit number on file. You have used all 3 inspection slots available without a permit. Please contact BCCS to get your permit number added before scheduling more inspections.
+                        </p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 mb-2">
+                      <p className="text-sm text-yellow-800 font-medium">
+                        ⚠️ No permit number on file yet. You can schedule up to 3 inspections before a permit number is required — you have <strong>{remaining} slot{remaining !== 1 ? 's' : ''}</strong> remaining. Please contact BCCS to get your permit number added.
                       </p>
                     </div>
-                  ) : null;
+                  );
                 })()}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-blue-900">
