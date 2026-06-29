@@ -240,6 +240,25 @@ export const appRouter = router({
         return project;
       }),
     
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can delete projects' });
+        }
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB unavailable' });
+        // Delete related records first
+        const { inspections: inspTable, contactEmails, projectFiles, projectAccess } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        await dbInstance.delete(inspTable).where(eq(inspTable.projectId, input.id));
+        await dbInstance.delete(contactEmails).where(eq(contactEmails.projectId, input.id));
+        await dbInstance.delete(projectFiles).where(eq(projectFiles.projectId, input.id));
+        await dbInstance.delete(projectAccess).where(eq(projectAccess.projectId, input.id));
+        await dbInstance.delete(projects).where(eq(projects.id, input.id));
+        return { success: true };
+      }),
+
     sync: protectedProcedure.mutation(async () => {
       try {
         console.log('[Sync] Starting Google Sheets sync...');

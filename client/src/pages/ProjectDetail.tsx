@@ -142,6 +142,19 @@ export default function ProjectDetail() {
     },
   });
 
+  // Delete project state (admin only)
+  const [deleteProjectConfirmOpen, setDeleteProjectConfirmOpen] = useState(false);
+  const deleteProjectMutation = trpc.projects.delete.useMutation({
+    onSuccess: () => {
+      toast.success('Project deleted successfully');
+      setDeleteProjectConfirmOpen(false);
+      window.location.href = '/projects';
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete project');
+    },
+  });
+
   // Inspection form state
   const [inspectionType, setInspectionType] = useState('');
   const [inspectionTypeSearch, setInspectionTypeSearch] = useState('');
@@ -491,8 +504,52 @@ export default function ProjectDetail() {
                 <p className="text-slate-600 mt-2">{project.address}</p>
               )}
             </div>
-
+            {user?.role === 'admin' && (
+              <div className="shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                  onClick={() => setDeleteProjectConfirmOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete Project
+                </Button>
+              </div>
+            )}
           </div>
+
+          {/* Delete Project Confirmation Dialog */}
+          <Dialog open={deleteProjectConfirmOpen} onOpenChange={setDeleteProjectConfirmOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Project</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to permanently delete <strong>{project.opportunityName}</strong>? This will also delete all associated inspections, contacts, and files. This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setDeleteProjectConfirmOpen(false)}
+                  disabled={deleteProjectMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => deleteProjectMutation.mutate({ id: project.id })}
+                  disabled={deleteProjectMutation.isPending}
+                >
+                  {deleteProjectMutation.isPending ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Deleting…</>
+                  ) : 'Delete Project'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
         {/* Support Link */}
         <div className="bg-slate-50 border-t py-2">
