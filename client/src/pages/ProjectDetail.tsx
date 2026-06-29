@@ -412,12 +412,13 @@ export default function ProjectDetail() {
     { type: project.inspection3Type, result: project.inspection3Result },
     { type: project.inspection4Type, result: null },
     { type: project.inspection5Type, result: null },
-  ].filter(i => isValidInspection(i.type) && !sheetCompletedTypeSet.has((i.type || '').trim().toUpperCase()));
+  ].filter(i => isValidInspection(i.type) && !sheetCompletedTypeSet.has(normalizeInspectionType(i.type)));
 
   // Build a set of inspection types already confirmed in the Google Sheets (U-AA columns)
   // so we can hide DB "Requested" entries that have already been picked up by the sheet.
+  // Use normalized types so minor wording differences still match.
   const sheetScheduledTypeSet = new Set(
-    scheduledTypes.map(i => (i.type || '').trim().toUpperCase())
+    scheduledTypes.map(i => normalizeInspectionType(i.type))
   );
 
   // Also build a set of inspection types that appear in the Completed Inspections text (column H).
@@ -463,11 +464,10 @@ export default function ProjectDetail() {
   //   3. Already in the Past Inspections sheet tab (authoritative source, polled every 30 min)
   const pendingDbInspections = (inspections || []).filter(
     (insp: any) => {
-      const tRaw = (insp.inspectionType || '').trim().toUpperCase();
       const tNorm = normalizeInspectionType(insp.inspectionType);
-      // Check raw against scheduled set (sheet U-AA) and legacy column H set
-      // Check normalized against the Past Inspections sheet completed set
-      return !sheetScheduledTypeSet.has(tRaw) && !completedTypeSet.has(tRaw) && !sheetCompletedTypeSet.has(tNorm);
+      const tRaw = (insp.inspectionType || '').trim().toUpperCase();
+      // Use normalized comparison for all sets to handle minor wording differences
+      return !sheetScheduledTypeSet.has(tNorm) && !completedTypeSet.has(tRaw) && !sheetCompletedTypeSet.has(tNorm);
     }
   );
 
