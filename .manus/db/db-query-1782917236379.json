@@ -1,0 +1,23 @@
+{
+  "query": "SELECT * FROM users WHERE email LIKE '%bccsflaaf%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT * FROM users WHERE email LIKE '%bccsflaaf%';",
+  "rows": [
+    {
+      "id": "86040814",
+      "openId": "local-bccsflaaf@gmail.com",
+      "name": "bccsflaaf",
+      "email": "bccsflaaf@gmail.com",
+      "loginMethod": "local",
+      "role": "admin",
+      "createdAt": "2026-07-01 14:11:17",
+      "updatedAt": "2026-07-01 14:46:53",
+      "lastSignedIn": "2026-07-01 14:46:54",
+      "password": "NULL",
+      "company": "BCCS"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\tloginMethod\trole\tcreatedAt\tupdatedAt\tlastSignedIn\tpassword\tcompany\n86040814\tlocal-bccsflaaf@gmail.com\tbccsflaaf\tbccsflaaf@gmail.com\tlocal\tadmin\t2026-07-01 14:11:17\t2026-07-01 14:46:53\t2026-07-01 14:46:54\tNULL\tBCCS\n",
+  "stderr": "",
+  "execution_time_ms": 271
+}

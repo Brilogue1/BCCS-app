@@ -153,6 +153,13 @@ export const appRouter = router({
         return assignedProjects;
       }
 
+      // Admins see all projects
+      if (ctx.user.role === 'admin') {
+        const allProjects = await dbInstance.select().from(projects).orderBy(desc(projects.id));
+        console.log('[DEBUG] projects.list - returning all projects for admin:', allProjects.length);
+        return allProjects;
+      }
+
       const userCompany = ctx.user.company;
       console.log('[DEBUG] projects.list - user company:', userCompany);
       
@@ -1077,11 +1084,15 @@ export const appRouter = router({
         // Get Contact ID from project data (will be synced from ALL sheet)
         const contactId = project.contactId || '';
         
+        // Use the project owner's email (column D of All Projects sheet) for GHL/logging,
+        // not the logged-in user's email — GHL looks up contacts by project owner email.
+        const ownerEmail = project.email || ctx.user.email || '';
+        
         await db.createInspection({
           ...input,
           opportunityId: project.opportunityId || '',
           contactId: contactId,
-          createdBy: ctx.user.email || '',
+          createdBy: ownerEmail,
           status: 'scheduled',
           ghlSynced: 0,
         }, project);
@@ -1091,7 +1102,7 @@ export const appRouter = router({
         const inspectorName = ctx.user.name || 'Unassigned';
         await appendInspectionRequest(
           project.opportunityName || '',
-          ctx.user.email || '',
+          ownerEmail,
           input.inspectionType,
           scheduledDateTime,
           inspectorName,
