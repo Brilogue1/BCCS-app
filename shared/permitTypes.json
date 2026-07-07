@@ -23,10 +23,6 @@
       },
       {
         "section": "BUILDING",
-        "name": "FIRE STOPPING"
-      },
-      {
-        "section": "BUILDING",
         "name": "FIREWALL NAIL"
       },
       {
@@ -120,14 +116,6 @@
       {
         "section": "ELECTRICAL",
         "name": "WALLS ONLY"
-      },
-      {
-        "section": "FIRE",
-        "name": "FINAL"
-      },
-      {
-        "section": "FIRE",
-        "name": "FIRE WALL FINAL"
       },
       {
         "section": "MECHANICAL",
@@ -205,10 +193,6 @@
       },
       {
         "section": "BUILDING",
-        "name": "FIRE STOPPING"
-      },
-      {
-        "section": "BUILDING",
         "name": "FIREWALL NAIL"
       },
       {
@@ -270,14 +254,6 @@
       {
         "section": "ELECTRICAL",
         "name": "WALLS ONLY"
-      },
-      {
-        "section": "FIRE",
-        "name": "FINAL"
-      },
-      {
-        "section": "FIRE",
-        "name": "FIRE WALL FINAL"
       },
       {
         "section": "MECHANICAL",
@@ -342,10 +318,6 @@
       {
         "section": "BUILDING",
         "name": "BLDG FINAL"
-      },
-      {
-        "section": "BUILDING",
-        "name": "FIRE STOPPING"
       },
       {
         "section": "BUILDING",
@@ -438,14 +410,6 @@
       {
         "section": "ELECTRICAL",
         "name": "WALLS ONLY"
-      },
-      {
-        "section": "FIRE",
-        "name": "FINAL"
-      },
-      {
-        "section": "FIRE",
-        "name": "FIRE WALL FINAL"
       },
       {
         "section": "MECHANICAL",
@@ -658,10 +622,6 @@
       {
         "section": "BUILDING",
         "name": "BLDG FINAL"
-      },
-      {
-        "section": "BUILDING",
-        "name": "FIRE STOPPING"
       },
       {
         "section": "BUILDING",
@@ -925,10 +885,6 @@
       },
       {
         "section": "BUILDING",
-        "name": "FIRE STOPPING"
-      },
-      {
-        "section": "BUILDING",
         "name": "FOOTING"
       },
       {
@@ -1171,10 +1127,6 @@
       },
       {
         "section": "BUILDING",
-        "name": "FIRE STOPPING"
-      },
-      {
-        "section": "BUILDING",
         "name": "FIREWALL NAIL"
       },
       {
@@ -1262,14 +1214,6 @@
         "name": "WALLS ONLY"
       },
       {
-        "section": "FIRE",
-        "name": "FINAL"
-      },
-      {
-        "section": "FIRE",
-        "name": "FIRE WALL FINAL"
-      },
-      {
         "section": "MECHANICAL",
         "name": "ROUGH"
       },
@@ -1326,10 +1270,6 @@
       {
         "section": "BUILDING",
         "name": "BLDG FINAL"
-      },
-      {
-        "section": "BUILDING",
-        "name": "FIRE STOPPING"
       },
       {
         "section": "BUILDING",
@@ -1390,14 +1330,6 @@
       {
         "section": "ELECTRICAL",
         "name": "WALLS ONLY"
-      },
-      {
-        "section": "FIRE",
-        "name": "FINAL"
-      },
-      {
-        "section": "FIRE",
-        "name": "FIRE WALL FINAL"
       },
       {
         "section": "MECHANICAL",
@@ -1881,10 +1813,6 @@
       },
       {
         "section": "BUILDING",
-        "name": "FIRE STOPPING"
-      },
-      {
-        "section": "BUILDING",
         "name": "FOOTING"
       },
       {
@@ -2020,10 +1948,6 @@
       {
         "section": "BUILDING",
         "name": "BLDG FINAL"
-      },
-      {
-        "section": "BUILDING",
-        "name": "FIRE STOPPING"
       },
       {
         "section": "BUILDING",
