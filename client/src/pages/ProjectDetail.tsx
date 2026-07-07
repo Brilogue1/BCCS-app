@@ -676,12 +676,8 @@ export default function ProjectDetail() {
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500">Last Updated</p>
-              <p className="text-lg">
-                {project.lastUpdated
-                  ? new Date(project.lastUpdated).toLocaleDateString()
-                  : "N/A"}
-              </p>
+              <p className="text-sm font-medium text-slate-500">Jurisdiction</p>
+              <p className="text-lg">{project.jurisdiction || "N/A"}</p>
             </div>
           </CardContent>
         </Card>

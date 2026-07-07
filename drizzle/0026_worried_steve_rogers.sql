@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `jurisdiction` varchar(255);

@@ -70,6 +70,7 @@ export const projects = mysqlTable("projects", {
   contactId: varchar("contactId", { length: 100 }), // Column AR - Contact ID from ALL sheet for inspection sync
   completionDate: text("completionDate"), // Column AP - Completion Date for monthly reporting
   lastUpdated: timestamp("lastUpdated"),
+  jurisdiction: varchar("jurisdiction", { length: 255 }), // Column AJ - Jurisdiction
   syncedAt: timestamp("syncedAt").defaultNow().notNull(),
 });
 

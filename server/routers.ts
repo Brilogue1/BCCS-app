@@ -371,6 +371,7 @@ export const appRouter = router({
             opportunityId: getString(row['__col_42'] || row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
             contactId: getString(row['__col_43'] || row['contact id'] || row['Contact ID'] || row['Contact Id'] || row['contact_id'], 100), // Column AR - Contact ID
             completionDate: getString(row['completion date'] || row['Completion Date'] || row['COMPLETION DATE']), // Column AP - Completion Date
+            jurisdiction: getString(row['__col_35'] || row['jurisdiction'] || row['Jurisdiction']), // Column AJ - Jurisdiction
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
           }));
@@ -430,6 +431,7 @@ export const appRouter = router({
                 completionStatus: sql`VALUES(completionStatus)`,
                 contactId: sql`VALUES(contactId)`,
                 completionDate: sql`VALUES(completionDate)`,
+                jurisdiction: sql`VALUES(jurisdiction)`,
                 lastUpdated: sql`VALUES(lastUpdated)`,
                 syncedAt: sql`VALUES(syncedAt)`,
               }
