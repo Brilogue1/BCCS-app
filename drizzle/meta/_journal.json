@@ -176,6 +176,13 @@
       "when": 1781021006946,
       "tag": "0024_far_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1783448900611,
+      "tag": "0025_far_slyde",
+      "breakpoints": true
     }
   ]
 }

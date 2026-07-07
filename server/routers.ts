@@ -5,7 +5,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
-import { projects, inspectionReports, projectAccess, users } from "../drizzle/schema";
+import { projects, inspectionReports, projectAccess, users, requiredInspections } from "../drizzle/schema";
 import { fetchAllProjects, validateCredentials, appendInspectionRequest, appendNewProjectInspectionRequest, fetchPastInspections, appendClientUpload, appendNewProjectEmail, updatePastInspectionReportLink, fetchEmployeeNumbers, appendPlansUpload, appendReschedule } from "./googleSheets";
 import { generateSingleInspectionPDF, getLicenseNumber } from "./reportGenerator";
 import { schedulerState, runAutoReportGeneration } from "./reportScheduler";
@@ -1938,6 +1938,96 @@ export const appRouter = router({
           notifyEmail: 'bccsfla@gmail.com',
           ccEmail: 'bccsfladtm@gmail.com',
         });
+        return { success: true };
+      }),
+  }),
+
+  requiredInspections: router({
+    // Get all required inspections for a project
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this project' });
+        }
+        return await db.getRequiredInspectionsByProjectId(input.projectId);
+      }),
+
+    // Generate required inspections from a permit type + subtype template
+    generate: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        permitType: z.string().min(1),
+        subType: z.string().min(1),
+        inspections: z.array(z.object({
+          section: z.string(),
+          name: z.string(),
+          sortOrder: z.number().optional(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can set required inspections' });
+        }
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+
+        // Remove existing entries for this permit+subtype combo on this project
+        await db.deleteRequiredInspectionsByProjectAndPermit(input.projectId, input.permitType, input.subType);
+
+        // Insert new entries
+        for (let i = 0; i < input.inspections.length; i++) {
+          const insp = input.inspections[i];
+          await db.createRequiredInspection({
+            projectId: input.projectId,
+            permitType: input.permitType,
+            subType: input.subType,
+            section: insp.section,
+            inspectionName: insp.name,
+            sortOrder: insp.sortOrder ?? i,
+            addedBy: ctx.user.email || '',
+          });
+        }
+        return { success: true };
+      }),
+
+    // Add a single custom required inspection to a project
+    add: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        permitType: z.string().min(1),
+        subType: z.string().min(1),
+        section: z.string().default('CUSTOM'),
+        inspectionName: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can add required inspections' });
+        }
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+
+        await db.createRequiredInspection({
+          projectId: input.projectId,
+          permitType: input.permitType,
+          subType: input.subType,
+          section: input.section,
+          inspectionName: input.inspectionName,
+          sortOrder: 999,
+          addedBy: ctx.user.email || '',
+        });
+        return { success: true };
+      }),
+
+    // Delete a single required inspection from a project
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can delete required inspections' });
+        }
+        await db.deleteRequiredInspection(input.id);
         return { success: true };
       }),
   }),

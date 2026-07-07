@@ -1,0 +1,2478 @@
+{
+  "BLDG COMMERICAL": {
+    "NEW BUILDING": [
+      {
+        "section": "BUILDING",
+        "name": "ADA PREPOUR"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ADA FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIREWALL NAIL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDERGROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "FIRE",
+        "name": "FINAL"
+      },
+      {
+        "section": "FIRE",
+        "name": "FIRE WALL FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "BACKFLOW FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      },
+      {
+        "section": "MISC",
+        "name": "FINAL-PW"
+      },
+      {
+        "section": "MISC",
+        "name": "WATER TAP-WU"
+      },
+      {
+        "section": "MISC",
+        "name": "BACKFLOW - WU"
+      }
+    ],
+    "REMODEL": [
+      {
+        "section": "BUILDING",
+        "name": "ADA PREPOUR"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ADA FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIREWALL NAIL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "FIRE",
+        "name": "FINAL"
+      },
+      {
+        "section": "FIRE",
+        "name": "FIRE WALL FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      }
+    ],
+    "FOUNDATION ONLY": [
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDERGROUND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "UNDER SLAB"
+      }
+    ],
+    "SHELL BUILDING": [
+      {
+        "section": "BUILDING",
+        "name": "ADA FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIREWALL NAIL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UNDERGROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "FIRE",
+        "name": "FINAL"
+      },
+      {
+        "section": "FIRE",
+        "name": "FIRE WALL FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "BACKFLOW FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      },
+      {
+        "section": "MISC",
+        "name": "FINAL-PW"
+      },
+      {
+        "section": "MISC",
+        "name": "WATER TAP-WU"
+      },
+      {
+        "section": "MISC",
+        "name": "BACKFLOW - WU"
+      }
+    ]
+  },
+  "BUILDING COMMERCIAL": {
+    "COMMUNICATION TOWER": [
+      {
+        "section": "BLDG",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      }
+    ],
+    "INTERIOR NON-STRUCTURAL DEMO": [
+      {
+        "section": "BLDG",
+        "name": "FINAL"
+      }
+    ],
+    "RETAINING WALL": [
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "SCREEN ENCLOSURE": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      }
+    ],
+    "DECK": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "WINDOW AND OR DOOR REPLACEMENT": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ]
+  },
+  "BUILDING DEMOLITION": {
+    "COMMERCIAL": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "ACCESSORY STRUCTURES/ SHED": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "MOBILE HOME": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "SINGLE FAMILY": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "INGROUND SWIMMING POOL": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "EXPLORATORY DEMO": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "BUILDING",
+        "name": "UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ]
+  },
+  "BUILDING SINGLE FAMILY RESIDENTIAL": {
+    "NEW": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      }
+    ],
+    "ADDITION": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      }
+    ],
+    "ACCESSORY DWELLING": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      }
+    ],
+    "CARPORT/PATIO COVER/SHED": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "DETACHED GARAGE": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      }
+    ],
+    "GLASS ROOM/SUNROOM": [
+      {
+        "section": "BUILDING",
+        "name": "BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      }
+    ]
+  },
+  "BUILDING TOWNHOUSE": {
+    "NEW": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIREWALL NAIL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "FIRE",
+        "name": "FINAL"
+      },
+      {
+        "section": "FIRE",
+        "name": "FIRE WALL FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "BACKFLOW FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      }
+    ],
+    "REMODEL": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIREWALL NAIL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "FIRE",
+        "name": "FINAL"
+      },
+      {
+        "section": "FIRE",
+        "name": "FIRE WALL FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "BACKFLOW FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "UNDER SLAB"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      }
+    ],
+    "ADDITION": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      }
+    ],
+    "DETACHED GARAGE": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      }
+    ],
+    "DECK": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "SCREEN ENCLOSURE/POOL/SCREEN ROOM": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ]
+  },
+  "ELECTRICAL COMMERCIAL": {
+    "GENERATOR INSTALLATION": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "INSTALL ADD CIRCUITS": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "INSTALL MISC FIX": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "REPLACE EXISTING WIRING": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "PHOTOVOLTAIC": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "SERVICE REPLACEMENT/UPGRADE": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "TEMPORARY POWER POLE": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ]
+  },
+  "ELECTRICAL COMMERCIAL LOW VOLTAGE": {
+    "AUDIO SIGNAL PROC, AMP, PROD EQUIP": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      }
+    ]
+  },
+  "ELECTRICAL RESIDENTIAL": {
+    "GENERATOR INSTALLATION": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "PHOTOVOLTAIC": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "INSTALL ADD CIRCUITS": [
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      }
+    ]
+  },
+  "FENCE COMMERCIAL": {
+    "MASONRY": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOUNDATION"
+      }
+    ],
+    "WOOD OR CHAIN OR VINYL": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ]
+  },
+  "FENCE RESIDENTIAL": {
+    "MASONRY": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOUNDATION"
+      }
+    ],
+    "WOOD OR CHAIN OR VINYL": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      }
+    ]
+  },
+  "GAS COMMERCIAL": {
+    "INSTANT WATER HEATER": [
+      {
+        "section": "PLUMBING",
+        "name": "GAS ROUGH          GAS FINAL"
+      }
+    ]
+  },
+  "GAS RESIDENTIAL": {
+    "INSTANT WATER HEATER": [
+      {
+        "section": "PLUMBING",
+        "name": "GAS ROUGH          GAS FINAL"
+      }
+    ]
+  },
+  "MASTER FILE PLAN SET": {
+    "COMMERCIAL": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      }
+    ],
+    "RESIDENTIAL": [
+      {
+        "section": "BUILDING",
+        "name": "CEILING GRID BLOWER DOOR TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "DUCT LEAKAGE TEST"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FILL CELL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FIRE STOPPING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FOOTING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "FRAMING ROUGH"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION CEILING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "INSULATION WALLS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LATH OR STUCCO"
+      },
+      {
+        "section": "BUILDING",
+        "name": "LINTEL OR COLUMN OR TIE BEAM"
+      },
+      {
+        "section": "BUILDING",
+        "name": "MONOLITHIC FOUNDATION"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "WALL SHEATHING"
+      },
+      {
+        "section": "BUILDING",
+        "name": "STEMWALL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG SLAB"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ABOVE CEILING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PERMANENT POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "PRE-POWER RELEASE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "TEMP POWER POLE"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "UFER GROUND"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "WALLS ONLY"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "IRRIGATION FINAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 1ST"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "SEWER LATERAL"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER LATERAL"
+      },
+      {
+        "section": "MISC",
+        "name": "SITE/DRIVEWAY= PW"
+      }
+    ]
+  },
+  "MECHANICAL COMMERCIAL": {
+    "AIR HANDLER REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "CONDENSOR REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "CONDENSOR AND AIR HANDLER REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "DUCT REPLACEMENT ONLY": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "ROOFTOP UNIT REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "COMMERCIAL RANGE HOOD": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "REFRIGERATION EQUIPMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      },
+      {
+        "section": "MECHANICAL",
+        "name": "ROUGH"
+      }
+    ]
+  },
+  "MECHANICAL RESIDENTIAL": {
+    "AIR HANDLER REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "CONDENSOR REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "CONDENSOR AND AIR HANDLER REPLACEMENT": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "DUCT REPLACEMENT ONLY": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ],
+    "OTHER": [
+      {
+        "section": "MECHANICAL",
+        "name": "FINAL"
+      }
+    ]
+  },
+  "MOVING STRUCTURE": {
+    "COMMERCIAL": [
+      {
+        "section": "BUILDING",
+        "name": "             BLDG DEMO UTILITIES DISCONNECT"
+      },
+      {
+        "section": "BLDG",
+        "name": "FINAL"
+      }
+    ]
+  },
+  "PLUMBING COMMERCIAL": {
+    "SEWER LATERAL": [
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      }
+    ],
+    "GREASE TRAP": [
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      }
+    ],
+    "ADA": [
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      }
+    ]
+  },
+  "PLUMBING RESIDENTIAL": {
+    "SEWER LATERAL": [
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      }
+    ],
+    "BATHTUB REPLACEMENT SHOWER PAN REPLACEMENT": [
+      {
+        "section": "PLUMBING",
+        "name": "ROUGH - 2ND"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "FINAL"
+      }
+    ]
+  },
+  "ROOF COMMERCIAL": {
+    "METAL": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      }
+    ]
+  },
+  "ROOF MOBILE HOME": {
+    "METAL": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOF IN PROGRESS"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ROOFING FINAL"
+      }
+    ]
+  },
+  "ROOF SINGLE FAMILY RESIDENTIAL": {
+    "METAL": [
+      {
+        "section": "BLDG",
+        "name": "ROOF DECK"
+      },
+      {
+        "section": "BLDG",
+        "name": "ROOF IN PROGRESS"
+      },
+      {
+        "section": "BLDG",
+        "name": "ROOFING FINAL"
+      }
+    ]
+  },
+  "SIGN NEW": {
+    "AWNING": [
+      {
+        "section": "BUILDING",
+        "name": "SIGN FINAL"
+      }
+    ],
+    "GROUND W/ ELECTRIC": [
+      {
+        "section": "BUILDING",
+        "name": "SIGN FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "FINAL"
+      }
+    ]
+  },
+  "SWIMMING POOL COMM-MULTI": {
+    "BELOW GROUND": [
+      {
+        "section": "ELECTRICAL",
+        "name": "ELECT POOL SHELL BONDING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ELECT ROUGH - BONDING RING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ELEC FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ELEC UNDER SLAB"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIMPOOL FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL SAFETY BARRIER"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL SHELL STEEL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "BLDG ADA SITE FINAL"
+      }
+    ]
+  },
+  "SWIMMING POOL RESIDENTIAL": {
+    "BELOW GROUND": [
+      {
+        "section": "ELECTRICAL",
+        "name": "ELECT POOL SHELL BONDING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ELECT ROUGH - BONDING RING"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ELEC FINAL"
+      },
+      {
+        "section": "ELECTRICAL",
+        "name": "ELEC UNDER SLAB"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL DECK"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIMPOOL FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL SAFETY BARRIER"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL SHELL STEEL"
+      }
+    ],
+    "ABOVE GROUND": [
+      {
+        "section": "ELECTRICAL",
+        "name": "ELEC FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIMPOOL FINAL"
+      },
+      {
+        "section": "BUILDING",
+        "name": "SWIM POOL SAFETY BARRIER"
+      }
+    ]
+  },
+  "TEMP CERTIFICATE OF OCCUPANCY": {
+    "BLDG TCO     ELECT TCO        FIRE TCO LANDSCAPE TCO MECH TCO  PLUMB TCO        PW TCO      WATER UTILITIES TCO": [
+      {
+        "section": "BUILDING",
+        "name": "BLDG"
+      },
+      {
+        "section": "BUILDING",
+        "name": "ELECT"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "PLANNING"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "WATER"
+      },
+      {
+        "section": "PLUMBING",
+        "name": "PUBLIC WORKS"
+      }
+    ]
+  }
+}

@@ -167,3 +167,22 @@ export const projectAccess = mysqlTable("projectAccess", {
 
 export type ProjectAccess = typeof projectAccess.$inferSelect;
 export type InsertProjectAccess = typeof projectAccess.$inferInsert;
+
+/**
+ * Required inspections table - stores the per-project required inspection list
+ * generated from a permit type + subtype template. Admins can add/remove items.
+ */
+export const requiredInspections = mysqlTable("requiredInspections", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  permitType: varchar("permitType", { length: 255 }).notNull(),
+  subType: varchar("subType", { length: 255 }).notNull(),
+  section: varchar("section", { length: 100 }).notNull().default("BUILDING"),
+  inspectionName: varchar("inspectionName", { length: 255 }).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  addedBy: varchar("addedBy", { length: 320 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RequiredInspection = typeof requiredInspections.$inferSelect;
+export type InsertRequiredInspection = typeof requiredInspections.$inferInsert;

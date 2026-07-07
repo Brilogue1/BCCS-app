@@ -12,7 +12,10 @@ import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
+import permitTypesData from "../../../shared/permitTypes.json";
 import { normalizeInspectionType } from "../../../shared/utils";
+
+const permitTypesMap = permitTypesData as Record<string, Record<string, Array<{ section: string; name: string }>>>;
 
 // Frontend API URL for file uploads - ensure trailing slash for URL construction
 const FORGE_BASE = import.meta.env.VITE_FRONTEND_FORGE_API_URL || 'https://forge.butterfly-effect.dev';
@@ -141,6 +144,58 @@ export default function ProjectDetail() {
       toast.error(error.message || 'Failed to delete inspection');
     },
   });
+
+  // Required Inspections state
+  const { data: requiredInspectionsList, refetch: refetchRequired } = trpc.requiredInspections.list.useQuery(
+    { projectId },
+    { enabled: projectId > 0 }
+  );
+  const [permitPickerOpen, setPermitPickerOpen] = useState(false);
+  const [selectedPermitType, setSelectedPermitType] = useState('');
+  const [selectedSubType, setSelectedSubType] = useState('');
+  const [addRequiredOpen, setAddRequiredOpen] = useState(false);
+  const [newRequiredName, setNewRequiredName] = useState('');
+  const [newRequiredSection, setNewRequiredSection] = useState('CUSTOM');
+  // Track which required inspection is being scheduled (pre-fills the schedule dialog)
+  const [quickScheduleType, setQuickScheduleType] = useState<string | null>(null);
+
+  const generateRequiredMutation = trpc.requiredInspections.generate.useMutation({
+    onSuccess: () => {
+      toast.success('Required inspections generated');
+      setPermitPickerOpen(false);
+      setSelectedPermitType('');
+      setSelectedSubType('');
+      refetchRequired();
+    },
+    onError: (err) => toast.error(err.message || 'Failed to generate required inspections'),
+  });
+
+  const addRequiredMutation = trpc.requiredInspections.add.useMutation({
+    onSuccess: () => {
+      toast.success('Inspection added to required list');
+      setAddRequiredOpen(false);
+      setNewRequiredName('');
+      setNewRequiredSection('CUSTOM');
+      refetchRequired();
+    },
+    onError: (err) => toast.error(err.message || 'Failed to add inspection'),
+  });
+
+  const deleteRequiredMutation = trpc.requiredInspections.delete.useMutation({
+    onSuccess: () => {
+      toast.success('Inspection removed from required list');
+      refetchRequired();
+    },
+    onError: (err) => toast.error(err.message || 'Failed to remove inspection'),
+  });
+
+  // Group required inspections by permitType+subType for display
+  const requiredGroups = (requiredInspectionsList || []).reduce<Record<string, { permitType: string; subType: string; items: typeof requiredInspectionsList }>>((acc, item) => {
+    const key = `${item.permitType}||${item.subType}`;
+    if (!acc[key]) acc[key] = { permitType: item.permitType, subType: item.subType, items: [] };
+    acc[key].items!.push(item);
+    return acc;
+  }, {});
 
   // Delete project state (admin only)
   const [deleteProjectConfirmOpen, setDeleteProjectConfirmOpen] = useState(false);
@@ -649,6 +704,250 @@ export default function ProjectDetail() {
               <p className="text-sm font-medium text-slate-500">Email</p>
               <p className="text-lg">{project.email || "N/A"}</p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Required Inspections Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Required Inspections</CardTitle>
+              <CardDescription>Inspections required for this project based on permit type</CardDescription>
+            </div>
+            {user?.role === 'admin' && (
+              <div className="flex items-center gap-2">
+                {/* Add custom inspection */}
+                <Dialog open={addRequiredOpen} onOpenChange={setAddRequiredOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" variant="outline" disabled={Object.keys(requiredGroups).length === 0}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Inspection
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Custom Required Inspection</DialogTitle>
+                      <DialogDescription>Add a custom inspection to the required list for this project</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div>
+                        <Label>Permit Type Group</Label>
+                        <Select value={`${Object.keys(requiredGroups)[0] || ''}`} disabled>
+                          <SelectTrigger><SelectValue placeholder="Uses first permit type" /></SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(requiredGroups).map(([key, g]) => (
+                              <SelectItem key={key} value={key}>{g.permitType} — {g.subType}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-slate-500 mt-1">Will be added to the first permit type group</p>
+                      </div>
+                      <div>
+                        <Label>Section</Label>
+                        <Select value={newRequiredSection} onValueChange={setNewRequiredSection}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {['BUILDING', 'ELECTRICAL', 'MECHANICAL', 'PLUMBING', 'FIRE', 'MISC', 'CUSTOM'].map(s => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Inspection Name</Label>
+                        <Input
+                          value={newRequiredName}
+                          onChange={e => setNewRequiredName(e.target.value)}
+                          placeholder="e.g. FRAMING ROUGH"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2 pt-2">
+                      <Button variant="outline" onClick={() => setAddRequiredOpen(false)}>Cancel</Button>
+                      <Button
+                        disabled={!newRequiredName.trim() || addRequiredMutation.isPending}
+                        onClick={() => {
+                          const firstKey = Object.keys(requiredGroups)[0] || '';
+                          const [pt, st] = firstKey.split('||');
+                          addRequiredMutation.mutate({
+                            projectId,
+                            permitType: pt || 'CUSTOM',
+                            subType: st || 'CUSTOM',
+                            section: newRequiredSection,
+                            inspectionName: newRequiredName.trim().toUpperCase(),
+                          });
+                        }}
+                      >
+                        {addRequiredMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Permit type picker */}
+                <Dialog open={permitPickerOpen} onOpenChange={(o) => { setPermitPickerOpen(o); if (!o) { setSelectedPermitType(''); setSelectedSubType(''); } }}>
+                  <DialogTrigger asChild>
+                    <Button size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Set Permit Type
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Set Required Inspections</DialogTitle>
+                      <DialogDescription>
+                        Select a permit type and sub-type to generate the required inspection list for this project.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div>
+                        <Label>Permit Type</Label>
+                        <Select value={selectedPermitType} onValueChange={(v) => { setSelectedPermitType(v); setSelectedSubType(''); }}>
+                          <SelectTrigger><SelectValue placeholder="Select permit type..." /></SelectTrigger>
+                          <SelectContent className="max-h-64 overflow-y-auto">
+                            {Object.keys(permitTypesMap).sort().map(pt => (
+                              <SelectItem key={pt} value={pt}>{pt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {selectedPermitType && (
+                        <div>
+                          <Label>Sub Type</Label>
+                          <Select value={selectedSubType} onValueChange={setSelectedSubType}>
+                            <SelectTrigger><SelectValue placeholder="Select sub type..." /></SelectTrigger>
+                            <SelectContent className="max-h-64 overflow-y-auto">
+                              {Object.keys(permitTypesMap[selectedPermitType] || {}).sort().map(st => (
+                                <SelectItem key={st} value={st}>{st}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      {selectedPermitType && selectedSubType && (
+                        <div className="bg-slate-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                          <p className="text-xs font-semibold text-slate-600 mb-2">Inspections to be generated ({(permitTypesMap[selectedPermitType]?.[selectedSubType] || []).length}):</p>
+                          {(permitTypesMap[selectedPermitType]?.[selectedSubType] || []).map((insp, i) => (
+                            <div key={i} className="text-xs text-slate-700 py-0.5">
+                              <span className="text-slate-400 mr-1">{insp.section}</span>{insp.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-end gap-2 pt-2">
+                      <Button variant="outline" onClick={() => setPermitPickerOpen(false)}>Cancel</Button>
+                      <Button
+                        disabled={!selectedPermitType || !selectedSubType || generateRequiredMutation.isPending}
+                        onClick={() => {
+                          const inspList = permitTypesMap[selectedPermitType]?.[selectedSubType] || [];
+                          generateRequiredMutation.mutate({
+                            projectId,
+                            permitType: selectedPermitType,
+                            subType: selectedSubType,
+                            inspections: inspList,
+                          });
+                        }}
+                      >
+                        {generateRequiredMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate Required Inspections'}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
+            {Object.keys(requiredGroups).length === 0 ? (
+              <div className="text-center py-8 text-slate-400">
+                {user?.role === 'admin'
+                  ? 'No required inspections set. Click "Set Permit Type" to generate the list.'
+                  : 'No required inspections have been set for this project yet.'}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {Object.entries(requiredGroups).map(([key, group]) => {
+                  // Group items by section
+                  const bySection = (group.items || []).reduce<Record<string, typeof requiredInspectionsList>>((acc, item) => {
+                    const s = item.section || 'OTHER';
+                    if (!acc[s]) acc[s] = [];
+                    acc[s]!.push(item);
+                    return acc;
+                  }, {});
+
+                  return (
+                    <div key={key}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs font-bold uppercase tracking-wide bg-blue-100 text-blue-800 px-2 py-0.5 rounded">{group.permitType}</span>
+                        <span className="text-xs font-medium text-slate-600">{group.subType}</span>
+                      </div>
+                      {Object.entries(bySection).map(([section, items]) => (
+                        <div key={section} className="mb-4">
+                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 border-b pb-1">{section}</p>
+                          <div className="space-y-1">
+                            {(items || []).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).map((item) => {
+                              // Determine status by cross-referencing scheduled/completed inspections
+                              const normName = normalizeInspectionType(item.inspectionName);
+                              const isCompleted = sheetCompletedTypeSet.has(normName);
+                              const isScheduled = !isCompleted && (
+                                sheetScheduledTypeSet.has(normName) ||
+                                (inspections || []).some((i: any) => normalizeInspectionType(i.inspectionType) === normName)
+                              );
+
+                              return (
+                                <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-slate-50 group">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    {isCompleted ? (
+                                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                                    ) : isScheduled ? (
+                                      <Calendar className="h-4 w-4 text-blue-500 shrink-0" />
+                                    ) : (
+                                      <div className="h-4 w-4 rounded-full border-2 border-slate-300 shrink-0" />
+                                    )}
+                                    <span className={`text-sm truncate ${
+                                      isCompleted ? 'line-through text-slate-400' : 'text-slate-700'
+                                    }`}>{item.inspectionName}</span>
+                                    {isCompleted && <span className="text-xs text-green-600 font-medium shrink-0">Completed</span>}
+                                    {isScheduled && !isCompleted && <span className="text-xs text-blue-600 font-medium shrink-0">Scheduled</span>}
+                                  </div>
+                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {!isCompleted && !isScheduled && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 text-xs"
+                                        onClick={() => {
+                                          setInspectionType(item.inspectionName);
+                                          setInspectionDialogOpen(true);
+                                        }}
+                                      >
+                                        <Calendar className="h-3 w-3 mr-1" />
+                                        Schedule
+                                      </Button>
+                                    )}
+                                    {user?.role === 'admin' && (
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-7 w-7 p-0 text-red-400 hover:text-red-600"
+                                        onClick={() => deleteRequiredMutation.mutate({ id: item.id })}
+                                        disabled={deleteRequiredMutation.isPending}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 

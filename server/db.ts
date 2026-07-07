@@ -1,6 +1,6 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, projects, inspections, contactEmails, projectFiles, InsertProject, InsertInspection, InsertContactEmail, InsertProjectFile } from "../drizzle/schema";
+import { InsertUser, users, projects, inspections, contactEmails, projectFiles, requiredInspections, InsertProject, InsertInspection, InsertContactEmail, InsertProjectFile, InsertRequiredInspection } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -284,4 +284,41 @@ export async function deleteProjectFile(fileId: number) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(projectFiles).where(eq(projectFiles.id, fileId));
+}
+
+// Required Inspections queries
+export async function getRequiredInspectionsByProjectId(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(requiredInspections)
+    .where(eq(requiredInspections.projectId, projectId));
+}
+
+export async function createRequiredInspection(item: InsertRequiredInspection) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(requiredInspections).values(item);
+  return result;
+}
+
+export async function deleteRequiredInspection(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(requiredInspections).where(eq(requiredInspections.id, id));
+}
+
+export async function deleteRequiredInspectionsByProjectAndPermit(projectId: number, permitType: string, subType: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(requiredInspections).where(
+    and(
+      eq(requiredInspections.projectId, projectId),
+      eq(requiredInspections.permitType, permitType),
+      eq(requiredInspections.subType, subType)
+    )
+  );
 }
