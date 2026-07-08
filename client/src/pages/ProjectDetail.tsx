@@ -899,25 +899,17 @@ export default function ProjectDetail() {
                               return (
                                 <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-slate-50 group">
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    {isCompleted ? (
-                                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-                                    ) : isScheduled ? (
-                                      <Calendar className="h-4 w-4 text-blue-500 shrink-0" />
-                                    ) : (
-                                      <div className="h-4 w-4 rounded-full border-2 border-slate-300 shrink-0" />
-                                    )}
                                     <span className={`text-sm truncate ${
                                       isCompleted ? 'line-through text-slate-400' : 'text-slate-700'
                                     }`}>{item.inspectionName}</span>
                                     {isCompleted && <span className="text-xs text-green-600 font-medium shrink-0">Completed</span>}
                                     {isScheduled && !isCompleted && <span className="text-xs text-blue-600 font-medium shrink-0">Scheduled</span>}
                                   </div>
-                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {!isCompleted && !isScheduled && (
+                                  <div className="flex items-center gap-1">
+                                    {!isCompleted && (
                                       <Button
                                         size="sm"
-                                        variant="outline"
-                                        className="h-7 text-xs"
+                                        className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                                         onClick={() => {
                                           setInspectionType(item.inspectionName);
                                           setInspectionDialogOpen(true);
