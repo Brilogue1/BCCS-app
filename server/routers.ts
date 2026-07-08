@@ -439,10 +439,22 @@ export const appRouter = router({
           }
         }
         
-        // For projects without an opportunityId, do a simple insert (rare edge case)
+        // For projects without an opportunityId, deduplicate by opportunity name before inserting
+        // to prevent duplicate rows being created on every sync
         if (withoutOppId.length > 0) {
-          console.log(`[Sync] Inserting ${withoutOppId.length} projects without opportunityId`);
-          await db_instance.insert(projects).values(withoutOppId);
+          console.log(`[Sync] Processing ${withoutOppId.length} projects without opportunityId`);
+          // Fetch existing projects that also have no opportunityId, keyed by name
+          const existingNoOppId = await db_instance.select({ id: projects.id, opportunityName: projects.opportunityName })
+            .from(projects)
+            .where(sql`(opportunityId IS NULL OR opportunityId = '')`);
+          const existingNameSet = new Set(existingNoOppId.map(p => (p.opportunityName || '').trim().toLowerCase()));
+          const trulyNew = withoutOppId.filter(p => !existingNameSet.has((p.opportunityName || '').trim().toLowerCase()));
+          if (trulyNew.length > 0) {
+            console.log(`[Sync] Inserting ${trulyNew.length} truly new projects without opportunityId (${withoutOppId.length - trulyNew.length} skipped as duplicates)`);
+            await db_instance.insert(projects).values(trulyNew);
+          } else {
+            console.log(`[Sync] All ${withoutOppId.length} projects without opportunityId already exist by name, skipping inserts`);
+          }
         }
         
         console.log('[Sync] Sync completed successfully');
@@ -1073,14 +1085,33 @@ export const appRouter = router({
         // Safeguard 1: Allow up to 3 inspections without a permit number, then block
         const permitNum = (project.permitNumber || '').trim();
         const missingPermit = !permitNum || permitNum.toUpperCase() === 'N/A' || permitNum === '-';
+        const existingInspections = await db.getInspectionsByProjectId(input.projectId);
         if (missingPermit) {
-          const existingInspections = await db.getInspectionsByProjectId(input.projectId);
           if (existingInspections.length >= 3) {
             throw new TRPCError({
               code: 'BAD_REQUEST',
               message: 'You have reached the 3-inspection limit for projects without a permit number on file. Please contact BCCS to update your permit number before scheduling additional inspections.',
             });
           }
+        }
+
+        // Safeguard 2: Max 5 active (scheduled) inspections at a time across sheet columns + DB
+        // Count sheet-scheduled types (columns U-AA: inspection1Type through inspection5Type)
+        const sheetScheduledCount = [
+          project.inspection1Type,
+          project.inspection2Type,
+          project.inspection3Type,
+          project.inspection4Type,
+          project.inspection5Type,
+        ].filter(t => t && t.trim() !== '' && t.trim() !== '_').length;
+        // Count DB-scheduled inspections (status = 'scheduled' or 'requested')
+        const dbActiveCount = existingInspections.filter(i => i.status === 'scheduled' || i.status === 'pending').length;
+        const totalActive = sheetScheduledCount + dbActiveCount;
+        if (totalActive >= 5) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `This project already has ${totalActive} active inspection${totalActive !== 1 ? 's' : ''} scheduled. Please wait for one to be resolved before scheduling another.`,
+          });
         }
 
         // Get Contact ID from project data (will be synced from ALL sheet)

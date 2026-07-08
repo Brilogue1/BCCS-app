@@ -541,6 +541,9 @@ export default function ProjectDetail() {
 
   const hasScheduledInspections = scheduledTypes.length > 0 || pendingDbInspections.length > 0;
 
+  // Total active inspections = sheet-scheduled (columns U-AA) + DB pending/scheduled
+  const totalActiveInspections = scheduledTypes.length + (inspections?.filter((i: any) => i.status === 'scheduled' || i.status === 'pending').length ?? 0);
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -1040,6 +1043,17 @@ export default function ProjectDetail() {
                   </DialogDescription>
                 </DialogHeader>
                 {(() => {
+                  // Check 5-inspection cap first (highest priority)
+                  if (totalActiveInspections >= 5) {
+                    return (
+                      <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
+                        <p className="text-sm text-red-800 font-medium">
+                          🚫 This project already has <strong>{totalActiveInspections} active inspections</strong> scheduled. Please wait for one to be resolved before scheduling another.
+                        </p>
+                      </div>
+                    );
+                  }
+                  // Then check permit number warning
                   const pNum = (project.permitNumber || '').trim();
                   const missingPermit = !pNum || pNum.toUpperCase() === 'N/A' || pNum === '-';
                   if (!missingPermit) return null;

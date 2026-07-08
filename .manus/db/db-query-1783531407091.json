@@ -1,0 +1,22 @@
+{
+  "query": "\nSELECT MIN(opportunityName) as opportunityName, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id) as ids, GROUP_CONCAT(IFNULL(opportunityId,'') ORDER BY id) as oppIds\nFROM projects\nGROUP BY LOWER(TRIM(opportunityName))\nHAVING cnt > 1\nORDER BY cnt DESC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute \nSELECT MIN(opportunityName) as opportunityName, COUNT(*) as cnt, GROUP_CONCAT(id ORDER BY id) as ids, GROUP_CONCAT(IFNULL(opportunityId,'') ORDER BY id) as oppIds\nFROM projects\nGROUP BY LOWER(TRIM(opportunityName))\nHAVING cnt > 1\nORDER BY cnt DESC\nLIMIT 20;\n",
+  "rows": [
+    {
+      "opportunityName": "7044 162nd Place East",
+      "cnt": "2",
+      "ids": "5582826,8469124",
+      "oppIds": "nJnUkWkyXGar0tbyzyZp,zbw2KZfm7Qf35NF27RsH"
+    },
+    {
+      "opportunityName": "5627 blue harbor drive - lot 339 harborview",
+      "cnt": "2",
+      "ids": "5790697,5820045",
+      "oppIds": "32HA0kJNNnHSzGe9t0I2,i4H1fA3LQMGCMJg4OX3p"
+    }
+  ],
+  "messages": [],
+  "stdout": "opportunityName\tcnt\tids\toppIds\n7044 162nd Place East\t2\t5582826,8469124\tnJnUkWkyXGar0tbyzyZp,zbw2KZfm7Qf35NF27RsH\n5627 blue harbor drive - lot 339 harborview\t2\t5790697,5820045\t32HA0kJNNnHSzGe9t0I2,i4H1fA3LQMGCMJg4OX3p\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}
