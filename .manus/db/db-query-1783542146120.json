@@ -1,0 +1,75 @@
+{
+  "query": "\nSELECT id, opportunityName, inspection1Type, inspection2Type, inspection3Type, inspection4Type, inspection5Type, completedInspections, inspection1Result, inspection2Result, inspection3Result\nFROM projects\nWHERE opportunityName LIKE '%194%' OR opportunityName LIKE '%Lake Mabel%'\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute \nSELECT id, opportunityName, inspection1Type, inspection2Type, inspection3Type, inspection4Type, inspection5Type, completedInspections, inspection1Result, inspection2Result, inspection3Result\nFROM projects\nWHERE opportunityName LIKE '%194%' OR opportunityName LIKE '%Lake Mabel%'\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "8468971",
+      "opportunityName": "Lot 174 Landings at Lake Mabel",
+      "inspection1Type": "BLDG ROOF DECK",
+      "inspection2Type": "BLDG SLAB AND OR FOUNDATION",
+      "inspection3Type": "_",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": "2026-07-06 — BLDG WALL SHEATHING/DRY-IN | 2026-06-23 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-06-15 SLAB |2026-06-15 — BLDG FOUNDATION AND OR FOOTER | 2026-06-15 — ELECT UFER GROUND INSPECTION | 2026-06-10 — PLUMB SEWER LATERAL | 2026-06-10 — PLUMB UNDERGROUND",
+      "inspection1Result": "",
+      "inspection2Result": "",
+      "inspection3Result": ""
+    },
+    {
+      "id": "8469088",
+      "opportunityName": "lot 198 Landings at Lake Mabel",
+      "inspection1Type": "",
+      "inspection2Type": "",
+      "inspection3Type": "",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": "",
+      "inspection1Result": "",
+      "inspection2Result": "",
+      "inspection3Result": ""
+    },
+    {
+      "id": "10143587",
+      "opportunityName": "1194 Astoria Drive Lot 181 Reserve at Forest Lake",
+      "inspection1Type": "_",
+      "inspection2Type": "BLDG ROOF DECK",
+      "inspection3Type": "_",
+      "inspection4Type": "_",
+      "inspection5Type": "_",
+      "completedInspections": "2026-06-24 — BLDG INSULATION WALLS | 2026-06-22 — ELECT ROUGH | 2026-06-22 — MECH ROUGH | 2026-06-22 — PLUMB ROUGH - 1ST | 2026-06-22 — BLDG FRAMING ROUGH | 2026-06-18 — BLDG LATH OR STUCCO | 2026-06-16 — ELECT TUG | 2026-06-15 — BLDG ROOF DRY-IN /FLASHING | 2026-06-13 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-05-27 — BLDG SLAB AND OR FOUNDATION | 2026-05-27 — BLDG FOUNDATION AND OR FOOTER | 2026-05-27 — 5/26/2026 plumb sewer lateral | 2026-05-26 — PLUMB WATER LATERAL",
+      "inspection1Result": "",
+      "inspection2Result": "",
+      "inspection3Result": ""
+    },
+    {
+      "id": "11190227",
+      "opportunityName": "532 Mahogany Way - Lot 157 Landings at Lake Mabel",
+      "inspection1Type": "_",
+      "inspection2Type": "_",
+      "inspection3Type": "_",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": "2026-06-12 — PLUMB SEWER LATERAL | 2026-06-12 — PLUMB ROUGH - 1ST | 2026-06-12 — PLUMB UNDERGROUND",
+      "inspection1Result": "",
+      "inspection2Result": "",
+      "inspection3Result": ""
+    },
+    {
+      "id": "12240274",
+      "opportunityName": "Lot 189 Landings at Lake Mabel",
+      "inspection1Type": "",
+      "inspection2Type": "",
+      "inspection3Type": "",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": "",
+      "inspection1Result": "",
+      "inspection2Result": "",
+      "inspection3Result": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\tinspection1Type\tinspection2Type\tinspection3Type\tinspection4Type\tinspection5Type\tcompletedInspections\tinspection1Result\tinspection2Result\tinspection3Result\n8468971\tLot 174 Landings at Lake Mabel\tBLDG ROOF DECK\tBLDG SLAB AND OR FOUNDATION\t_\t\t\t2026-07-06 — BLDG WALL SHEATHING/DRY-IN | 2026-06-23 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-06-15 SLAB |2026-06-15 — BLDG FOUNDATION AND OR FOOTER | 2026-06-15 — ELECT UFER GROUND INSPECTION | 2026-06-10 — PLUMB SEWER LATERAL | 2026-06-10 — PLUMB UNDERGROUND\t\t\t\n8469088\tlot 198 Landings at Lake Mabel\t\t\t\t\t\t\t\t\t\n10143587\t1194 Astoria Drive Lot 181 Reserve at Forest Lake\t_\tBLDG ROOF DECK\t_\t_\t_\t2026-06-24 — BLDG INSULATION WALLS | 2026-06-22 — ELECT ROUGH | 2026-06-22 — MECH ROUGH | 2026-06-22 — PLUMB ROUGH - 1ST | 2026-06-22 — BLDG FRAMING ROUGH | 2026-06-18 — BLDG LATH OR STUCCO | 2026-06-16 — ELECT TUG | 2026-06-15 — BLDG ROOF DRY-IN /FLASHING | 2026-06-13 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-05-27 — BLDG SLAB AND OR FOUNDATION | 2026-05-27 — BLDG FOUNDATION AND OR FOOTER | 2026-05-27 — 5/26/2026 plumb sewer lateral | 2026-05-26 — PLUMB WATER LATERAL\t\t\t\n11190227\t532 Mahogany Way - Lot 157 Landings at Lake Mabel\t_\t_\t_\t\t\t2026-06-12 — PLUMB SEWER LATERAL | 2026-06-12 — PLUMB ROUGH - 1ST | 2026-06-12 — PLUMB UNDERGROUND\t\t\t\n12240274\tLot 189 Landings at Lake Mabel\t\t\t\t\t\t\t\t\t\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}

@@ -1097,7 +1097,7 @@ export const appRouter = router({
 
         // Safeguard 2: Max 5 SCHEDULED (not yet completed) inspections at a time
         // Build a set of completed inspection types from column H so we can exclude them
-        const { normalizeInspectionType } = await import('../shared/utils');
+        // normalizeInspectionType is imported at the top of this file
         const completedText = (project.completedInspections || '').toUpperCase();
         const completedNormSet = new Set<string>();
         if (completedText) {

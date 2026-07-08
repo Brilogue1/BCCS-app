@@ -1,0 +1,40 @@
+{
+  "query": "\nSELECT id, opportunityName, inspection1Type, inspection2Type, inspection3Type, inspection4Type, inspection5Type, completedInspections\nFROM projects\nWHERE opportunityName LIKE '%Lot 194%'\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute \nSELECT id, opportunityName, inspection1Type, inspection2Type, inspection3Type, inspection4Type, inspection5Type, completedInspections\nFROM projects\nWHERE opportunityName LIKE '%Lot 194%'\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "13452894",
+      "opportunityName": "Lot 194 Landings at Lake Mabel",
+      "inspection1Type": "_",
+      "inspection2Type": "BLDG FOUNDATION AND OR FOOTER",
+      "inspection3Type": "_",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": "2026-06-26 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-06-22 — ELECT UFER GROUND INSPECTION | 2026-06-22 — BLDG SLAB AND OR FOUNDATION | 2026-06-18 — PLUMB UNDERGROUND | 2026-06-18 — PLUMB SEWER LATERAL | 2026-06-18 — PLUMB ROUGH - 1ST"
+    },
+    {
+      "id": "16020320",
+      "opportunityName": "4019 Wavering Hickory - Lot 194 Hickkory Cove",
+      "inspection1Type": "_",
+      "inspection2Type": "_",
+      "inspection3Type": "_",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": "2026-07-08 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-06-29 — PLUMB SEWER LATERAL | 2026-06-29 — PLUMB ROUGH - 1ST"
+    },
+    {
+      "id": "104349610",
+      "opportunityName": "1142 Astoria Drive - Lot 194 Reserve at Forest Lake",
+      "inspection1Type": "",
+      "inspection2Type": "",
+      "inspection3Type": "",
+      "inspection4Type": "",
+      "inspection5Type": "",
+      "completedInspections": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\tinspection1Type\tinspection2Type\tinspection3Type\tinspection4Type\tinspection5Type\tcompletedInspections\n13452894\tLot 194 Landings at Lake Mabel\t_\tBLDG FOUNDATION AND OR FOOTER\t_\t\t\t2026-06-26 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-06-22 — ELECT UFER GROUND INSPECTION | 2026-06-22 — BLDG SLAB AND OR FOUNDATION | 2026-06-18 — PLUMB UNDERGROUND | 2026-06-18 — PLUMB SEWER LATERAL | 2026-06-18 — PLUMB ROUGH - 1ST\n16020320\t4019 Wavering Hickory - Lot 194 Hickkory Cove\t_\t_\t_\t\t\t2026-07-08 — BLDG LINTEL OR COLUMN OR TIE BEAM | 2026-06-29 — PLUMB SEWER LATERAL | 2026-06-29 — PLUMB ROUGH - 1ST\n104349610\t1142 Astoria Drive - Lot 194 Reserve at Forest Lake\t\t\t\t\t\t\n",
+  "stderr": "",
+  "execution_time_ms": 276
+}
