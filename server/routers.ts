@@ -1095,8 +1095,8 @@ export const appRouter = router({
           }
         }
 
-        // Safeguard 2: Max 5 active (scheduled) inspections at a time across sheet columns + DB
-        // Count sheet-scheduled types (columns U-AA: inspection1Type through inspection5Type)
+        // Safeguard 2: Max 5 SCHEDULED (not yet completed) inspections at a time
+        // Sheet columns U-AA hold currently scheduled types — these are cleared when completed
         const sheetScheduledCount = [
           project.inspection1Type,
           project.inspection2Type,
@@ -1104,13 +1104,13 @@ export const appRouter = router({
           project.inspection4Type,
           project.inspection5Type,
         ].filter(t => t && t.trim() !== '' && t.trim() !== '_').length;
-        // Count DB-scheduled inspections (status = 'scheduled' or 'requested')
-        const dbActiveCount = existingInspections.filter(i => i.status === 'scheduled' || i.status === 'pending').length;
+        // DB inspections that are pending or scheduled (not completed/cancelled)
+        const dbActiveCount = existingInspections.filter(i => i.status === 'pending' || i.status === 'scheduled').length;
         const totalActive = sheetScheduledCount + dbActiveCount;
         if (totalActive >= 5) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: `This project already has ${totalActive} active inspection${totalActive !== 1 ? 's' : ''} scheduled. Please wait for one to be resolved before scheduling another.`,
+            message: `This project already has ${totalActive} active scheduled inspection${totalActive !== 1 ? 's' : ''}. Once one is completed or resolved, you can schedule another.`,
           });
         }
 

@@ -541,8 +541,9 @@ export default function ProjectDetail() {
 
   const hasScheduledInspections = scheduledTypes.length > 0 || pendingDbInspections.length > 0;
 
-  // Total active inspections = sheet-scheduled (columns U-AA) + DB pending/scheduled
-  const totalActiveInspections = scheduledTypes.length + (inspections?.filter((i: any) => i.status === 'scheduled' || i.status === 'pending').length ?? 0);
+  // Total ACTIVE scheduled inspections = sheet-scheduled columns (U-AA, already filtered to non-completed)
+  // + DB inspections that are pending or scheduled (not completed/cancelled)
+  const totalActiveInspections = scheduledTypes.length + (inspections?.filter((i: any) => i.status === 'pending' || i.status === 'scheduled').length ?? 0);
 
   return (
     <div className="min-h-screen bg-slate-50">
