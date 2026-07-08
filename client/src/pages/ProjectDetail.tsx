@@ -709,8 +709,8 @@ export default function ProjectDetail() {
           </CardContent>
         </Card>
 
-        {/* Required Inspections Card - temporarily hidden, re-enable when new list is ready */}
-        {false && <Card>
+        {/* Required Inspections Card */}
+        {<Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Required Inspections</CardTitle>
