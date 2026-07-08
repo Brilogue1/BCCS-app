@@ -457,6 +457,57 @@ export const appRouter = router({
           }
         }
         
+        // After upserting projects, auto-mark DB inspections as 'completed'
+        // when their type appears in the project's column H (completedInspections text)
+        // This keeps DB status in sync with what GHL has resolved
+        try {
+          const { inspections: inspTable } = await import('../drizzle/schema');
+          // Get all scheduled/pending DB inspections
+          const activeDbInspections = await db_instance.select().from(inspTable)
+            .where(sql`status IN ('scheduled', 'pending')`);
+          if (activeDbInspections.length > 0) {
+            // Build a map of projectId -> completedInspections text from the synced projects
+            const projectCompletedMap = new Map<number, string>();
+            for (const p of validProjects) {
+              // Find the DB project id by opportunityId
+              if (p.opportunityId) {
+                const dbProj = await db_instance.select({ id: projects.id, completedInspections: projects.completedInspections })
+                  .from(projects).where(eq(projects.opportunityId, p.opportunityId)).limit(1);
+                if (dbProj[0]) projectCompletedMap.set(dbProj[0].id, dbProj[0].completedInspections || '');
+              }
+            }
+            let markedCompleted = 0;
+            for (const insp of activeDbInspections) {
+              const completedText = (projectCompletedMap.get(insp.projectId) || '').toUpperCase();
+              if (!completedText) continue;
+              const inspNorm = normalizeInspectionType(insp.inspectionType);
+              // Parse completed types from column H
+              const completedNorms = new Set<string>();
+              if (completedText.includes('\u2014')) {
+                for (const seg of completedText.split('|')) {
+                  const idx = seg.indexOf('\u2014');
+                  if (idx !== -1) completedNorms.add(normalizeInspectionType(seg.substring(idx + 1).trim()));
+                }
+              } else {
+                const resultSuffixes = [' - APPROVED', ' - FAILED', ' - PARTIAL', ' - CANCELLED', ' - PENDING', ' - PASS', ' - FAIL'];
+                for (const seg of completedText.split(',')) {
+                  let t = seg.trim();
+                  for (const s of resultSuffixes) { if (t.endsWith(s)) { t = t.slice(0, t.length - s.length).trim(); break; } }
+                  if (t) completedNorms.add(normalizeInspectionType(t));
+                }
+              }
+              if (completedNorms.has(inspNorm)) {
+                await db_instance.update(inspTable).set({ status: 'completed' }).where(eq(inspTable.id, insp.id));
+                markedCompleted++;
+              }
+            }
+            if (markedCompleted > 0) console.log(`[Sync] Auto-marked ${markedCompleted} DB inspections as completed based on column H`);
+          }
+        } catch (syncStatusErr) {
+          console.error('[Sync] Error auto-updating inspection statuses:', syncStatusErr);
+          // Non-fatal: don't fail the whole sync
+        }
+
         console.log('[Sync] Sync completed successfully');
         return { count: validProjects.length };
       } catch (error) {

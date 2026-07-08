@@ -1,0 +1,52 @@
+{
+  "query": "\nSELECT id, inspectionType, status, createdAt FROM inspections WHERE projectId = 13452894 ORDER BY createdAt DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute \nSELECT id, inspectionType, status, createdAt FROM inspections WHERE projectId = 13452894 ORDER BY createdAt DESC;\n",
+  "rows": [
+    {
+      "id": "11640001",
+      "inspectionType": "BLDG LINTEL OR COLUMN OR TIE BEAM",
+      "status": "scheduled",
+      "createdAt": "2026-06-25 20:55:40"
+    },
+    {
+      "id": "10590011",
+      "inspectionType": "ELECT UFER GROUND INSPECTION",
+      "status": "scheduled",
+      "createdAt": "2026-06-22 15:53:20"
+    },
+    {
+      "id": "10590010",
+      "inspectionType": "BLDG SLAB AND OR FOUNDATION",
+      "status": "scheduled",
+      "createdAt": "2026-06-22 15:52:54"
+    },
+    {
+      "id": "10590009",
+      "inspectionType": "BLDG FOUNDATION AND OR FOOTER",
+      "status": "scheduled",
+      "createdAt": "2026-06-22 15:52:12"
+    },
+    {
+      "id": "9810003",
+      "inspectionType": "PLUMB UNDERGROUND",
+      "status": "scheduled",
+      "createdAt": "2026-06-18 12:41:09"
+    },
+    {
+      "id": "9810002",
+      "inspectionType": "PLUMB SEWER LATERAL",
+      "status": "scheduled",
+      "createdAt": "2026-06-18 12:40:32"
+    },
+    {
+      "id": "9810001",
+      "inspectionType": "PLUMB ROUGH - 1ST",
+      "status": "scheduled",
+      "createdAt": "2026-06-18 12:40:00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tinspectionType\tstatus\tcreatedAt\n11640001\tBLDG LINTEL OR COLUMN OR TIE BEAM\tscheduled\t2026-06-25 20:55:40\n10590011\tELECT UFER GROUND INSPECTION\tscheduled\t2026-06-22 15:53:20\n10590010\tBLDG SLAB AND OR FOUNDATION\tscheduled\t2026-06-22 15:52:54\n10590009\tBLDG FOUNDATION AND OR FOOTER\tscheduled\t2026-06-22 15:52:12\n9810003\tPLUMB UNDERGROUND\tscheduled\t2026-06-18 12:41:09\n9810002\tPLUMB SEWER LATERAL\tscheduled\t2026-06-18 12:40:32\n9810001\tPLUMB ROUGH - 1ST\tscheduled\t2026-06-18 12:40:00\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

@@ -1,0 +1,45 @@
+{
+  "query": "\nSELECT id, inspectionType, status FROM inspections WHERE projectId = 13452894;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute \nSELECT id, inspectionType, status FROM inspections WHERE projectId = 13452894;\n",
+  "rows": [
+    {
+      "id": "9810001",
+      "inspectionType": "PLUMB ROUGH - 1ST",
+      "status": "completed"
+    },
+    {
+      "id": "9810002",
+      "inspectionType": "PLUMB SEWER LATERAL",
+      "status": "completed"
+    },
+    {
+      "id": "9810003",
+      "inspectionType": "PLUMB UNDERGROUND",
+      "status": "completed"
+    },
+    {
+      "id": "10590009",
+      "inspectionType": "BLDG FOUNDATION AND OR FOOTER",
+      "status": "scheduled"
+    },
+    {
+      "id": "10590010",
+      "inspectionType": "BLDG SLAB AND OR FOUNDATION",
+      "status": "completed"
+    },
+    {
+      "id": "10590011",
+      "inspectionType": "ELECT UFER GROUND INSPECTION",
+      "status": "completed"
+    },
+    {
+      "id": "11640001",
+      "inspectionType": "BLDG LINTEL OR COLUMN OR TIE BEAM",
+      "status": "completed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tinspectionType\tstatus\n9810001\tPLUMB ROUGH - 1ST\tcompleted\n9810002\tPLUMB SEWER LATERAL\tcompleted\n9810003\tPLUMB UNDERGROUND\tcompleted\n10590009\tBLDG FOUNDATION AND OR FOOTER\tscheduled\n10590010\tBLDG SLAB AND OR FOUNDATION\tcompleted\n10590011\tELECT UFER GROUND INSPECTION\tcompleted\n11640001\tBLDG LINTEL OR COLUMN OR TIE BEAM\tcompleted\n",
+  "stderr": "",
+  "execution_time_ms": 259
+}
