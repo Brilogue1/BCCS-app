@@ -807,7 +807,10 @@ export default function ProjectDetail() {
                         <Select value={selectedPermitType} onValueChange={(v) => { setSelectedPermitType(v); setSelectedSubType(''); }}>
                           <SelectTrigger><SelectValue placeholder="Select permit type..." /></SelectTrigger>
                           <SelectContent className="max-h-64 overflow-y-auto">
-                            {Object.keys(permitTypesMap).sort().map(pt => (
+                            {[
+                              'BUILDING SINGLE FAMILY RESIDENTIAL',
+                              ...Object.keys(permitTypesMap).filter(pt => pt !== 'BUILDING SINGLE FAMILY RESIDENTIAL').sort()
+                            ].map(pt => (
                               <SelectItem key={pt} value={pt}>{pt}</SelectItem>
                             ))}
                           </SelectContent>
