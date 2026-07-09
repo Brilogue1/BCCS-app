@@ -1,0 +1,94 @@
+{
+  "query": "\nSELECT id, inspectionType, status, createdAt\nFROM inspections\nWHERE projectId = '27440110'\nORDER BY createdAt;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute \nSELECT id, inspectionType, status, createdAt\nFROM inspections\nWHERE projectId = '27440110'\nORDER BY createdAt;\n",
+  "rows": [
+    {
+      "id": "7500001",
+      "inspectionType": "PLUMB ROUGH - 1ST",
+      "status": "completed",
+      "createdAt": "2026-06-05 12:10:33"
+    },
+    {
+      "id": "7590006",
+      "inspectionType": "PLUMB ROUGH - 1ST",
+      "status": "completed",
+      "createdAt": "2026-06-05 16:17:32"
+    },
+    {
+      "id": "7590007",
+      "inspectionType": "PLUMB SEWER LATERAL",
+      "status": "completed",
+      "createdAt": "2026-06-05 16:17:48"
+    },
+    {
+      "id": "7590008",
+      "inspectionType": "PLUMB WATER LATERAL",
+      "status": "completed",
+      "createdAt": "2026-06-05 16:18:06"
+    },
+    {
+      "id": "8130001",
+      "inspectionType": "BLDG SLAB AND OR FOUNDATION",
+      "status": "completed",
+      "createdAt": "2026-06-10 00:40:16"
+    },
+    {
+      "id": "9540015",
+      "inspectionType": "BLDG LINTEL OR COLUMN OR TIE BEAM",
+      "status": "scheduled",
+      "createdAt": "2026-06-16 21:18:40"
+    },
+    {
+      "id": "9930005",
+      "inspectionType": "ELECT TUG",
+      "status": "completed",
+      "createdAt": "2026-06-18 22:24:39"
+    },
+    {
+      "id": "11040003",
+      "inspectionType": "ELECT TUG",
+      "status": "completed",
+      "createdAt": "2026-06-24 18:17:09"
+    },
+    {
+      "id": "11580009",
+      "inspectionType": "BLDG SUB SIDING",
+      "status": "scheduled",
+      "createdAt": "2026-06-25 19:58:27"
+    },
+    {
+      "id": "11580010",
+      "inspectionType": "BLDG ROOF ASSEMBLY",
+      "status": "completed",
+      "createdAt": "2026-06-25 19:58:39"
+    },
+    {
+      "id": "12240001",
+      "inspectionType": "BLDG SUB SIDING",
+      "status": "scheduled",
+      "createdAt": "2026-06-29 21:11:01"
+    },
+    {
+      "id": "12240002",
+      "inspectionType": "BLDG ROOF ASSEMBLY",
+      "status": "completed",
+      "createdAt": "2026-06-29 21:11:18"
+    },
+    {
+      "id": "15510002",
+      "inspectionType": "PLUMB ROUGH - 2ND",
+      "status": "scheduled",
+      "createdAt": "2026-07-08 23:59:24"
+    },
+    {
+      "id": "15540001",
+      "inspectionType": "ELECT ROUGH",
+      "status": "scheduled",
+      "createdAt": "2026-07-09 00:00:19"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tinspectionType\tstatus\tcreatedAt\n7500001\tPLUMB ROUGH - 1ST\tcompleted\t2026-06-05 12:10:33\n7590006\tPLUMB ROUGH - 1ST\tcompleted\t2026-06-05 16:17:32\n7590007\tPLUMB SEWER LATERAL\tcompleted\t2026-06-05 16:17:48\n7590008\tPLUMB WATER LATERAL\tcompleted\t2026-06-05 16:18:06\n8130001\tBLDG SLAB AND OR FOUNDATION\tcompleted\t2026-06-10 00:40:16\n9540015\tBLDG LINTEL OR COLUMN OR TIE BEAM\tscheduled\t2026-06-16 21:18:40\n9930005\tELECT TUG\tcompleted\t2026-06-18 22:24:39\n11040003\tELECT TUG\tcompleted\t2026-06-24 18:17:09\n11580009\tBLDG SUB SIDING\tscheduled\t2026-06-25 19:58:27\n11580010\tBLDG ROOF ASSEMBLY\tcompleted\t2026-06-25 19:58:39\n12240001\tBLDG SUB SIDING\tscheduled\t2026-06-29 21:11:01\n12240002\tBLDG ROOF ASSEMBLY\tcompleted\t2026-06-29 21:11:18\n15510002\tPLUMB ROUGH - 2ND\tscheduled\t2026-07-08 23:59:24\n15540001\tELECT ROUGH\tscheduled\t2026-07-09 00:00:19\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

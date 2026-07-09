@@ -541,11 +541,9 @@ export default function ProjectDetail() {
 
   const hasScheduledInspections = scheduledTypes.length > 0 || pendingDbInspections.length > 0;
 
-  // Total ACTIVE scheduled inspections:
-  // scheduledTypes is already filtered to exclude completed types (via sheetCompletedTypeSet)
-  // + DB inspections that are pending or scheduled only
-  const dbActiveCount = (inspections?.filter((i: any) => i.status === 'pending' || i.status === 'scheduled').length ?? 0);
-  const totalActiveInspections = scheduledTypes.length + dbActiveCount;
+  // Count inspections scheduled in the last 24 hours (5 per 24h limit)
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const recentInspectionsCount = (inspections?.filter((i: any) => new Date(i.createdAt) >= oneDayAgo).length ?? 0);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -1042,11 +1040,11 @@ export default function ProjectDetail() {
                 </DialogHeader>
                 {(() => {
                   // Check 5-inspection cap first (highest priority)
-                  if (totalActiveInspections >= 5) {
+                  if (recentInspectionsCount >= 5) {
                     return (
                       <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
                         <p className="text-sm text-red-800 font-medium">
-                          🚫 This project already has <strong>{totalActiveInspections} active inspections</strong> scheduled. Please wait for one to be resolved before scheduling another.
+                          🚫 Only 5 inspections can be scheduled per 24-hour period for this project. Please try again later.
                         </p>
                       </div>
                     );

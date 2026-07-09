@@ -1146,52 +1146,13 @@ export const appRouter = router({
           }
         }
 
-        // Safeguard 2: Max 5 SCHEDULED (not yet completed) inspections at a time
-        // Build a set of completed inspection types from column H so we can exclude them
-        // normalizeInspectionType is imported at the top of this file
-        const completedText = (project.completedInspections || '').toUpperCase();
-        const completedNormSet = new Set<string>();
-        if (completedText) {
-          if (completedText.includes('\u2014')) {
-            // Pipe-separated: "DATE — TYPE | DATE — TYPE"
-            for (const seg of completedText.split('|')) {
-              const idx = seg.indexOf('\u2014');
-              if (idx !== -1) completedNormSet.add(normalizeInspectionType(seg.substring(idx + 1).trim()));
-            }
-          } else {
-            // Comma-separated: "TYPE - Result, TYPE2 - Result2"
-            const resultSuffixes = [' - APPROVED', ' - FAILED', ' - PARTIAL', ' - CANCELLED', ' - PENDING', ' - PASS', ' - FAIL'];
-            for (const seg of completedText.split(',')) {
-              let t = seg.trim();
-              for (const s of resultSuffixes) { if (t.endsWith(s)) { t = t.slice(0, t.length - s.length).trim(); break; } }
-              if (t) completedNormSet.add(normalizeInspectionType(t));
-            }
-          }
-        }
-        // Also mark DB completed inspections
-        for (const i of existingInspections) {
-          if (i.status === 'completed' || i.status === 'cancelled') {
-            completedNormSet.add(normalizeInspectionType(i.inspectionType));
-          }
-        }
-        // Sheet columns U-AA: only count types NOT already in the completed set
-        const sheetScheduledCount = [
-          project.inspection1Type,
-          project.inspection2Type,
-          project.inspection3Type,
-          project.inspection4Type,
-          project.inspection5Type,
-        ].filter(t => {
-          if (!t || t.trim() === '' || t.trim() === '_') return false;
-          return !completedNormSet.has(normalizeInspectionType(t));
-        }).length;
-        // DB inspections that are pending or scheduled (not completed/cancelled)
-        const dbActiveCount = existingInspections.filter(i => i.status === 'pending' || i.status === 'scheduled').length;
-        const totalActive = sheetScheduledCount + dbActiveCount;
-        if (totalActive >= 5) {
+        // Safeguard 2: Max 5 inspections per 24-hour period
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const recentInspections = existingInspections.filter(i => new Date(i.createdAt) >= oneDayAgo);
+        if (recentInspections.length >= 5) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: `This project already has ${totalActive} active scheduled inspection${totalActive !== 1 ? 's' : ''}. Once one is completed or resolved, you can schedule another.`,
+            message: `Only 5 inspections can be scheduled per 24-hour period for this project. Please try again later.`,
           });
         }
 
