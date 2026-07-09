@@ -913,6 +913,7 @@ export default function ProjectDetail() {
                                         className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                                         onClick={() => {
                                           setInspectionType(item.inspectionName);
+                                          setInspectionTypeSearch('');
                                           setInspectionDialogOpen(true);
                                         }}
                                       >
