@@ -724,8 +724,8 @@ export default function ProjectDetail() {
                       Add Inspection
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
+                  <DialogContent className="max-w-md w-full">
+                     <DialogHeader>
                       <DialogTitle>Add Custom Required Inspection</DialogTitle>
                       <DialogDescription>Add a custom inspection to the required list for this project</DialogDescription>
                     </DialogHeader>
@@ -733,7 +733,7 @@ export default function ProjectDetail() {
                       <div>
                         <Label>Permit Type Group</Label>
                         <Select value={`${Object.keys(requiredGroups)[0] || ''}`} disabled>
-                          <SelectTrigger><SelectValue placeholder="Uses first permit type" /></SelectTrigger>
+                          <SelectTrigger className="truncate"><SelectValue placeholder="Uses first permit type" /></SelectTrigger>
                           <SelectContent>
                             {Object.entries(requiredGroups).map(([key, g]) => (
                               <SelectItem key={key} value={key}>{g.permitType} — {g.subType}</SelectItem>
