@@ -898,16 +898,20 @@ export default function ProjectDetail() {
                               );
 
                               return (
-                                <div key={item.id} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-slate-50 group">
+                                <div key={item.id} className={`flex items-center justify-between py-1.5 px-2 rounded group ${
+                                  isCompleted ? 'hover:bg-slate-50' :
+                                  isScheduled ? 'bg-yellow-50 border border-yellow-200' :
+                                  'hover:bg-slate-50'
+                                }`}>
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
                                     <span className={`text-sm truncate ${
                                       isCompleted ? 'line-through text-slate-400' : 'text-slate-700'
                                     }`}>{item.inspectionName}</span>
                                     {isCompleted && <span className="text-xs text-green-600 font-medium shrink-0">Completed</span>}
-                                    {isScheduled && !isCompleted && <span className="text-xs text-blue-600 font-medium shrink-0">Scheduled</span>}
+                                    {isScheduled && !isCompleted && <span className="text-xs text-yellow-700 font-medium shrink-0">Scheduled</span>}
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    {!isCompleted && (
+                                    {!isCompleted && !isScheduled && (
                                       <Button
                                         size="sm"
                                         className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
