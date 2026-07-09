@@ -13,7 +13,7 @@ import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
 import permitTypesData from "../../../shared/permitTypes.json";
-import { normalizeInspectionType } from "../../../shared/utils";
+import { normalizeInspectionType, buildFullInspectionName } from "../../../shared/utils";
 
 const permitTypesMap = permitTypesData as Record<string, Record<string, Array<{ section: string; name: string }>>>;
 
@@ -214,6 +214,9 @@ export default function ProjectDetail() {
   const [inspectionType, setInspectionType] = useState('');
   const [inspectionTypeSearch, setInspectionTypeSearch] = useState('');
   const [inspectionNotes, setInspectionNotes] = useState("");
+  // When true, the inspection type was pre-filled from a required inspection row
+  // and should be shown as a locked read-only field instead of the dropdown
+  const [inspectionTypeFromRequired, setInspectionTypeFromRequired] = useState(false);
 
   // Contact form state
   const [contactEmail, setContactEmail] = useState("");
@@ -272,6 +275,7 @@ export default function ProjectDetail() {
       setInspectionType("");
       setInspectionNotes("");
       setInspectionCooldown(false);
+      setInspectionTypeFromRequired(false);
       utils.inspections.list.invalidate({ projectId });
       if (opportunityId) {
         utils.projects.getByOpportunityId.invalidate({ opportunityId });
@@ -926,8 +930,9 @@ export default function ProjectDetail() {
                                         size="sm"
                                         className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
                                         onClick={() => {
-                                          setInspectionType(item.inspectionName);
+                                          setInspectionType(buildFullInspectionName(item.section || '', item.inspectionName));
                                           setInspectionTypeSearch('');
+                                          setInspectionTypeFromRequired(true);
                                           setInspectionDialogOpen(true);
                                         }}
                                       >
@@ -1039,7 +1044,7 @@ export default function ProjectDetail() {
                 </DialogContent>
               </Dialog>
 
-              <Dialog open={inspectionDialogOpen} onOpenChange={setInspectionDialogOpen}>
+              <Dialog open={inspectionDialogOpen} onOpenChange={(open) => { setInspectionDialogOpen(open); if (!open) { setInspectionTypeFromRequired(false); setInspectionType(''); setInspectionTypeSearch(''); } }}>
               <DialogTrigger asChild>
                 <Button size="sm">
                   <Calendar className="h-4 w-4 mr-2" />
@@ -1113,34 +1118,53 @@ export default function ProjectDetail() {
                   </div>
                   <div>
                     <Label htmlFor="inspectionType">Inspection Type</Label>
-                    <Select value={inspectionType} onValueChange={setInspectionType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select inspection type" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        <div className="px-2 pt-2 pb-3 sticky top-0 bg-background border-b z-10">
-                          <input
-                            type="text"
-                            placeholder="Search inspection types..."
-                            className="w-full px-2 py-1 text-sm border rounded"
-                            value={inspectionTypeSearch}
-                            onChange={(e) => setInspectionTypeSearch(e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
-                        <div className="pt-2">
-                          {inspectionTypes
-                            .filter((type) =>
-                              type.toLowerCase().includes(inspectionTypeSearch.toLowerCase())
-                            )
-                            .map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </div>
-                      </SelectContent>
-                    </Select>
+                    {inspectionTypeFromRequired ? (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={inspectionType}
+                          disabled
+                          className="bg-blue-50 border-blue-200 text-blue-900 font-medium"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="shrink-0 text-xs text-slate-500 hover:text-slate-700"
+                          onClick={() => { setInspectionTypeFromRequired(false); setInspectionType(''); }}
+                        >
+                          Change
+                        </Button>
+                      </div>
+                    ) : (
+                      <Select value={inspectionType} onValueChange={setInspectionType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select inspection type" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60">
+                          <div className="px-2 pt-2 pb-3 sticky top-0 bg-background border-b z-10">
+                            <input
+                              type="text"
+                              placeholder="Search inspection types..."
+                              className="w-full px-2 py-1 text-sm border rounded"
+                              value={inspectionTypeSearch}
+                              onChange={(e) => setInspectionTypeSearch(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                          <div className="pt-2">
+                            {inspectionTypes
+                              .filter((type) =>
+                                type.toLowerCase().includes(inspectionTypeSearch.toLowerCase())
+                              )
+                              .map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type}
+                              </SelectItem>
+                            ))}
+                          </div>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="notes">
