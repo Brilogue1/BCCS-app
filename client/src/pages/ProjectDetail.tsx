@@ -709,14 +709,13 @@ export default function ProjectDetail() {
 
         {/* Required Inspections Card */}
         {<Card>
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-              <div className="min-w-0">
-                <CardTitle>Required Inspections</CardTitle>
-                <CardDescription>Inspections required for this project based on permit type</CardDescription>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="min-w-0">
+              <CardTitle>Required Inspections</CardTitle>
+              <CardDescription>Inspections required for this project based on permit type</CardDescription>
+            </div>
             {user?.role === 'admin' && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 shrink-0">
                 {/* Add custom inspection */}
                 <Dialog open={addRequiredOpen} onOpenChange={setAddRequiredOpen}>
                   <DialogTrigger asChild>
@@ -725,7 +724,7 @@ export default function ProjectDetail() {
                       Add Inspection
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-sm w-[calc(100vw-2rem)] sm:max-w-md">
+                  <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md">
                      <DialogHeader>
                       <DialogTitle>Add Custom Required Inspection</DialogTitle>
                       <DialogDescription>Add a custom inspection to the required list for this project</DialogDescription>
@@ -860,7 +859,6 @@ export default function ProjectDetail() {
                 </Dialog>
               </div>
             )}
-            </div>
           </CardHeader>
           <CardContent>
             {Object.keys(requiredGroups).length === 0 ? (
