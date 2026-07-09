@@ -1182,6 +1182,16 @@ export default function ProjectDetail() {
                   <div key={`sheet-${index}`} className="flex items-center justify-between p-4 border rounded-lg bg-white">
                     <div>
                       <p className="font-medium">{item.type}</p>
+                      {(() => {
+                        const normType = normalizeInspectionType(item.type);
+                        const dbMatch = (inspections || []).find((i: any) =>
+                          normalizeInspectionType(i.inspectionType) === normType
+                        );
+                        if (dbMatch?.createdAt) {
+                          return <p className="text-xs text-slate-500 mt-0.5">Requested {new Date(dbMatch.createdAt).toLocaleDateString()}</p>;
+                        }
+                        return null;
+                      })()}
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       item.result === 'Approved' ? 'bg-green-100 text-green-800' :
