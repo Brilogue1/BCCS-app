@@ -904,9 +904,19 @@ export default function ProjectDetail() {
                                   'hover:bg-slate-50'
                                 }`}>
                                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                                    <span className={`text-sm truncate ${
-                                      isCompleted ? 'line-through text-slate-400' : 'text-slate-700'
-                                    }`}>{item.inspectionName}</span>
+                                    <div>
+                                      <span className={`text-sm truncate ${
+                                        isCompleted ? 'line-through text-slate-400' : 'text-slate-700'
+                                      }`}>{item.inspectionName}</span>
+                                      {isScheduled && !isCompleted && (() => {
+                                        const dbMatch = (inspections || []).find((i: any) =>
+                                          normalizeInspectionType(i.inspectionType) === normName
+                                        );
+                                        return dbMatch?.createdAt ? (
+                                          <p className="text-xs text-yellow-700 mt-0.5">Requested {new Date(dbMatch.createdAt).toLocaleDateString()}</p>
+                                        ) : null;
+                                      })()}
+                                    </div>
                                     {isCompleted && <span className="text-xs text-green-600 font-medium shrink-0">Completed</span>}
                                     {isScheduled && !isCompleted && <span className="text-xs text-yellow-700 font-medium shrink-0">Scheduled</span>}
                                   </div>
