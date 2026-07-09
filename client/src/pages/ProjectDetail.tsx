@@ -724,7 +724,7 @@ export default function ProjectDetail() {
                       Add Inspection
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md">
+                  <DialogContent className="w-[min(90vw,420px)] overflow-hidden">
                      <DialogHeader>
                       <DialogTitle>Add Custom Required Inspection</DialogTitle>
                       <DialogDescription>Add a custom inspection to the required list for this project</DialogDescription>
@@ -733,7 +733,7 @@ export default function ProjectDetail() {
                       <div>
                         <Label>Permit Type Group</Label>
                         <Select value={`${Object.keys(requiredGroups)[0] || ''}`} disabled>
-                          <SelectTrigger className="w-full"><div className="truncate text-sm text-left">{(() => { const k = Object.keys(requiredGroups)[0]; if (!k) return 'Uses first permit type'; const g = requiredGroups[k] as any; return `${g.permitType} — ${g.subType}`; })()}</div></SelectTrigger>
+                          <SelectTrigger className="w-full overflow-hidden"><div className="truncate text-sm text-left max-w-[300px]">{(() => { const k = Object.keys(requiredGroups)[0]; if (!k) return 'Uses first permit type'; const g = requiredGroups[k] as any; return `${g.permitType} — ${g.subType}`; })()}</div></SelectTrigger>
                           <SelectContent>
                             {Object.entries(requiredGroups).map(([key, g]) => (
                               <SelectItem key={key} value={key}>{g.permitType} — {g.subType}</SelectItem>
