@@ -1189,6 +1189,39 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    resend: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can resend inspections' });
+        }
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB unavailable' });
+        const { inspections: inspTable } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const [insp] = await dbInstance.select().from(inspTable).where(eq(inspTable.id, input.id));
+        if (!insp) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inspection not found' });
+        const project = await db.getProjectById(insp.projectId);
+        if (!project) throw new TRPCError({ code: 'NOT_FOUND', message: 'Project not found' });
+        const ownerEmail = project.email || '';
+        const contactId = project.contactId || '';
+        const scheduledDateTime = new Date().toISOString();
+        const success = await appendInspectionRequest(
+          project.opportunityName || '',
+          ownerEmail,
+          insp.inspectionType,
+          scheduledDateTime,
+          ctx.user.name || 'Admin',
+          'Scheduled',
+          project.opportunityId || '',
+          insp.notes || '',
+          project.address || '',
+          contactId
+        );
+        console.log(`[Resend] Admin ${ctx.user.name} resent inspection ${insp.id} (${insp.inspectionType}) to Google Sheets. Success: ${success}`);
+        return { success };
+      }),
+
     create: protectedProcedure
       .input(z.object({
         projectId: z.number(),

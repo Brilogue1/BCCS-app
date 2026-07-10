@@ -145,6 +145,15 @@ export default function ProjectDetail() {
     },
   });
 
+  const resendInspectionMutation = trpc.inspections.resend.useMutation({
+    onSuccess: () => {
+      toast.success('Inspection re-sent to Google Sheets successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to re-send inspection');
+    },
+  });
+
   // Required Inspections state
   const { data: requiredInspectionsList, refetch: refetchRequired } = trpc.requiredInspections.list.useQuery(
     { projectId },
@@ -1285,18 +1294,30 @@ export default function ProjectDetail() {
                         Requested
                       </span>
                       {user?.role === 'admin' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 w-7 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-700"
-                          title="Delete inspection"
-                          onClick={() => {
-                            setDeletingInspection({ id: inspection.id, type: inspection.inspectionType });
-                            setDeleteConfirmOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs font-bold border-orange-400 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                            title="Re-send to Google Sheets / GHL"
+                            disabled={resendInspectionMutation.isPending}
+                            onClick={() => resendInspectionMutation.mutate({ id: inspection.id })}
+                          >
+                            RS
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 w-7 p-0 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-700"
+                            title="Delete inspection"
+                            onClick={() => {
+                              setDeletingInspection({ id: inspection.id, type: inspection.inspectionType });
+                              setDeleteConfirmOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
