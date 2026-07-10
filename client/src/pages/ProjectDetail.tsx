@@ -545,6 +545,9 @@ export default function ProjectDetail() {
 
   const hasScheduledInspections = scheduledTypes.length > 0 || pendingDbInspections.length > 0;
 
+  // Block scheduling while the project is still in the Proposal stage (invoice not yet paid)
+  const isProposalStage = (project?.stage || '').toLowerCase().trim() === 'proposal';
+
   // Count inspections scheduled in the last 24 hours (5 per 24h limit)
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const recentInspectionsCount = (inspections?.filter((i: any) => new Date(i.createdAt) >= oneDayAgo).length ?? 0);
@@ -929,7 +932,10 @@ export default function ProjectDetail() {
                                       <Button
                                         size="sm"
                                         className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                                        disabled={isProposalStage}
+                                        title={isProposalStage ? 'Scheduling will become available when the proposal is accepted' : undefined}
                                         onClick={() => {
+                                          if (isProposalStage) return;
                                           setInspectionType(buildFullInspectionName(item.section || '', item.inspectionName));
                                           setInspectionTypeSearch('');
                                           setInspectionTypeFromRequired(true);
@@ -1044,9 +1050,14 @@ export default function ProjectDetail() {
                 </DialogContent>
               </Dialog>
 
+              {isProposalStage && (
+                <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5">
+                  <span>Scheduling available once proposal is accepted</span>
+                </div>
+              )}
               <Dialog open={inspectionDialogOpen} onOpenChange={(open) => { setInspectionDialogOpen(open); if (!open) { setInspectionTypeFromRequired(false); setInspectionType(''); setInspectionTypeSearch(''); } }}>
               <DialogTrigger asChild>
-                <Button size="sm">
+                <Button size="sm" disabled={isProposalStage} title={isProposalStage ? 'Scheduling will become available when the proposal is accepted' : undefined}>
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Inspection
                 </Button>
