@@ -86,7 +86,7 @@ export default function Projects() {
   
   const syncMutation = trpc.projects.sync.useMutation({
     onSuccess: (data) => {
-      toast.success(`Synced ${data.count} projects from Google Sheets`);
+      toast.success('Sync complete');
       refetch();
     },
     onError: (error) => {
