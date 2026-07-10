@@ -46,6 +46,126 @@ export function buildFullInspectionName(section: string, name: string): string {
 }
 
 /**
+ * Maps the two GHL CRM dropdown values (Property Type + Work Type) to the
+ * corresponding permitTypes.json key (permitType + subType).
+ * Returns null if the combination is not in the auto-trigger list.
+ */
+export type PermitLookupResult = {
+  permitType: string;
+  subType: string;
+};
+
+const CRM_LOOKUP: Record<string, Record<string, PermitLookupResult>> = {
+  RESIDENTIAL: {
+    'NEW CONSTRUCTION': {
+      permitType: 'BUILDING SINGLE FAMILY RESIDENTIAL',
+      subType: 'NEW BUILDING / DUPLEX / TOWNHOUSE / ACCESSORY DWELLING',
+    },
+    'ADDITION / REMODEL': {
+      permitType: 'BUILDING SINGLE FAMILY RESIDENTIAL',
+      subType: 'ADDITION / REMODEL / DETACHED GARAGE',
+    },
+    'ELECTRICAL': {
+      permitType: 'ELECTRICAL RESIDENTIAL',
+      subType: 'ADD CIRCUITS / MISC FIX / REPLACE WIRING / SERVICE REPLACEMENT / SERVICE UPGRADE / TEMP POWER POLE / OTHER',
+    },
+    'PLUMBING': {
+      permitType: 'PLUMBING RESIDENTIAL',
+      subType: 'SEWER LATERAL / WATER LATERAL / BACKFLOW / IRRIGATION SYSTEM / SEWER CAP / WATER HEATER REPLACEMENT / SANITARY SEWER REPLUMB / DOMESTIC WATER REPIPE / SOLAR WATER HEATER / OTHER',
+    },
+    'MECHANICAL': {
+      permitType: 'MECHANICAL RESIDENTIAL',
+      subType: 'OTHER',
+    },
+    'GAS': {
+      permitType: 'GAS RESIDENTIAL',
+      subType: 'INSTANT WATER HEATER / METER INSTALL / POOL HEATER NATURAL GAS / POOL HEATER PROPANE / PROPANE TANK PIPING / OTHER',
+    },
+    'ROOF': {
+      permitType: 'ROOF SINGLE FAMILY RESIDENTIAL',
+      subType: 'METAL / MODIFIED BITUMEN / SHINGLE',
+    },
+    'FENCE': {
+      permitType: 'FENCE COMMERCIAL',
+      subType: 'OTHER',
+    },
+    'SWIMMING POOL': {
+      permitType: 'SWIMMING POOL RESIDENTIAL',
+      subType: 'BELOW GROUND',
+    },
+    'SIGN': {
+      permitType: 'SIGN NEW',
+      subType: 'AWNING / ELECTRONIC SIGN / MESSAGE CTR / GROUND NO ELECTRIC / WALL NO ELECTRIC / OTHER',
+    },
+    'MOBILE HOME': {
+      permitType: 'MOBILE HOME',
+      subType: 'NEW MOBILE HOME',
+    },
+    'CARPORT / SHED': {
+      permitType: 'BUILDING SINGLE FAMILY RESIDENTIAL',
+      subType: 'CARPORT / PATIO COVER / SHED',
+    },
+  },
+  COMMERCIAL: {
+    'NEW CONSTRUCTION': {
+      permitType: 'BLDG COMMERCIAL',
+      subType: 'NEW BUILDING / MULTI-FAMILY / ADDITION / ACCESSORY STRUCTURE',
+    },
+    'ADDITION / REMODEL': {
+      permitType: 'BLDG COMMERCIAL',
+      subType: 'REMODEL / INTERIOR BUILDOUT',
+    },
+    'ELECTRICAL': {
+      permitType: 'ELECTRICAL COMMERCIAL',
+      subType: 'OTHER',
+    },
+    'PLUMBING': {
+      permitType: 'PLUMBING COMMERCIAL',
+      subType: 'SEWER LATERAL / WATER LATERAL / BACKFLOW / IRRIGATION SYSTEM / SEWER CAP / WATER HEATER REPLACEMENT / OTHER',
+    },
+    'MECHANICAL': {
+      permitType: 'MECHANICAL COMMERCIAL',
+      subType: 'OTHER',
+    },
+    'GAS': {
+      permitType: 'GAS COMMERCIAL',
+      subType: 'INSTANT WATER HEATER / METER INSTALL / POOL HEATER NATURAL GAS / POOL HEATER PROPANE / PROPANE TANK PIPING / OTHER',
+    },
+    'ROOF': {
+      permitType: 'ROOF COMMERCIAL',
+      subType: 'METAL / MODIFIED BITUMEN / SHINGLE / TILE / TPO / URETHANE / OTHER',
+    },
+    'FENCE': {
+      permitType: 'FENCE COMMERCIAL',
+      subType: 'OTHER',
+    },
+    'SWIMMING POOL': {
+      permitType: 'SWIMMING POOL COMM-MULTI',
+      subType: 'BELOW GROUND / SPA / OTHER',
+    },
+    'SIGN': {
+      permitType: 'SIGN NEW',
+      subType: 'AWNING / ELECTRONIC SIGN / MESSAGE CTR / GROUND NO ELECTRIC / WALL NO ELECTRIC / OTHER',
+    },
+  },
+};
+
+/**
+ * Look up the permit type + subType for a CRM Property Type + Work Type pair.
+ * Both inputs are normalized (uppercased, trimmed) before lookup.
+ * Returns null if the combination is not in the auto-trigger list.
+ */
+export function lookupInspectionsForCRM(
+  propertyType: string | null | undefined,
+  workType: string | null | undefined,
+): PermitLookupResult | null {
+  if (!propertyType || !workType) return null;
+  const pt = propertyType.toUpperCase().trim();
+  const wt = workType.toUpperCase().trim();
+  return CRM_LOOKUP[pt]?.[wt] ?? null;
+}
+
+/**
  * Normalize an inspection type for deduplication comparison.
  * Removes filler words (OR, AND, THE), punctuation, slashes, and extra spaces
  * so minor wording differences like "AND OR FOOTER" vs "AND FOOTER" still match.

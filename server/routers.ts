@@ -14,7 +14,8 @@ import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
-import { companiesMatch, normalizeInspectionType } from "../shared/utils";
+import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM } from "../shared/utils";
+import permitTypesData from "../shared/permitTypes.json";
 
 const JWT_SECRET = new TextEncoder().encode(ENV.cookieSecret);
 
@@ -312,6 +313,19 @@ export const appRouter = router({
           return isNaN(date.getTime()) ? undefined : date;
         };
         
+        // Build a side-map of opportunityId -> { propertyType, workType } from columns AS (44) and AT (45)
+        // These are NOT stored in the projects table but drive auto-generation of required inspections
+        const crmInspectionMeta = new Map<string, { propertyType: string; workType: string }>();
+        for (const row of rows) {
+          const oppId = (row['__col_42'] || row['opportunity id'] || row['Opportunity ID'] || '').trim();
+          const propertyType = (row['__col_44'] || row['property type (required inspections)'] || row['Property Type (Required Inspections)'] || '').trim();
+          const workType = (row['__col_45'] || row['work type (required inspections)'] || row['Work Type (Required Inspections)'] || '').trim();
+          if (oppId && propertyType && workType) {
+            crmInspectionMeta.set(oppId, { propertyType, workType });
+          }
+        }
+        console.log(`[Sync] CRM inspection meta entries: ${crmInspectionMeta.size}`);
+
         // Process and insert projects
         const validProjects = rows
           .filter(row => {
@@ -505,6 +519,64 @@ export const appRouter = router({
           }
         } catch (syncStatusErr) {
           console.error('[Sync] Error auto-updating inspection statuses:', syncStatusErr);
+          // Non-fatal: don't fail the whole sync
+        }
+
+        // ── Auto-generate required inspections from CRM columns AS + AT ──────────
+        // For each project that has Property Type + Work Type in the sheet AND
+        // does NOT yet have any required inspections, generate them automatically.
+        try {
+          const { requiredInspections: reqInspTable } = await import('../drizzle/schema');
+          const permitTypes = permitTypesData as Record<string, Record<string, Array<{ section: string; name: string }>>>;
+          let autoGenCount = 0;
+
+          for (const [oppId, meta] of Array.from(crmInspectionMeta.entries())) {
+            const lookup = lookupInspectionsForCRM(meta.propertyType, meta.workType);
+            if (!lookup) {
+              console.log(`[Sync AutoGen] No lookup match for oppId=${oppId} propertyType=${meta.propertyType} workType=${meta.workType}`);
+              continue;
+            }
+
+            // Find the DB project by opportunityId
+            const dbProj = await db_instance.select({ id: projects.id })
+              .from(projects).where(eq(projects.opportunityId, oppId)).limit(1);
+            if (!dbProj[0]) continue;
+            const projectId = dbProj[0].id;
+
+            // Check if this project already has required inspections for this permit+subtype
+            const existing = await db_instance.select({ id: reqInspTable.id })
+              .from(reqInspTable)
+              .where(eq(reqInspTable.projectId, projectId))
+              .limit(1);
+            if (existing.length > 0) continue; // Already has inspections — don't overwrite
+
+            // Look up the inspection list from permitTypes.json
+            const inspList = permitTypes[lookup.permitType]?.[lookup.subType];
+            if (!inspList || inspList.length === 0) {
+              console.log(`[Sync AutoGen] No inspections found for ${lookup.permitType} / ${lookup.subType}`);
+              continue;
+            }
+
+            // Insert all required inspections for this project
+            for (let i = 0; i < inspList.length; i++) {
+              const insp = inspList[i]!;
+              await db_instance.insert(reqInspTable).values({
+                projectId,
+                permitType: lookup.permitType,
+                subType: lookup.subType,
+                section: insp.section,
+                inspectionName: insp.name,
+                sortOrder: i,
+                addedBy: 'CRM_AUTO_SYNC',
+              });
+            }
+            autoGenCount++;
+            console.log(`[Sync AutoGen] Generated ${inspList.length} required inspections for project ${projectId} (${meta.propertyType} / ${meta.workType})`);
+          }
+
+          if (autoGenCount > 0) console.log(`[Sync AutoGen] Auto-generated required inspections for ${autoGenCount} project(s)`);
+        } catch (autoGenErr) {
+          console.error('[Sync AutoGen] Error auto-generating required inspections:', autoGenErr);
           // Non-fatal: don't fail the whole sync
         }
 
