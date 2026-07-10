@@ -918,7 +918,7 @@ export default function ProjectDetail() {
                                     <div>
                                       <span className={`text-sm truncate ${
                                         isCompleted ? 'line-through text-slate-400' : 'text-slate-700'
-                                      }`}>{item.inspectionName}</span>
+                                       }`}>{buildFullInspectionName(item.section || '', item.inspectionName)}</span>
                                       {isScheduled && !isCompleted && (() => {
                                         const dbMatch = (inspections || []).find((i: any) =>
                                           normalizeInspectionType(i.inspectionType) === normName
