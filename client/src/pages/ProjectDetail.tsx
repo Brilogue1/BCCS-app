@@ -904,6 +904,10 @@ export default function ProjectDetail() {
                                 (inspections || []).some((i: any) => normalizeInspectionType(i.inspectionType) === normName)
                               );
 
+                              // Hide items that are scheduled (not yet completed) — they already appear
+                              // in the Scheduled Inspections section below, no need to show them twice
+                              if (isScheduled) return null;
+
                               return (
                                 <div key={item.id} className={`flex items-center justify-between py-1.5 px-2 rounded group ${
                                   isCompleted ? 'hover:bg-slate-50' :
