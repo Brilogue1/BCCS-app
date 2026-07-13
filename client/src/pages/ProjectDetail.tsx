@@ -812,11 +812,11 @@ export default function ProjectDetail() {
                     <DialogHeader>
                       <DialogTitle>Set Required Inspections</DialogTitle>
                       <DialogDescription>
-                        Select Residential or Commercial, then choose the work type to generate the required inspection list.
+                        Select a permit type and work type to generate the required inspection list.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
-                      {/* Step 1: Permit Type = Residential or Commercial */}
+                      {/* Step 1: Permit Type */}
                       <div>
                         <Label>Permit Type</Label>
                         <Select value={selectedPermitType} onValueChange={(v) => { setSelectedPermitType(v); setSelectedSubType(''); }}>
@@ -824,12 +824,12 @@ export default function ProjectDetail() {
                           <SelectContent>
                             <SelectItem value="RESIDENTIAL">Residential</SelectItem>
                             <SelectItem value="COMMERCIAL">Commercial</SelectItem>
+                            <SelectItem value="OTHER">Other / Manual</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      {/* Step 2: Work Type filtered by permit type */}
-                      {selectedPermitType && (() => {
-                        // Import CRM_LOOKUP-equivalent inline using the same keys
+                      {/* Step 2: Work Type or raw permit type list */}
+                      {selectedPermitType && selectedPermitType !== 'OTHER' && (() => {
                         const workTypeOptions: Record<string, string[]> = {
                           RESIDENTIAL: ['New Construction', 'Addition / Remodel', 'Electrical', 'Plumbing', 'Mechanical', 'Gas', 'Roof', 'Fence', 'Swimming Pool', 'Sign', 'Mobile Home', 'Carport / Shed'],
                           COMMERCIAL:  ['New Construction', 'Addition / Remodel', 'Electrical', 'Plumbing', 'Mechanical', 'Gas', 'Roof', 'Fence', 'Swimming Pool', 'Sign'],
@@ -848,10 +848,63 @@ export default function ProjectDetail() {
                           </div>
                         );
                       })()}
+                      {/* OTHER: two-level raw permit type → sub type picker */}
+                      {selectedPermitType === 'OTHER' && (() => {
+                        // Use a separate state slot: selectedSubType holds the raw permitType key,
+                        // and we need a second level for the subType — store as "permitType|||subType"
+                        const rawPermitKey = selectedSubType.includes('|||') ? selectedSubType.split('|||')[0]! : selectedSubType;
+                        const rawSubTypeKey = selectedSubType.includes('|||') ? selectedSubType.split('|||')[1]! : '';
+                        const allPermitTypes = [
+                          'BUILDING SINGLE FAMILY RESIDENTIAL',
+                          ...Object.keys(permitTypesMap).filter(pt => pt !== 'BUILDING SINGLE FAMILY RESIDENTIAL').sort()
+                        ];
+                        return (
+                          <>
+                            <div>
+                              <Label>Permit Type</Label>
+                              <Select
+                                value={rawPermitKey}
+                                onValueChange={(v) => setSelectedSubType(v)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Select permit type..." /></SelectTrigger>
+                                <SelectContent className="max-h-64 overflow-y-auto">
+                                  {allPermitTypes.map(pt => (
+                                    <SelectItem key={pt} value={pt}>{pt}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {rawPermitKey && !rawPermitKey.includes('|||') && (
+                              <div>
+                                <Label>Sub Type</Label>
+                                <Select
+                                  value={rawSubTypeKey}
+                                  onValueChange={(v) => setSelectedSubType(`${rawPermitKey}|||${v}`)}
+                                >
+                                  <SelectTrigger><SelectValue placeholder="Select sub type..." /></SelectTrigger>
+                                  <SelectContent className="max-h-64 overflow-y-auto">
+                                    {Object.keys(permitTypesMap[rawPermitKey] || {}).sort().map(st => (
+                                      <SelectItem key={st} value={st}>{st}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                       {/* Preview inspection list */}
                       {selectedPermitType && selectedSubType && (() => {
-                        const lookup = lookupInspectionsForCRM(selectedPermitType, selectedSubType);
-                        const inspList = lookup ? (permitTypesMap[lookup.permitType]?.[lookup.subType] || []) : [];
+                        let inspList: Array<{ section: string; name: string }> = [];
+                        if (selectedPermitType === 'OTHER') {
+                          if (selectedSubType.includes('|||')) {
+                            const [pt, st] = selectedSubType.split('|||');
+                            inspList = permitTypesMap[pt!]?.[st!] || [];
+                          }
+                        } else {
+                          const lookup = lookupInspectionsForCRM(selectedPermitType, selectedSubType);
+                          inspList = lookup ? (permitTypesMap[lookup.permitType]?.[lookup.subType] || []) : [];
+                        }
                         return inspList.length > 0 ? (
                           <div className="bg-slate-50 rounded-lg p-3 max-h-48 overflow-y-auto">
                             <p className="text-xs font-semibold text-slate-600 mb-2">Inspections to be generated ({inspList.length}):</p>
@@ -867,17 +920,25 @@ export default function ProjectDetail() {
                     <div className="flex justify-end gap-2 pt-2">
                       <Button variant="outline" onClick={() => setPermitPickerOpen(false)}>Cancel</Button>
                       <Button
-                        disabled={!selectedPermitType || !selectedSubType || generateRequiredMutation.isPending}
+                        disabled={!selectedPermitType || !selectedSubType || generateRequiredMutation.isPending || (selectedPermitType === 'OTHER' && !selectedSubType.includes('|||'))}
                         onClick={() => {
-                          const lookup = lookupInspectionsForCRM(selectedPermitType, selectedSubType);
-                          if (!lookup) { toast.error('No inspection list found for this combination'); return; }
-                          const inspList = permitTypesMap[lookup.permitType]?.[lookup.subType] || [];
-                          generateRequiredMutation.mutate({
-                            projectId,
-                            permitType: lookup.permitType,
-                            subType: lookup.subType,
-                            inspections: inspList,
-                          });
+                          let permitType = '';
+                          let subType = '';
+                          let inspList: Array<{ section: string; name: string }> = [];
+                          if (selectedPermitType === 'OTHER') {
+                            if (!selectedSubType.includes('|||')) return;
+                            const [pt, st] = selectedSubType.split('|||');
+                            permitType = pt!;
+                            subType = st!;
+                            inspList = permitTypesMap[pt!]?.[st!] || [];
+                          } else {
+                            const lookup = lookupInspectionsForCRM(selectedPermitType, selectedSubType);
+                            if (!lookup) { toast.error('No inspection list found for this combination'); return; }
+                            permitType = lookup.permitType;
+                            subType = lookup.subType;
+                            inspList = permitTypesMap[lookup.permitType]?.[lookup.subType] || [];
+                          }
+                          generateRequiredMutation.mutate({ projectId, permitType, subType, inspections: inspList });
                         }}
                       >
                         {generateRequiredMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Generate Required Inspections'}
