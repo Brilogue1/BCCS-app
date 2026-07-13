@@ -155,13 +155,36 @@ const CRM_LOOKUP: Record<string, Record<string, PermitLookupResult>> = {
  * Both inputs are normalized (uppercased, trimmed) before lookup.
  * Returns null if the combination is not in the auto-trigger list.
  */
+/**
+ * Normalize a CRM work type value so minor formatting differences
+ * (slash vs. space, extra spaces) don't break the lookup.
+ * e.g. "Carport Shed" → "CARPORT / SHED", "Addition Remodel" → "ADDITION / REMODEL"
+ */
+function normalizeCRMWorkType(wt: string): string {
+  const upper = wt.toUpperCase().trim();
+  // Replace known slash-separated variants that users might type without the slash
+  const SLASH_VARIANTS: [RegExp, string][] = [
+    [/^CARPORT\s*\/?\s*SHED$/,                    'CARPORT / SHED'],
+    [/^CARPORT\s*\/?\s*PATIO\s*COVER\s*\/?\s*SHED$/, 'CARPORT / SHED'],
+    [/^ADDITION\s*\/?\s*REMODEL$/,                'ADDITION / REMODEL'],
+    [/^NEW\s*CONSTRUCTION$/,                      'NEW CONSTRUCTION'],
+    [/^MOBILE\s*HOME$/,                           'MOBILE HOME'],
+    [/^SWIMMING\s*POOL$/,                         'SWIMMING POOL'],
+  ];
+  for (const [pattern, canonical] of SLASH_VARIANTS) {
+    if (pattern.test(upper)) return canonical;
+  }
+  // Generic normalization: collapse multiple spaces
+  return upper.replace(/\s+/g, ' ');
+}
+
 export function lookupInspectionsForCRM(
   propertyType: string | null | undefined,
   workType: string | null | undefined,
 ): PermitLookupResult | null {
   if (!propertyType || !workType) return null;
   const pt = propertyType.toUpperCase().trim();
-  const wt = workType.toUpperCase().trim();
+  const wt = normalizeCRMWorkType(workType);
   return CRM_LOOKUP[pt]?.[wt] ?? null;
 }
 
