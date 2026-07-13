@@ -13,7 +13,7 @@ import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
 import permitTypesData from "../../../shared/permitTypes.json";
-import { normalizeInspectionType, buildFullInspectionName } from "../../../shared/utils";
+import { normalizeInspectionType, buildFullInspectionName, lookupInspectionsForCRM } from "../../../shared/utils";
 
 const permitTypesMap = permitTypesData as Record<string, Record<string, Array<{ section: string; name: string }>>>;
 
@@ -812,58 +812,70 @@ export default function ProjectDetail() {
                     <DialogHeader>
                       <DialogTitle>Set Required Inspections</DialogTitle>
                       <DialogDescription>
-                        Select a permit type and sub-type to generate the required inspection list for this project.
+                        Select Residential or Commercial, then choose the work type to generate the required inspection list.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
+                      {/* Step 1: Permit Type = Residential or Commercial */}
                       <div>
                         <Label>Permit Type</Label>
                         <Select value={selectedPermitType} onValueChange={(v) => { setSelectedPermitType(v); setSelectedSubType(''); }}>
                           <SelectTrigger><SelectValue placeholder="Select permit type..." /></SelectTrigger>
-                          <SelectContent className="max-h-64 overflow-y-auto">
-                            {[
-                              'BUILDING SINGLE FAMILY RESIDENTIAL',
-                              ...Object.keys(permitTypesMap).filter(pt => pt !== 'BUILDING SINGLE FAMILY RESIDENTIAL').sort()
-                            ].map(pt => (
-                              <SelectItem key={pt} value={pt}>{pt}</SelectItem>
-                            ))}
+                          <SelectContent>
+                            <SelectItem value="RESIDENTIAL">Residential</SelectItem>
+                            <SelectItem value="COMMERCIAL">Commercial</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      {selectedPermitType && (
-                        <div>
-                          <Label>Sub Type</Label>
-                          <Select value={selectedSubType} onValueChange={setSelectedSubType}>
-                            <SelectTrigger><SelectValue placeholder="Select sub type..." /></SelectTrigger>
-                            <SelectContent className="max-h-64 overflow-y-auto">
-                              {Object.keys(permitTypesMap[selectedPermitType] || {}).sort().map(st => (
-                                <SelectItem key={st} value={st}>{st}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
-                      {selectedPermitType && selectedSubType && (
-                        <div className="bg-slate-50 rounded-lg p-3 max-h-48 overflow-y-auto">
-                          <p className="text-xs font-semibold text-slate-600 mb-2">Inspections to be generated ({(permitTypesMap[selectedPermitType]?.[selectedSubType] || []).length}):</p>
-                          {(permitTypesMap[selectedPermitType]?.[selectedSubType] || []).map((insp, i) => (
-                            <div key={i} className="text-xs text-slate-700 py-0.5">
-                              <span className="text-slate-400 mr-1">{insp.section}</span>{insp.name}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      {/* Step 2: Work Type filtered by permit type */}
+                      {selectedPermitType && (() => {
+                        // Import CRM_LOOKUP-equivalent inline using the same keys
+                        const workTypeOptions: Record<string, string[]> = {
+                          RESIDENTIAL: ['New Construction', 'Addition / Remodel', 'Electrical', 'Plumbing', 'Mechanical', 'Gas', 'Roof', 'Fence', 'Swimming Pool', 'Sign', 'Mobile Home', 'Carport / Shed'],
+                          COMMERCIAL:  ['New Construction', 'Addition / Remodel', 'Electrical', 'Plumbing', 'Mechanical', 'Gas', 'Roof', 'Fence', 'Swimming Pool', 'Sign'],
+                        };
+                        return (
+                          <div>
+                            <Label>Work Type</Label>
+                            <Select value={selectedSubType} onValueChange={setSelectedSubType}>
+                              <SelectTrigger><SelectValue placeholder="Select work type..." /></SelectTrigger>
+                              <SelectContent className="max-h-64 overflow-y-auto">
+                                {(workTypeOptions[selectedPermitType] || []).map(wt => (
+                                  <SelectItem key={wt} value={wt}>{wt}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      })()}
+                      {/* Preview inspection list */}
+                      {selectedPermitType && selectedSubType && (() => {
+                        const lookup = lookupInspectionsForCRM(selectedPermitType, selectedSubType);
+                        const inspList = lookup ? (permitTypesMap[lookup.permitType]?.[lookup.subType] || []) : [];
+                        return inspList.length > 0 ? (
+                          <div className="bg-slate-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                            <p className="text-xs font-semibold text-slate-600 mb-2">Inspections to be generated ({inspList.length}):</p>
+                            {inspList.map((insp, i) => (
+                              <div key={i} className="text-xs text-slate-700 py-0.5">
+                                <span className="text-slate-400 mr-1">{insp.section}</span>{buildFullInspectionName(insp.section, insp.name)}
+                              </div>
+                            ))}
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
                       <Button variant="outline" onClick={() => setPermitPickerOpen(false)}>Cancel</Button>
                       <Button
                         disabled={!selectedPermitType || !selectedSubType || generateRequiredMutation.isPending}
                         onClick={() => {
-                          const inspList = permitTypesMap[selectedPermitType]?.[selectedSubType] || [];
+                          const lookup = lookupInspectionsForCRM(selectedPermitType, selectedSubType);
+                          if (!lookup) { toast.error('No inspection list found for this combination'); return; }
+                          const inspList = permitTypesMap[lookup.permitType]?.[lookup.subType] || [];
                           generateRequiredMutation.mutate({
                             projectId,
-                            permitType: selectedPermitType,
-                            subType: selectedSubType,
+                            permitType: lookup.permitType,
+                            subType: lookup.subType,
                             inspections: inspList,
                           });
                         }}
