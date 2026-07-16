@@ -1,0 +1,130 @@
+{
+  "query": "SELECT id, name, company, role FROM users LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, name, company, role FROM users LIMIT 20;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "bri",
+      "company": "ALL",
+      "role": "admin"
+    },
+    {
+      "id": "8",
+      "name": "bccsflatv",
+      "company": "ALL",
+      "role": "user"
+    },
+    {
+      "id": "120238",
+      "name": "Ed Martinez",
+      "company": "KB Home",
+      "role": "user"
+    },
+    {
+      "id": "930001",
+      "name": "bccsfladtm",
+      "company": "ALL",
+      "role": "admin"
+    },
+    {
+      "id": "1350027",
+      "name": "bri",
+      "company": "ALL",
+      "role": "subcontractor"
+    },
+    {
+      "id": "4530077",
+      "name": "Colby Pike",
+      "company": "Whitehead Construction",
+      "role": "user"
+    },
+    {
+      "id": "4530079",
+      "name": "Christopher Greene",
+      "company": "Waterman Properties",
+      "role": "user"
+    },
+    {
+      "id": "4530080",
+      "name": "Jay weston",
+      "company": "Jennings Mobile Home",
+      "role": "user"
+    },
+    {
+      "id": "4530081",
+      "name": "Rose wingham",
+      "company": "Jennings Mobile Home",
+      "role": "user"
+    },
+    {
+      "id": "4530082",
+      "name": "Kim Watkins",
+      "company": "Jennings Mobile Home",
+      "role": "user"
+    },
+    {
+      "id": "4530083",
+      "name": "james.mitchell",
+      "company": "Mid Florida Credit Union",
+      "role": "user"
+    },
+    {
+      "id": "4530084",
+      "name": "Lynda ventura",
+      "company": "Byrdson Services",
+      "role": "user"
+    },
+    {
+      "id": "4530085",
+      "name": "Samuel Hendrickson",
+      "company": "Alan Ulch Construction",
+      "role": "user"
+    },
+    {
+      "id": "4530086",
+      "name": "Ryan Wiggins",
+      "company": "BCCS LLC",
+      "role": "user"
+    },
+    {
+      "id": "4530087",
+      "name": "Jim Spivey",
+      "company": "BCCS LLC",
+      "role": "user"
+    },
+    {
+      "id": "4530088",
+      "name": "Stephanie Odell",
+      "company": "BCCS LLC",
+      "role": "user"
+    },
+    {
+      "id": "4530089",
+      "name": "bccsflacw",
+      "company": "ALL",
+      "role": "admin"
+    },
+    {
+      "id": "4530090",
+      "name": "Jeremias Perez",
+      "company": "BCCS LLC",
+      "role": "user"
+    },
+    {
+      "id": "4530091",
+      "name": "Shannon Turbeville",
+      "company": "BCCS LLC",
+      "role": "user"
+    },
+    {
+      "id": "4530092",
+      "name": "Frank Privatte",
+      "company": "BCCS LLC",
+      "role": "user"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcompany\trole\n1\tbri\tALL\tadmin\n8\tbccsflatv\tALL\tuser\n120238\tEd Martinez\tKB Home\tuser\n930001\tbccsfladtm\tALL\tadmin\n1350027\tbri\tALL\tsubcontractor\n4530077\tColby Pike\tWhitehead Construction\tuser\n4530079\tChristopher Greene\tWaterman Properties\tuser\n4530080\tJay weston\tJennings Mobile Home\tuser\n4530081\tRose wingham\tJennings Mobile Home\tuser\n4530082\tKim Watkins\tJennings Mobile Home\tuser\n4530083\tjames.mitchell\tMid Florida Credit Union\tuser\n4530084\tLynda ventura\tByrdson Services\tuser\n4530085\tSamuel Hendrickson\tAlan Ulch Construction\tuser\n4530086\tRyan Wiggins\tBCCS LLC\tuser\n4530087\tJim Spivey\tBCCS LLC\tuser\n4530088\tStephanie Odell\tBCCS LLC\tuser\n4530089\tbccsflacw\tALL\tadmin\n4530090\tJeremias Perez\tBCCS LLC\tuser\n4530091\tShannon Turbeville\tBCCS LLC\tuser\n4530092\tFrank Privatte\tBCCS LLC\tuser\n",
+  "stderr": "",
+  "execution_time_ms": 265
+}

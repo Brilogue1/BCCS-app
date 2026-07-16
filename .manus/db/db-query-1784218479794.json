@@ -1,0 +1,15 @@
+{
+  "query": "SELECT MIN(sheetRowIndex) as min_idx, MAX(sheetRowIndex) as max_idx, COUNT(*) as total FROM inspectionReports WHERE sheetRowIndex IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT MIN(sheetRowIndex) as min_idx, MAX(sheetRowIndex) as max_idx, COUNT(*) as total FROM inspectionReports WHERE sheetRowIndex IS NOT NULL;",
+  "rows": [
+    {
+      "min_idx": "0",
+      "max_idx": "1653",
+      "total": "178"
+    }
+  ],
+  "messages": [],
+  "stdout": "min_idx\tmax_idx\ttotal\n0\t1653\t178\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

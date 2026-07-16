@@ -1005,39 +1005,31 @@ export const appRouter = router({
     getMyReports: protectedProcedure
       .query(async ({ ctx }) => {
         const userCompany = ctx.user.company;
-        // Pull live from the Past Inspections sheet so clients always see the full list
+        // Pull live from the Past Inspections sheet
+        // Column layout: A=Opportunity Name, B=email, C=pipeline, D=stage, E=COMPANY,
+        //   F=Opportunity ID, G=Contact ID, H=Inspection Type, I=Approved/Denied,
+        //   J=Approved Date, K=Denied/Partial Notes, L=Inspector Name:, M=Report Link
         const rows = await fetchPastInspections();
-        // Also fetch DB records to get PDF report URLs where available
-        const database = await db.getDb();
-        const dbReports = database ? await database.select().from(inspectionReports) : [];
-        // Build a map of opportunityId+rowIndex -> reportUrl for PDF lookups
-        const reportUrlMap = new Map<string, string>();
-        for (const r of dbReports) {
-          if (r.reportUrl && r.opportunityId != null && r.sheetRowIndex != null) {
-            reportUrlMap.set(`${r.opportunityId}:${r.sheetRowIndex}`, r.reportUrl);
-          }
-        }
         const result: any[] = [];
         rows.forEach((row, index) => {
           const projectName = row["opportunity name"] || row["Opportunity Name"] || row["project name"] || row["Project Name"] || "";
           if (!projectName || projectName.toLowerCase() === "project name" || projectName.toLowerCase() === "opportunity name") return;
-          const company = row["company"] || row["COMPANY"] || row["__col_5"] || "";
+          const company = row["company"] || row["COMPANY"] || row["__col_4"] || "";
           // Filter by company — admins (ALL) see everything
           if (userCompany !== 'ALL') {
             if (!userCompany || !company) return;
             if (!companiesMatch(company, userCompany)) return;
           }
-          const inspectionType = row["inspection type"] || row["Inspection Type"] || row["__col_8"] || "";
+          const inspectionType = row["inspection type"] || row["Inspection Type"] || row["__col_7"] || "";
           const cleanType = inspectionType.trim().replace(/^_+$/, "").trim();
           if (!cleanType) return;
-          const approvedStatus = row["approved/ denied"] || row["Approved/ Denied"] || row["__col_9"] || "";
-          const dateApproved = row["approved date"] || row["Approved Date"] || row["__col_10"] || "";
-          const inspectorName = row["inspector name:"] || row["Inspector Name:"] || row["__col_12"] || "";
-          const opportunityId = row["opportunity id"] || row["Opportunity ID"] || row["__col_6"] || "";
-          // Look up PDF URL from DB if available
-          const reportUrl = reportUrlMap.get(`${opportunityId}:${index}`) || null;
-          // Only include rows that have a generated PDF report
-          if (!reportUrl) return;
+          const approvedStatus = row["approved/ denied"] || row["Approved/ Denied"] || row["__col_8"] || "";
+          const dateApproved = row["approved date"] || row["Approved Date"] || row["__col_9"] || "";
+          // Column L (index 11) = Inspector Name, Column M (index 12) = Report Link
+          const inspectorName = row["inspector name:"] || row["Inspector Name:"] || row["__col_11"] || "";
+          const reportUrl = row["report link"] || row["Report Link"] || row["__col_12"] || "";
+          // Only include rows that have a report link in column M
+          if (!reportUrl || !reportUrl.trim().startsWith('http')) return;
           result.push({
             id: `sheet-${index}`,
             projectName,
@@ -1046,7 +1038,7 @@ export const appRouter = router({
             dateApproved,
             company,
             inspectorName,
-            reportUrl,
+            reportUrl: reportUrl.trim(),
           });
         });
         return result.reverse();

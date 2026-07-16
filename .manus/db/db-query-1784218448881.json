@@ -1,0 +1,76 @@
+{
+  "query": "SELECT COUNT(*) as total FROM inspectionReports;\nSELECT id, opportunityId, sheetRowIndex, company, createdAt FROM inspectionReports ORDER BY createdAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT COUNT(*) as total FROM inspectionReports;\nSELECT id, opportunityId, sheetRowIndex, company, createdAt FROM inspectionReports ORDER BY createdAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "total": "178"
+    },
+    {
+      "total": "id\topportunityId\tsheetRowIndex\tcompany\tcreatedAt"
+    },
+    {
+      "total": "8370008\tu8OE4T8jtWaXosIsOvPm\t179\tJimmy Blackwell Framing\t2026-07-16 16:11:36"
+    },
+    {
+      "total": "8370007\tsMaD6ku78Pz9cHurzSSl\t177\tHighland Homes\t2026-07-16 16:11:04"
+    },
+    {
+      "total": "8370006\tsMaD6ku78Pz9cHurzSSl\t176\tHighland Homes\t2026-07-16 16:10:37"
+    },
+    {
+      "total": "8370005\tsZ4Axfg6ecGReJTcG58G\t175\tHighland Homes\t2026-07-16 16:09:58"
+    },
+    {
+      "total": "8370004\t0rER0TJv6TRr56Z7xkl9\t174\tJimmy Blackwell Framing\t2026-07-16 16:09:05"
+    },
+    {
+      "total": "8370003\tZ0iHJ1MrlPcG45Ln6kFF\t173\tHighland Homes\t2026-07-16 16:08:43"
+    },
+    {
+      "total": "8370002\tZ0iHJ1MrlPcG45Ln6kFF\t172\tHighland Homes\t2026-07-16 16:08:24"
+    },
+    {
+      "total": "8370001\tZ0iHJ1MrlPcG45Ln6kFF\t171\tHighland Homes\t2026-07-16 16:07:57"
+    },
+    {
+      "total": "8340101\tzRUpksRnz4PaqYJMEmxJ\t169\tHighland Homes\t2026-07-16 16:07:10"
+    },
+    {
+      "total": "8340100\tzRUpksRnz4PaqYJMEmxJ\t168\tHighland Homes\t2026-07-16 16:07:09"
+    },
+    {
+      "total": "8340099\thTOamTJtW2ynli6gCy3w\t166\tHighland Homes\t2026-07-16 16:07:05"
+    },
+    {
+      "total": "8340098\thTOamTJtW2ynli6gCy3w\t165\tHighland Homes\t2026-07-16 16:07:04"
+    },
+    {
+      "total": "8340097\t7Q42W1J9ScQPMQOKwWJf\t164\tTrimm Roofing, LLC\t2026-07-16 16:07:03"
+    },
+    {
+      "total": "8340096\tO9f9uFJhQ6QtveZnLiFb\t163\tTrimm Roofing, LLC\t2026-07-16 16:07:01"
+    },
+    {
+      "total": "8340095\tO9f9uFJhQ6QtveZnLiFb\t162\tTrimm Roofing, LLC\t2026-07-16 16:07:00"
+    },
+    {
+      "total": "8340094\tO9f9uFJhQ6QtveZnLiFb\t161\tTrimm Roofing, LLC\t2026-07-16 16:06:59"
+    },
+    {
+      "total": "8340093\tO9f9uFJhQ6QtveZnLiFb\t160\tTrimm Roofing, LLC\t2026-07-16 16:06:58"
+    },
+    {
+      "total": "8340092\tIXgXpQxaFWUMdgAMgRyY\t159\tHighland Homes\t2026-07-16 16:06:55"
+    },
+    {
+      "total": "8340091\th6qJyjqYGv5JybEabgFC\t158\tHighland Homes\t2026-07-16 16:06:54"
+    },
+    {
+      "total": "8340090\tW5gpa3baD1WVbBn9iPLD\t157\tJacobsen Homes\t2026-07-16 16:06:53"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n178\nid\topportunityId\tsheetRowIndex\tcompany\tcreatedAt\n8370008\tu8OE4T8jtWaXosIsOvPm\t179\tJimmy Blackwell Framing\t2026-07-16 16:11:36\n8370007\tsMaD6ku78Pz9cHurzSSl\t177\tHighland Homes\t2026-07-16 16:11:04\n8370006\tsMaD6ku78Pz9cHurzSSl\t176\tHighland Homes\t2026-07-16 16:10:37\n8370005\tsZ4Axfg6ecGReJTcG58G\t175\tHighland Homes\t2026-07-16 16:09:58\n8370004\t0rER0TJv6TRr56Z7xkl9\t174\tJimmy Blackwell Framing\t2026-07-16 16:09:05\n8370003\tZ0iHJ1MrlPcG45Ln6kFF\t173\tHighland Homes\t2026-07-16 16:08:43\n8370002\tZ0iHJ1MrlPcG45Ln6kFF\t172\tHighland Homes\t2026-07-16 16:08:24\n8370001\tZ0iHJ1MrlPcG45Ln6kFF\t171\tHighland Homes\t2026-07-16 16:07:57\n8340101\tzRUpksRnz4PaqYJMEmxJ\t169\tHighland Homes\t2026-07-16 16:07:10\n8340100\tzRUpksRnz4PaqYJMEmxJ\t168\tHighland Homes\t2026-07-16 16:07:09\n8340099\thTOamTJtW2ynli6gCy3w\t166\tHighland Homes\t2026-07-16 16:07:05\n8340098\thTOamTJtW2ynli6gCy3w\t165\tHighland Homes\t2026-07-16 16:07:04\n8340097\t7Q42W1J9ScQPMQOKwWJf\t164\tTrimm Roofing, LLC\t2026-07-16 16:07:03\n8340096\tO9f9uFJhQ6QtveZnLiFb\t163\tTrimm Roofing, LLC\t2026-07-16 16:07:01\n8340095\tO9f9uFJhQ6QtveZnLiFb\t162\tTrimm Roofing, LLC\t2026-07-16 16:07:00\n8340094\tO9f9uFJhQ6QtveZnLiFb\t161\tTrimm Roofing, LLC\t2026-07-16 16:06:59\n8340093\tO9f9uFJhQ6QtveZnLiFb\t160\tTrimm Roofing, LLC\t2026-07-16 16:06:58\n8340092\tIXgXpQxaFWUMdgAMgRyY\t159\tHighland Homes\t2026-07-16 16:06:55\n8340091\th6qJyjqYGv5JybEabgFC\t158\tHighland Homes\t2026-07-16 16:06:54\n8340090\tW5gpa3baD1WVbBn9iPLD\t157\tJacobsen Homes\t2026-07-16 16:06:53\n",
+  "stderr": "",
+  "execution_time_ms": 310
+}

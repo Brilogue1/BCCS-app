@@ -1,0 +1,54 @@
+{
+  "query": "SELECT company, COUNT(*) as count FROM inspectionReports GROUP BY company ORDER BY count DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT company, COUNT(*) as count FROM inspectionReports GROUP BY company ORDER BY count DESC;",
+  "rows": [
+    {
+      "company": "Highland Homes",
+      "count": "73"
+    },
+    {
+      "company": "Trimm Roofing, LLC",
+      "count": "44"
+    },
+    {
+      "company": "KB Home",
+      "count": "21"
+    },
+    {
+      "company": "Kaneco Construction",
+      "count": "13"
+    },
+    {
+      "company": "Sadler Homes",
+      "count": "6"
+    },
+    {
+      "company": "InvestorPlug",
+      "count": "5"
+    },
+    {
+      "company": "Jimmy Blackwell Framing",
+      "count": "5"
+    },
+    {
+      "company": "Galloway Roofing",
+      "count": "4"
+    },
+    {
+      "company": "Focus Builders, Inc.",
+      "count": "4"
+    },
+    {
+      "company": "Jacobsen Homes",
+      "count": "2"
+    },
+    {
+      "company": "B&H Construction",
+      "count": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "company\tcount\nHighland Homes\t73\nTrimm Roofing, LLC\t44\nKB Home\t21\nKaneco Construction\t13\nSadler Homes\t6\nInvestorPlug\t5\nJimmy Blackwell Framing\t5\nGalloway Roofing\t4\nFocus Builders, Inc.\t4\nJacobsen Homes\t2\nB&H Construction\t1\n",
+  "stderr": "",
+  "execution_time_ms": 279
+}

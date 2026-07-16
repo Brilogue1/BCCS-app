@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, opportunityId, sheetRowIndex, company, projectName, createdAt FROM inspectionReports ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityId, sheetRowIndex, company, projectName, createdAt FROM inspectionReports ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "8370008",
+      "opportunityId": "u8OE4T8jtWaXosIsOvPm",
+      "sheetRowIndex": "179",
+      "company": "Jimmy Blackwell Framing",
+      "projectName": "1931 TAMIAMI TRL - Rise Port Charlotte",
+      "createdAt": "2026-07-16 16:11:36"
+    },
+    {
+      "id": "8370007",
+      "opportunityId": "sMaD6ku78Pz9cHurzSSl",
+      "sheetRowIndex": "177",
+      "company": "Highland Homes",
+      "projectName": "640 SW 77th CIRCLE - FALLS OF OCALA 15",
+      "createdAt": "2026-07-16 16:11:04"
+    },
+    {
+      "id": "8370006",
+      "opportunityId": "sMaD6ku78Pz9cHurzSSl",
+      "sheetRowIndex": "176",
+      "company": "Highland Homes",
+      "projectName": "640 SW 77th CIRCLE - FALLS OF OCALA 15",
+      "createdAt": "2026-07-16 16:10:37"
+    },
+    {
+      "id": "8370005",
+      "opportunityId": "sZ4Axfg6ecGReJTcG58G",
+      "sheetRowIndex": "175",
+      "company": "Highland Homes",
+      "projectName": "644 SW 77th CIRCLE - FALLS OF OCALA 16",
+      "createdAt": "2026-07-16 16:09:58"
+    },
+    {
+      "id": "8370004",
+      "opportunityId": "0rER0TJv6TRr56Z7xkl9",
+      "sheetRowIndex": "174",
+      "company": "Jimmy Blackwell Framing",
+      "projectName": "2096 NW COURTYARD CIR - Rise Dispensary",
+      "createdAt": "2026-07-16 16:09:05"
+    },
+    {
+      "id": "8370003",
+      "opportunityId": "Z0iHJ1MrlPcG45Ln6kFF",
+      "sheetRowIndex": "173",
+      "company": "Highland Homes",
+      "projectName": "5004 SW 177th ST RD - MARION 630-3",
+      "createdAt": "2026-07-16 16:08:43"
+    },
+    {
+      "id": "8370002",
+      "opportunityId": "Z0iHJ1MrlPcG45Ln6kFF",
+      "sheetRowIndex": "172",
+      "company": "Highland Homes",
+      "projectName": "5004 SW 177th ST RD - MARION 630-3",
+      "createdAt": "2026-07-16 16:08:24"
+    },
+    {
+      "id": "8370001",
+      "opportunityId": "Z0iHJ1MrlPcG45Ln6kFF",
+      "sheetRowIndex": "171",
+      "company": "Highland Homes",
+      "projectName": "5004 SW 177th ST RD - MARION 630-3",
+      "createdAt": "2026-07-16 16:07:57"
+    },
+    {
+      "id": "8340101",
+      "opportunityId": "zRUpksRnz4PaqYJMEmxJ",
+      "sheetRowIndex": "169",
+      "company": "Highland Homes",
+      "projectName": "5135 SW 178th ST RD - MARION LOT 622-20",
+      "createdAt": "2026-07-16 16:07:10"
+    },
+    {
+      "id": "8340100",
+      "opportunityId": "zRUpksRnz4PaqYJMEmxJ",
+      "sheetRowIndex": "168",
+      "company": "Highland Homes",
+      "projectName": "5135 SW 178th ST RD - MARION LOT 622-20",
+      "createdAt": "2026-07-16 16:07:09"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityId\tsheetRowIndex\tcompany\tprojectName\tcreatedAt\n8370008\tu8OE4T8jtWaXosIsOvPm\t179\tJimmy Blackwell Framing\t1931 TAMIAMI TRL - Rise Port Charlotte\t2026-07-16 16:11:36\n8370007\tsMaD6ku78Pz9cHurzSSl\t177\tHighland Homes\t640 SW 77th CIRCLE - FALLS OF OCALA 15\t2026-07-16 16:11:04\n8370006\tsMaD6ku78Pz9cHurzSSl\t176\tHighland Homes\t640 SW 77th CIRCLE - FALLS OF OCALA 15\t2026-07-16 16:10:37\n8370005\tsZ4Axfg6ecGReJTcG58G\t175\tHighland Homes\t644 SW 77th CIRCLE - FALLS OF OCALA 16\t2026-07-16 16:09:58\n8370004\t0rER0TJv6TRr56Z7xkl9\t174\tJimmy Blackwell Framing\t2096 NW COURTYARD CIR - Rise Dispensary\t2026-07-16 16:09:05\n8370003\tZ0iHJ1MrlPcG45Ln6kFF\t173\tHighland Homes\t5004 SW 177th ST RD - MARION 630-3\t2026-07-16 16:08:43\n8370002\tZ0iHJ1MrlPcG45Ln6kFF\t172\tHighland Homes\t5004 SW 177th ST RD - MARION 630-3\t2026-07-16 16:08:24\n8370001\tZ0iHJ1MrlPcG45Ln6kFF\t171\tHighland Homes\t5004 SW 177th ST RD - MARION 630-3\t2026-07-16 16:07:57\n8340101\tzRUpksRnz4PaqYJMEmxJ\t169\tHighland Homes\t5135 SW 178th ST RD - MARION LOT 622-20\t2026-07-16 16:07:10\n8340100\tzRUpksRnz4PaqYJMEmxJ\t168\tHighland Homes\t5135 SW 178th ST RD - MARION LOT 622-20\t2026-07-16 16:07:09\n",
+  "stderr": "",
+  "execution_time_ms": 266
+}
