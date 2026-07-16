@@ -1036,6 +1036,8 @@ export const appRouter = router({
           const opportunityId = row["opportunity id"] || row["Opportunity ID"] || row["__col_6"] || "";
           // Look up PDF URL from DB if available
           const reportUrl = reportUrlMap.get(`${opportunityId}:${index}`) || null;
+          // Only include rows that have a generated PDF report
+          if (!reportUrl) return;
           result.push({
             id: `sheet-${index}`,
             projectName,
