@@ -1238,6 +1238,14 @@ export const appRouter = router({
           });
         }
 
+        // TEMPORARY MAINTENANCE BLOCK — remove when issue is resolved
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Inspection scheduling is temporarily unavailable. Please try again later.',
+          });
+        }
+
         // Safeguard 1: Allow up to 3 inspections without a permit number, then block
         const permitNum = (project.permitNumber || '').trim();
         const missingPermit = !permitNum || permitNum.toUpperCase() === 'N/A' || permitNum === '-';

@@ -1,0 +1,80 @@
+{
+  "query": "SELECT id, opportunityName, opportunityId, contactId, contactName FROM projects WHERE opportunityName LIKE '%Lake%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 27Ny97dhmL9hcef.c29aa405659c --database RU8gibJXNEJEWVWn6NuCte --execute SELECT id, opportunityName, opportunityId, contactId, contactName FROM projects WHERE opportunityName LIKE '%Lake%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "5080475",
+      "opportunityName": "7462 Lake Marsha",
+      "opportunityId": "WmOegK2phcVGd880y0Qe",
+      "contactId": "jYUYA9Bh7InkGklPDEyl",
+      "contactName": "Orlando Martinez"
+    },
+    {
+      "id": "6870059",
+      "opportunityName": "950 Lake Hollingsworth - SFR Remodel",
+      "opportunityId": "JfGFF9VatfgIfRHPgPFB",
+      "contactId": "pnfZRXoJeySrsOf94nyq",
+      "contactName": "Nicole DeSmidt"
+    },
+    {
+      "id": "6870060",
+      "opportunityName": "1355 Lake Ruth -- Remodel",
+      "opportunityId": "vzACxIaIJ7JUnBfWnvik",
+      "contactId": "MrcCUU7PW9SIlg7pBBUy",
+      "contactName": "Christy Westbrook"
+    },
+    {
+      "id": "7743567",
+      "opportunityName": "9101 Lake Coventry Ct",
+      "opportunityId": "klkMoD3CAp8l8gi2nhvz",
+      "contactId": "fYrgeAVJRRt33iDx0D1n",
+      "contactName": "Trimm Roofing, LLC"
+    },
+    {
+      "id": "7779260",
+      "opportunityName": "1163 Astoria Drive Lot 211 Reserve at Forest Lake",
+      "opportunityId": "7Nxp3PhqKuPFQmyi4FtX",
+      "contactId": "MGAVYXwEgrBHgVxD3VWv",
+      "contactName": "Juan Delacruz"
+    },
+    {
+      "id": "8430111",
+      "opportunityName": "33399 Waterview Lane Lot 274 Lake Griffin Harbor Village",
+      "opportunityId": "aThOP2X2XKANkVC4jXlx",
+      "contactId": "o6CtufGfILVHk0FezM4q",
+      "contactName": "MD Building Systems Of Florida, Inc."
+    },
+    {
+      "id": "8430113",
+      "opportunityName": "1103 Astoria Drive-Lot 197 Reserve at Forest Lake",
+      "opportunityId": "4VjXOuhe8k2h8pc15bH5",
+      "contactId": "MGAVYXwEgrBHgVxD3VWv",
+      "contactName": "Juan Delacruz"
+    },
+    {
+      "id": "8430114",
+      "opportunityName": "1178 Astoria Drive Lot 185 Reserve at Forest Lake",
+      "opportunityId": "UI351S7n6HBzGulCNxPb",
+      "contactId": "MGAVYXwEgrBHgVxD3VWv",
+      "contactName": "Juan Delacruz"
+    },
+    {
+      "id": "8430115",
+      "opportunityName": "1162 Astoria Drive Lot 189 Reserve at Forest Lake",
+      "opportunityId": "0cDZYINQ6vWFxY29GdGZ",
+      "contactId": "MGAVYXwEgrBHgVxD3VWv",
+      "contactName": "Juan Delacruz"
+    },
+    {
+      "id": "8468971",
+      "opportunityName": "Lot 174 Landings at Lake Mabel",
+      "opportunityId": "4ObFrgMT0aiQ3yb1AgF3",
+      "contactId": "CrMrAJJTkRMI8AYoCfcT",
+      "contactName": "Hector Leon Santiago"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topportunityName\topportunityId\tcontactId\tcontactName\n5080475\t7462 Lake Marsha\tWmOegK2phcVGd880y0Qe\tjYUYA9Bh7InkGklPDEyl\tOrlando Martinez\n6870059\t950 Lake Hollingsworth - SFR Remodel\tJfGFF9VatfgIfRHPgPFB\tpnfZRXoJeySrsOf94nyq\tNicole DeSmidt\n6870060\t1355 Lake Ruth -- Remodel\tvzACxIaIJ7JUnBfWnvik\tMrcCUU7PW9SIlg7pBBUy\tChristy Westbrook\n7743567\t9101 Lake Coventry Ct\tklkMoD3CAp8l8gi2nhvz\tfYrgeAVJRRt33iDx0D1n\tTrimm Roofing, LLC\n7779260\t1163 Astoria Drive Lot 211 Reserve at Forest Lake\t7Nxp3PhqKuPFQmyi4FtX\tMGAVYXwEgrBHgVxD3VWv\tJuan Delacruz\n8430111\t33399 Waterview Lane Lot 274 Lake Griffin Harbor Village\taThOP2X2XKANkVC4jXlx\to6CtufGfILVHk0FezM4q\tMD Building Systems Of Florida, Inc.\n8430113\t1103 Astoria Drive-Lot 197 Reserve at Forest Lake\t4VjXOuhe8k2h8pc15bH5\tMGAVYXwEgrBHgVxD3VWv\tJuan Delacruz\n8430114\t1178 Astoria Drive Lot 185 Reserve at Forest Lake\tUI351S7n6HBzGulCNxPb\tMGAVYXwEgrBHgVxD3VWv\tJuan Delacruz\n8430115\t1162 Astoria Drive Lot 189 Reserve at Forest Lake\t0cDZYINQ6vWFxY29GdGZ\tMGAVYXwEgrBHgVxD3VWv\tJuan Delacruz\n8468971\tLot 174 Landings at Lake Mabel\t4ObFrgMT0aiQ3yb1AgF3\tCrMrAJJTkRMI8AYoCfcT\tHector Leon Santiago\n",
+  "stderr": "",
+  "execution_time_ms": 282
+}
