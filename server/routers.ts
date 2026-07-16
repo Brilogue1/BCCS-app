@@ -1239,7 +1239,7 @@ export const appRouter = router({
         }
 
         // TEMPORARY MAINTENANCE BLOCK — remove when issue is resolved
-        if (ctx.user.role !== 'admin') {
+        if (true) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: 'Inspection scheduling is temporarily unavailable. Please try again later.',
