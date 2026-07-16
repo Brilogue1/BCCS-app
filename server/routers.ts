@@ -1004,29 +1004,50 @@ export const appRouter = router({
     // Client-facing: returns inspection reports filtered by the logged-in user's company
     getMyReports: protectedProcedure
       .query(async ({ ctx }) => {
-        const database = await db.getDb();
-        if (!database) return [];
         const userCompany = ctx.user.company;
-        const allReports = await database.select().from(inspectionReports).orderBy(desc(inspectionReports.createdAt));
-        // Admins (company=ALL) see all reports; clients see only their company's reports
-        const filtered = allReports.filter(r => {
-          if (!r.reportUrl) return false; // Only show reports that have a PDF
-          if (userCompany === 'ALL') return true;
-          if (!userCompany || !r.company) return false;
-          return companiesMatch(r.company, userCompany);
+        // Pull live from the Past Inspections sheet so clients always see the full list
+        const rows = await fetchPastInspections();
+        // Also fetch DB records to get PDF report URLs where available
+        const database = await db.getDb();
+        const dbReports = database ? await database.select().from(inspectionReports) : [];
+        // Build a map of opportunityId+rowIndex -> reportUrl for PDF lookups
+        const reportUrlMap = new Map<string, string>();
+        for (const r of dbReports) {
+          if (r.reportUrl && r.opportunityId != null && r.sheetRowIndex != null) {
+            reportUrlMap.set(`${r.opportunityId}:${r.sheetRowIndex}`, r.reportUrl);
+          }
+        }
+        const result: any[] = [];
+        rows.forEach((row, index) => {
+          const projectName = row["opportunity name"] || row["Opportunity Name"] || row["project name"] || row["Project Name"] || "";
+          if (!projectName || projectName.toLowerCase() === "project name" || projectName.toLowerCase() === "opportunity name") return;
+          const company = row["company"] || row["COMPANY"] || row["__col_5"] || "";
+          // Filter by company — admins (ALL) see everything
+          if (userCompany !== 'ALL') {
+            if (!userCompany || !company) return;
+            if (!companiesMatch(company, userCompany)) return;
+          }
+          const inspectionType = row["inspection type"] || row["Inspection Type"] || row["__col_8"] || "";
+          const cleanType = inspectionType.trim().replace(/^_+$/, "").trim();
+          if (!cleanType) return;
+          const approvedStatus = row["approved/ denied"] || row["Approved/ Denied"] || row["__col_9"] || "";
+          const dateApproved = row["approved date"] || row["Approved Date"] || row["__col_10"] || "";
+          const inspectorName = row["inspector name:"] || row["Inspector Name:"] || row["__col_12"] || "";
+          const opportunityId = row["opportunity id"] || row["Opportunity ID"] || row["__col_6"] || "";
+          // Look up PDF URL from DB if available
+          const reportUrl = reportUrlMap.get(`${opportunityId}:${index}`) || null;
+          result.push({
+            id: `sheet-${index}`,
+            projectName,
+            inspectionType: cleanType,
+            approvedStatus,
+            dateApproved,
+            company,
+            inspectorName,
+            reportUrl,
+          });
         });
-        // Return safe fields only — no fileKey exposed to clients
-        return filtered.map(r => ({
-          id: r.id,
-          projectName: r.projectName,
-          inspectionType: r.inspectionType,
-          approvedStatus: r.approvedStatus,
-          dateApproved: r.dateApproved,
-          company: r.company,
-          inspectorName: r.inspectorName,
-          reportUrl: r.reportUrl,
-          createdAt: r.createdAt,
-        }));
+        return result;
       }),
 
     schedulerStatus: protectedProcedure
@@ -1054,6 +1075,18 @@ export const appRouter = router({
         // Run in background, don't await
         runAutoReportGeneration().catch(err => console.error('[AutoReport] Manual trigger error:', err));
         return { success: true, message: 'Scheduler triggered manually' };
+      }),
+
+    stopScheduler: protectedProcedure
+      .mutation(({ ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        if (!schedulerState.isRunning) {
+          return { success: false, message: 'Scheduler is not currently running' };
+        }
+        schedulerState.stopRequested = true;
+        return { success: true, message: 'Stop requested — generation will halt after the current row.' };
       }),
 
     // Returns the set of completed inspection types for a given opportunityId

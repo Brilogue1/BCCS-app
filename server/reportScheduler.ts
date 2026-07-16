@@ -24,6 +24,7 @@ import { projects, inspectionReports } from "../drizzle/schema";
 // Track scheduler state for admin visibility
 export const schedulerState = {
   isRunning: false,
+  stopRequested: false,
   lastRunAt: null as Date | null,
   lastRunResult: null as { generated: number; skipped: number; errors: number } | null,
   nextRunAt: null as Date | null,
@@ -54,7 +55,13 @@ export async function runAutoReportGeneration(): Promise<{ generated: number; sk
       allDbProjects = await database.select().from(projects);
     }
 
+    schedulerState.stopRequested = false;
     for (let index = 0; index < rows.length; index++) {
+      // Check if stop was requested
+      if (schedulerState.stopRequested) {
+        console.log(`[AutoReport] Stop requested — halting at row ${index}. Generated: ${generated}, Skipped: ${skipped}`);
+        break;
+      }
       const row = rows[index]!;
 
       const projectName = row["opportunity name"] || row["Opportunity Name"] || row["project name"] || row["Project Name"] || "";
