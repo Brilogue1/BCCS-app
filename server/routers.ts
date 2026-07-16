@@ -1047,7 +1047,7 @@ export const appRouter = router({
             reportUrl,
           });
         });
-        return result;
+        return result.reverse();
       }),
 
     schedulerStatus: protectedProcedure
