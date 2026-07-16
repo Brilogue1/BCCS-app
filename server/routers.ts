@@ -1126,6 +1126,62 @@ export const appRouter = router({
           return [];
         }
       }),
+
+    // One-time admin cleanup: delete DB report records not present in the current Past Inspections sheet
+    cleanupOrphanedReports: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+        }
+        const database = await db.getDb();
+        if (!database) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'DB unavailable' });
+
+        // Fetch current sheet rows
+        const rows = await fetchPastInspections();
+
+        // Build valid (opportunityId|rowIndex) and (opportunityId|inspectionType) sets
+        const validByRowIndex = new Set<string>();
+        const validByOppType = new Set<string>();
+        rows.forEach((row, idx) => {
+          const oppId = (row['opportunity id'] || row['Opportunity ID'] || row['__col_5'] || row['__col_6'] || '').trim();
+          const inspType = (row['inspection type'] || row['Inspection Type'] || row['__col_7'] || row['__col_8'] || '').trim().toUpperCase();
+          if (oppId) {
+            validByRowIndex.add(`${oppId}|${idx}`);
+            if (inspType) validByOppType.add(`${oppId}|${inspType}`);
+          }
+        });
+
+        // Find DB records created in the last 3 days that no longer exist in the sheet
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+        const allReports = (await database.select().from(inspectionReports))
+          .filter(r => r.createdAt && new Date(r.createdAt) >= threeDaysAgo);
+        const toDelete: number[] = [];
+        for (const report of allReports) {
+          const oppId = (report.opportunityId || '').trim();
+          if (!oppId) continue; // can't match without oppId, leave it
+          const inspType = (report.inspectionType || '').trim().toUpperCase();
+          const rowIdx = report.sheetRowIndex;
+          const isValid = rowIdx !== null && rowIdx !== undefined
+            ? validByRowIndex.has(`${oppId}|${rowIdx}`)
+            : validByOppType.has(`${oppId}|${inspType}`);
+          if (!isValid) toDelete.push(report.id);
+        }
+
+        if (toDelete.length === 0) {
+          return { deleted: 0, message: 'DB is already in sync with the sheet — nothing to delete.' };
+        }
+
+        // Delete in batches of 500
+        let deleted = 0;
+        for (let i = 0; i < toDelete.length; i += 500) {
+          const batch = toDelete.slice(i, i + 500);
+          await database.delete(inspectionReports).where(inArray(inspectionReports.id, batch));
+          deleted += batch.length;
+        }
+
+        console.log(`[CleanupReports] Deleted ${deleted} orphaned report records.`);
+        return { deleted, message: `Deleted ${deleted} orphaned report records that no longer exist in the sheet.` };
+      }),
   }),
 
   inspections: router({

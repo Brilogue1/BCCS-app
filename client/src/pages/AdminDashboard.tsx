@@ -2,7 +2,7 @@ import { Link, Redirect } from "wouter";
 import SubcontractorManager from "@/components/SubcontractorManager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail, FileCheck, Zap, ExternalLink, RefreshCw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle, AlertTriangle, FileText, Send, Clock, Printer, Download, Mail, FileCheck, Zap, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useRef, useState } from "react";
@@ -98,6 +98,19 @@ export default function AdminDashboard() {
     onError: (error) => {
       toast.error(error.message || 'Failed to trigger scheduler');
       setRunningScheduler(false);
+    },
+  });
+
+  // Cleanup orphaned reports
+  const [cleaningUp, setCleaningUp] = useState(false);
+  const cleanupMutation = trpc.pastInspections.cleanupOrphanedReports.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      setCleaningUp(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Cleanup failed');
+      setCleaningUp(false);
     },
   });
 
@@ -749,6 +762,23 @@ export default function AdminDashboard() {
                     <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Regenerating...</>
                   ) : (
                     <><RefreshCw className="h-4 w-4 mr-2" /> Regenerate All</>
+                  )}
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (confirm('This will delete report records from the last 3 days that no longer exist in the Past Inspections sheet. Continue?')) {
+                      setCleaningUp(true);
+                      cleanupMutation.mutate();
+                    }
+                  }}
+                  disabled={cleaningUp}
+                  variant="outline"
+                  className="border-red-300 text-red-700 hover:bg-red-50"
+                >
+                  {cleaningUp ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Cleaning...</>
+                  ) : (
+                    <><Trash2 className="h-4 w-4 mr-2" /> Cleanup Orphaned Reports</>
                   )}
                 </Button>
               </div>
