@@ -18,7 +18,7 @@ import { useAuth } from "./_core/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 
 // TEMPORARY MAINTENANCE FLAG — set to false to re-enable for all users
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 function MaintenanceScreen() {
   return (
