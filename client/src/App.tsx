@@ -12,6 +12,7 @@ import AdminProjectsReport from "./pages/AdminProjectsReport";
 import StaffWorkload from "./pages/StaffWorkload";
 import EmployeeReport from "./pages/EmployeeReport";
 import PlansUpload from "./pages/PlansUpload";
+import TermsOfService from "./pages/TermsOfService";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -101,6 +102,7 @@ function Router() {
       <Route path="/plans-upload">
         <ProtectedRoute component={PlansUpload} path="/plans-upload" />
       </Route>
+      <Route path="/terms" component={TermsOfService} />
       <Route path="/">
         {isAuthenticated ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}
       </Route>
