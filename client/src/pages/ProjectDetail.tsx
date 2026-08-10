@@ -557,9 +557,10 @@ export default function ProjectDetail() {
   // Block scheduling while the project is still in the Proposal stage (invoice not yet paid)
   const isProposalStage = (project?.stage || '').toLowerCase().trim() === 'proposal';
 
-  // Count inspections scheduled in the last 24 hours (5 per 24h limit)
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const recentInspectionsCount = (inspections?.filter((i: any) => new Date(i.createdAt) >= oneDayAgo).length ?? 0);
+  // State-based 5-slot cap: scheduled in GHL (sheet cols U-AA) + pending DB requests combined.
+  // Once this hits 5, no more can be requested until one moves to Completed in the sheet.
+  const inProgressCount = scheduledTypes.length + pendingDbInspections.length;
+  const atSlotCap = inProgressCount >= 5;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -952,10 +953,10 @@ export default function ProjectDetail() {
                                       <Button
                                         size="sm"
                                         className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white"
-                                        disabled={isProposalStage}
-                                        title={isProposalStage ? 'Scheduling will become available when the proposal is accepted' : undefined}
+                                        disabled={isProposalStage || atSlotCap}
+                                        title={isProposalStage ? 'Scheduling will become available when the proposal is accepted' : atSlotCap ? '5 inspections in progress — once one completes, you can schedule more' : undefined}
                                         onClick={() => {
-                                          if (isProposalStage) return;
+                                          if (isProposalStage || atSlotCap) return;
                                           setInspectionType(buildFullInspectionName(item.section || '', item.inspectionName));
                                           setInspectionTypeSearch('');
                                           setInspectionTypeFromRequired(true);
@@ -1075,9 +1076,14 @@ export default function ProjectDetail() {
                   <span>Scheduling available once proposal is accepted</span>
                 </div>
               )}
+              {!isProposalStage && atSlotCap && (
+                <div className="flex items-center gap-1.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-2.5 py-1.5">
+                  <span>5 inspections in progress — once one completes, you can schedule more</span>
+                </div>
+              )}
               <Dialog open={inspectionDialogOpen} onOpenChange={(open) => { setInspectionDialogOpen(open); if (!open) { setInspectionTypeFromRequired(false); setInspectionType(''); setInspectionTypeSearch(''); } }}>
               <DialogTrigger asChild>
-                <Button size="sm" disabled={isProposalStage} title={isProposalStage ? 'Scheduling will become available when the proposal is accepted' : undefined}>
+                <Button size="sm" disabled={isProposalStage || atSlotCap} title={isProposalStage ? 'Scheduling will become available when the proposal is accepted' : atSlotCap ? '5 inspections in progress — once one completes, you can schedule more' : undefined}>
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Inspection
                 </Button>
@@ -1090,12 +1096,12 @@ export default function ProjectDetail() {
                   </DialogDescription>
                 </DialogHeader>
                 {(() => {
-                  // Check 5-inspection cap first (highest priority)
-                  if (recentInspectionsCount >= 5) {
+                  // Check 5-slot cap first (highest priority)
+                  if (atSlotCap) {
                     return (
                       <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
                         <p className="text-sm text-red-800 font-medium">
-                          🚫 Only 5 inspections can be scheduled per 24-hour period for this project. Please try again later.
+                          🚫 5 inspections in progress ({scheduledTypes.length} scheduled + {pendingDbInspections.length} requested). Once one completes, you can schedule more.
                         </p>
                       </div>
                     );
@@ -1125,7 +1131,7 @@ export default function ProjectDetail() {
                 })()}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-blue-900">
-                    <strong>Note:</strong> Only 5 inspections can be scheduled per 24-hour period for this project.
+                    <strong>Note:</strong> Up to 5 inspections can be in progress at a time. Once one is completed, a new slot opens.
                   </p>
                 </div>
                 <form onSubmit={handleScheduleInspection} className="space-y-4">

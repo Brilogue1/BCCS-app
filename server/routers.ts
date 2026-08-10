@@ -1334,13 +1334,23 @@ export const appRouter = router({
           }
         }
 
-        // Safeguard 2: Max 5 inspections per 24-hour period
-        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        const recentInspections = existingInspections.filter(i => new Date(i.createdAt) >= oneDayAgo);
-        if (recentInspections.length >= 5) {
+        // Safeguard 2: Hard cap of 5 in-progress slots (scheduled in GHL + pending DB requests).
+        // The 5 GHL inspection fields (columns U-AA) can't be overridden once full, so we
+        // block new requests as soon as scheduled + requested combined reaches 5.
+        const scheduledSlots = [
+          project.inspection1Type,
+          project.inspection2Type,
+          project.inspection3Type,
+          project.inspection4Type,
+          project.inspection5Type,
+        ].filter((t) => t && t.trim() !== '' && t.trim() !== '_').length;
+        // All existing DB inspection requests for this project count as pending slots.
+        const pendingSlots = existingInspections.length;
+        const totalInProgress = scheduledSlots + pendingSlots;
+        if (totalInProgress >= 5) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: `Only 5 inspections can be scheduled per 24-hour period for this project. Please try again later.`,
+            message: `This project already has ${totalInProgress} inspection${totalInProgress !== 1 ? 's' : ''} in progress (${scheduledSlots} scheduled + ${pendingSlots} requested). Once one completes, you can schedule more.`,
           });
         }
 
