@@ -644,6 +644,26 @@ export default function ProjectDetail() {
         </div>
       </div>
 
+      {/* NOC Requirement Banner — shown whenever permit number is missing */}
+      {(() => {
+        const pNum = (project?.permitNumber || '').trim();
+        const missingPermit = !pNum || pNum.toUpperCase() === 'N/A' || pNum === '-';
+        if (!missingPermit) return null;
+        return (
+          <div className="bg-amber-50 border-y border-amber-300">
+            <div className="container mx-auto px-4 py-3 flex items-start gap-3">
+              <span className="text-amber-600 text-lg shrink-0 mt-0.5">⚠️</span>
+              <div>
+                <p className="text-sm font-semibold text-amber-900">NOC Requirement — No Permit Number on File</p>
+                <p className="text-sm text-amber-800 mt-0.5">
+                  Section 105.8 of the Florida Building Code requires the Notice of Commencement (NOC) to be uploaded with the jurisdiction prior to the first inspection. Please ensure your NOC has been recorded and contact BCCS to get your permit number added.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="container mx-auto py-8 space-y-6">
         {/* Project Information */}
         <Card>
@@ -1114,18 +1134,32 @@ export default function ProjectDetail() {
                   const remaining = Math.max(0, 3 - scheduledCount);
                   if (scheduledCount >= 3) {
                     return (
-                      <div className="bg-red-50 border border-red-300 rounded-lg p-3 mb-2">
-                        <p className="text-sm text-red-800 font-medium">
-                          🚫 No permit number on file. You have used all 3 inspection slots available without a permit. Please contact BCCS to get your permit number added before scheduling more inspections.
-                        </p>
+                      <div className="space-y-2 mb-2">
+                        <div className="bg-red-50 border border-red-300 rounded-lg p-3">
+                          <p className="text-sm text-red-800 font-medium">
+                            🚫 No permit number on file. You have used all 3 inspection slots available without a permit. Please contact BCCS to get your permit number added before scheduling more inspections.
+                          </p>
+                        </div>
+                        <div className="bg-amber-50 border border-amber-300 rounded-lg p-3">
+                          <p className="text-sm text-amber-800 font-medium">
+                            📋 NOC Requirement: Section 105.8 of the Florida Building Code requires the Notice of Commencement (NOC) to be uploaded with the jurisdiction prior to the first inspection.
+                          </p>
+                        </div>
                       </div>
                     );
                   }
                   return (
-                    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 mb-2">
-                      <p className="text-sm text-yellow-800 font-medium">
-                        ⚠️ No permit number on file yet. You can schedule up to 3 inspections before a permit number is required — you have <strong>{remaining} slot{remaining !== 1 ? 's' : ''}</strong> remaining. Please contact BCCS to get your permit number added.
-                      </p>
+                    <div className="space-y-2 mb-2">
+                      <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                        <p className="text-sm text-yellow-800 font-medium">
+                          ⚠️ No permit number on file yet. You can schedule up to 3 inspections before a permit number is required — you have <strong>{remaining} slot{remaining !== 1 ? 's' : ''}</strong> remaining. Please contact BCCS to get your permit number added.
+                        </p>
+                      </div>
+                      <div className="bg-amber-50 border border-amber-300 rounded-lg p-3">
+                        <p className="text-sm text-amber-800 font-medium">
+                          📋 NOC Requirement: Section 105.8 of the Florida Building Code requires the Notice of Commencement (NOC) to be uploaded with the jurisdiction prior to the first inspection.
+                        </p>
+                      </div>
                     </div>
                   );
                 })()}
