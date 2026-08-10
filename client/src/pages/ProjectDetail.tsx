@@ -557,8 +557,9 @@ export default function ProjectDetail() {
   // Block scheduling while the project is still in the Proposal stage (invoice not yet paid)
   const isProposalStage = (project?.stage || '').toLowerCase().trim() === 'proposal';
 
-  // State-based 5-slot cap: scheduled in GHL (sheet cols U-AA) + pending DB requests combined.
-  // Once this hits 5, no more can be requested until one moves to Completed in the sheet.
+  // State-based 5-slot cap: GHL scheduled slots (U-AA, not yet completed) + truly pending DB requests.
+  // pendingDbInspections is already filtered to exclude types in GHL scheduled cols and completed types,
+  // so scheduledTypes.length + pendingDbInspections.length gives the accurate in-progress count.
   const inProgressCount = scheduledTypes.length + pendingDbInspections.length;
   const atSlotCap = inProgressCount >= 5;
 

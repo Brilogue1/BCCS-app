@@ -1334,23 +1334,34 @@ export const appRouter = router({
           }
         }
 
-        // Safeguard 2: Hard cap of 5 in-progress slots (scheduled in GHL + pending DB requests).
+        // Safeguard 2: Hard cap of 5 in-progress slots (scheduled in GHL + truly pending DB requests).
         // The 5 GHL inspection fields (columns U-AA) can't be overridden once full, so we
-        // block new requests as soon as scheduled + requested combined reaches 5.
-        const scheduledSlots = [
-          project.inspection1Type,
-          project.inspection2Type,
-          project.inspection3Type,
-          project.inspection4Type,
-          project.inspection5Type,
-        ].filter((t) => t && t.trim() !== '' && t.trim() !== '_').length;
-        // All existing DB inspection requests for this project count as pending slots.
-        const pendingSlots = existingInspections.length;
+        // block new requests as soon as scheduled + pending combined reaches 5.
+        const ghlScheduledTypes = new Set(
+          [
+            project.inspection1Type,
+            project.inspection2Type,
+            project.inspection3Type,
+            project.inspection4Type,
+            project.inspection5Type,
+          ]
+            .filter((t) => t && t.trim() !== '' && t.trim() !== '_')
+            .map((t) => t!.trim().toUpperCase())
+        );
+        const scheduledSlots = ghlScheduledTypes.size;
+        // Only count DB requests that are still pending (not completed/cancelled)
+        // AND whose type isn't already occupying a GHL slot (to avoid double-counting).
+        const pendingSlots = existingInspections.filter((i) => {
+          if (i.status === 'completed' || i.status === 'cancelled') return false;
+          const tNorm = (i.inspectionType || '').trim().toUpperCase();
+          if (ghlScheduledTypes.has(tNorm)) return false; // already counted in scheduledSlots
+          return true;
+        }).length;
         const totalInProgress = scheduledSlots + pendingSlots;
         if (totalInProgress >= 5) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: `This project already has ${totalInProgress} inspection${totalInProgress !== 1 ? 's' : ''} in progress (${scheduledSlots} scheduled + ${pendingSlots} requested). Once one completes, you can schedule more.`,
+            message: `This project already has ${totalInProgress} inspection${totalInProgress !== 1 ? 's' : ''} in progress (${scheduledSlots} scheduled + ${pendingSlots} pending). Once one completes, you can schedule more.`,
           });
         }
 
