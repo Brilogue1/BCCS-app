@@ -784,3 +784,7 @@
 - [x] Verify the latest BCCS Client Portal source is backed up to a GitHub repository
 - [x] Document the backup contents, GitHub repository status, and recovery steps
 - [x] Publish the latest source backup to the GitHub repository named BCCS-app
+
+## Recovery Credentials Audit (August 2026)
+- [x] Inventory required environment-variable names, external integrations, and restoration dependencies without exposing secret values
+- [x] Create a secure credential recovery checklist for the BCCS Client Portal transition backup
