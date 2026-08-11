@@ -780,7 +780,7 @@
 - [x] Show clear error message on client when no permit number on file
 
 ## Transition Backup (August 2026)
-- [ ] Create a complete downloadable archive of the current BCCS Client Portal source, configuration, and supporting project files
-- [ ] Verify the latest BCCS Client Portal source is backed up to a GitHub repository
-- [ ] Document the backup contents, GitHub repository status, and recovery steps
-- [ ] Publish the latest source backup to the GitHub repository named BCCS-app
+- [x] Create a complete downloadable archive of the current BCCS Client Portal source, configuration, and supporting project files
+- [x] Verify the latest BCCS Client Portal source is backed up to a GitHub repository
+- [x] Document the backup contents, GitHub repository status, and recovery steps
+- [x] Publish the latest source backup to the GitHub repository named BCCS-app
