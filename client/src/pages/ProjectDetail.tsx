@@ -13,7 +13,7 @@ import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
 import permitTypesData from "../../../shared/permitTypes.json";
-import { normalizeInspectionType, buildFullInspectionName, lookupInspectionsForCRM } from "../../../shared/utils";
+import { normalizeInspectionType, buildFullInspectionName, lookupInspectionsForCRM, getPendingInspectionRequests } from "../../../shared/utils";
 
 const permitTypesMap = permitTypesData as Record<string, Record<string, Array<{ section: string; name: string }>>>;
 
@@ -538,17 +538,20 @@ export default function ProjectDetail() {
     }
   }
 
-  // Only show DB inspections whose type is NOT already in the sheet (scheduled or completed)
+  // Only show DB requests that are still awaiting GHL pickup and whose type is
+  // not already in the sheet (scheduled or completed). Historical DB records
+  // with status "scheduled" must not consume a new request slot after the GHL
+  // field has cleared.
   // Hide a Requested badge if the type is:
   //   1. Already in the sheet's scheduled columns (U-AA)
   //   2. Already in the column H completed text (legacy fallback)
   //   3. Already in the Past Inspections sheet tab (authoritative source, polled every 30 min)
-  const pendingDbInspections = (inspections || []).filter(
+  const pendingDbInspections = getPendingInspectionRequests(inspections || [], sheetScheduledTypeSet).filter(
     (insp: any) => {
       const tNorm = normalizeInspectionType(insp.inspectionType);
       const tRaw = (insp.inspectionType || '').trim().toUpperCase();
-      // Use normalized comparison for all sets to handle minor wording differences
-      return !sheetScheduledTypeSet.has(tNorm) && !completedTypeSet.has(tRaw) && !sheetCompletedTypeSet.has(tNorm);
+      // Use normalized comparison for all completed-inspection sources.
+      return !completedTypeSet.has(tRaw) && !sheetCompletedTypeSet.has(tNorm);
     }
   );
 

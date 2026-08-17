@@ -203,3 +203,26 @@ export function normalizeInspectionType(type: string | null | undefined): string
     .replace(/\s+/g, ' ')            // collapse spaces
     .trim();
 }
+
+
+/**
+ * Return only inspection requests that are awaiting GHL pickup and are not
+ * already represented by one of the active GHL inspection slots. DB rows with
+ * a historical "scheduled" status are intentionally excluded; the sheet is
+ * the authoritative record for scheduled slots.
+ */
+export function getPendingInspectionRequests<T extends { status?: string | null; inspectionType?: string | null }>(
+  inspections: readonly T[],
+  scheduledInspectionTypes: Iterable<string | null | undefined>,
+): T[] {
+  const scheduledTypeSet = new Set(
+    Array.from(scheduledInspectionTypes)
+      .map((type) => normalizeInspectionType(type))
+      .filter(Boolean),
+  );
+
+  return inspections.filter((inspection) => {
+    if (inspection.status !== 'pending') return false;
+    return !scheduledTypeSet.has(normalizeInspectionType(inspection.inspectionType));
+  });
+}

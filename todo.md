@@ -788,3 +788,7 @@
 ## Recovery Credentials Audit (August 2026)
 - [x] Inventory required environment-variable names, external integrations, and restoration dependencies without exposing secret values
 - [x] Create a secure credential recovery checklist for the BCCS Client Portal transition backup
+
+## Scheduling Cap Bug — Landings at Lake Mabel 196 (August 2026)
+- [x] Investigate stale pending inspection records incorrectly blocking scheduling when the project has no visible scheduled or requested inspections
+- [x] Correct the five-inspection cap and verify the Landings at Lake Mabel 196 project can schedule an inspection

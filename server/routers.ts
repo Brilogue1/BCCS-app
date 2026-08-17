@@ -14,7 +14,7 @@ import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
-import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM } from "../shared/utils";
+import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests } from "../shared/utils";
 import permitTypesData from "../shared/permitTypes.json";
 
 const JWT_SECRET = new TextEncoder().encode(ENV.cookieSecret);
@@ -1349,14 +1349,11 @@ export const appRouter = router({
             .map((t) => t!.trim().toUpperCase())
         );
         const scheduledSlots = ghlScheduledTypes.size;
-        // Only count DB requests that are still pending (not completed/cancelled)
-        // AND whose type isn't already occupying a GHL slot (to avoid double-counting).
-        const pendingSlots = existingInspections.filter((i) => {
-          if (i.status === 'completed' || i.status === 'cancelled') return false;
-          const tNorm = (i.inspectionType || '').trim().toUpperCase();
-          if (ghlScheduledTypes.has(tNorm)) return false; // already counted in scheduledSlots
-          return true;
-        }).length;
+        // Only count DB requests that are still awaiting GHL pickup. Historical
+        // "scheduled" records are not authoritative after their GHL sheet slot
+        // is cleared, so counting them would permanently consume a slot.
+        // Also exclude a request whose type is already occupying a GHL slot.
+        const pendingSlots = getPendingInspectionRequests(existingInspections, ghlScheduledTypes).length;
         const totalInProgress = scheduledSlots + pendingSlots;
         if (totalInProgress >= 5) {
           throw new TRPCError({
@@ -1377,7 +1374,7 @@ export const appRouter = router({
           opportunityId: project.opportunityId || '',
           contactId: contactId,
           createdBy: ownerEmail,
-          status: 'scheduled',
+          status: 'pending',
           ghlSynced: 0,
         }, project);
         
