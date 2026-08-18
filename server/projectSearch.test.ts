@@ -10,9 +10,11 @@ describe("projectMatchesSearch", () => {
     lotNumber: "196",
   };
 
-  it("matches a lot number regardless of case or surrounding whitespace", () => {
+  it("matches direct, prefixed, and hash-prefixed lot-number searches", () => {
     expect(projectMatchesSearch(project, "196")).toBe(true);
     expect(projectMatchesSearch(project, " 196 ")).toBe(true);
+    expect(projectMatchesSearch(project, "Lot 196")).toBe(true);
+    expect(projectMatchesSearch(project, "#196")).toBe(true);
   });
 
   it("continues to match project name, address, company, and contact", () => {

@@ -805,3 +805,8 @@
 - [x] Map BC - Project Closeout Date from the All App sheet to the project completion-date field
 - [x] Display project started and project completed dates in the invoice reporting workflow
 - [x] Add regression coverage for BC - Project Closeout Date mapping and invoice-report filtering
+
+## Projects Search — Live Lot Number Defect (August 2026)
+- [x] Diagnose why the live Projects search is not returning projects by lot number
+- [x] Correct the live lot-number search behavior and verify against synced project data
+- [x] Display the synced lot number prominently on each Projects page card

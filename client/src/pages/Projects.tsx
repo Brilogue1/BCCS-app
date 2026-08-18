@@ -297,11 +297,16 @@ export default function Projects() {
                           <Building2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                           <span className="line-clamp-2">{project.opportunityName}</span>
                         </CardTitle>
-                        <CardDescription className="flex items-start gap-2 mt-2">
-                          <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                          <span className="line-clamp-2">
-                            {project.address || "No address provided"}
+                        <CardDescription className="space-y-1 mt-2">
+                          <span className="flex items-start gap-2">
+                            <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            <span className="line-clamp-2">{project.address || "No address provided"}</span>
                           </span>
+                          {project.lotNumber && (
+                            <span className="inline-flex items-center rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                              Lot #{project.lotNumber}
+                            </span>
+                          )}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -478,10 +483,19 @@ export default function Projects() {
                           <Building2 className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                           <span className="line-clamp-2">{project.opportunityName}</span>
                         </CardTitle>
-                        {project.address && (
-                          <CardDescription className="flex items-start gap-2 mt-2">
-                            <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                            <span>{project.address}</span>
+                        {(project.address || project.lotNumber) && (
+                          <CardDescription className="space-y-1 mt-2">
+                            {project.address && (
+                              <span className="flex items-start gap-2">
+                                <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                                <span>{project.address}</span>
+                              </span>
+                            )}
+                            {project.lotNumber && (
+                              <span className="inline-flex items-center rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                                Lot #{project.lotNumber}
+                              </span>
+                            )}
                           </CardDescription>
                         )}
                       </CardHeader>

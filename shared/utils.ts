@@ -241,16 +241,29 @@ export type ProjectSearchRecord = {
  * Match a project against the Projects-page search. Lot number is included so
  * users can find a job even when they only know the lot reference.
  */
+/** Normalize lot references so 196, Lot 196, and #196 refer to the same lot. */
+function normalizeLotReference(value: string | null | undefined): string {
+  return (value || '')
+    .toLowerCase()
+    .replace(/\blot\b/g, '')
+    .replace(/#/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
 export function projectMatchesSearch(project: ProjectSearchRecord, rawQuery: string): boolean {
   const query = rawQuery.trim().toLowerCase();
   if (!query) return true;
-  return [
+
+  const generalFields = [
     project.opportunityName,
     project.company,
     project.address,
     project.contactName,
-    project.lotNumber,
-  ].some((value) => value?.toLowerCase().includes(query));
+  ];
+  if (generalFields.some((value) => value?.toLowerCase().includes(query))) return true;
+
+  const normalizedLotQuery = normalizeLotReference(query);
+  return !!normalizedLotQuery && normalizeLotReference(project.lotNumber).includes(normalizedLotQuery);
 }
 
 
