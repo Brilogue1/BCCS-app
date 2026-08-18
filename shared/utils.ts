@@ -235,6 +235,7 @@ export type ProjectSearchRecord = {
   address?: string | null;
   contactName?: string | null;
   lotNumber?: string | null;
+  subdivision?: string | null;
 };
 
 /**
@@ -259,6 +260,7 @@ export function projectMatchesSearch(project: ProjectSearchRecord, rawQuery: str
     project.company,
     project.address,
     project.contactName,
+    project.subdivision,
   ];
   if (generalFields.some((value) => value?.toLowerCase().includes(query))) return true;
 

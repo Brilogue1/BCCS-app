@@ -8,6 +8,7 @@ describe("projectMatchesSearch", () => {
     address: "434 Red Bay Rd",
     contactName: "Project Contact",
     lotNumber: "196",
+    subdivision: "Landings at Lake Mabel",
   };
 
   it("matches direct, prefixed, and hash-prefixed lot-number searches", () => {
@@ -17,8 +18,9 @@ describe("projectMatchesSearch", () => {
     expect(projectMatchesSearch(project, "#196")).toBe(true);
   });
 
-  it("continues to match project name, address, company, and contact", () => {
+  it("continues to match project name, address, subdivision, company, and contact", () => {
     expect(projectMatchesSearch(project, "lake mabel")).toBe(true);
+    expect(projectMatchesSearch(project, "Landings at Lake Mabel")).toBe(true);
     expect(projectMatchesSearch(project, "red bay")).toBe(true);
     expect(projectMatchesSearch(project, "kb home")).toBe(true);
     expect(projectMatchesSearch(project, "contact")).toBe(true);

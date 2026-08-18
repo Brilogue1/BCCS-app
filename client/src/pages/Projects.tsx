@@ -302,6 +302,9 @@ export default function Projects() {
                             <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
                             <span className="line-clamp-2">{project.address || "No address provided"}</span>
                           </span>
+                          {project.subdivision && (
+                            <span className="block text-xs font-medium text-slate-600">Subdivision: {project.subdivision}</span>
+                          )}
                           {project.lotNumber && (
                             <span className="inline-flex items-center rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
                               Lot #{project.lotNumber}
@@ -490,6 +493,9 @@ export default function Projects() {
                                 <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
                                 <span>{project.address}</span>
                               </span>
+                            )}
+                            {project.subdivision && (
+                              <span className="block text-xs font-medium text-slate-600">Subdivision: {project.subdivision}</span>
                             )}
                             {project.lotNumber && (
                               <span className="inline-flex items-center rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">

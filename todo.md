@@ -810,3 +810,8 @@
 - [x] Diagnose why the live Projects search is not returning projects by lot number
 - [x] Correct the live lot-number search behavior and verify against synced project data
 - [x] Display the synced lot number prominently on each Projects page card
+
+## Projects Search — Subdivision (August 2026)
+- [x] Add subdivision matching to the Projects search
+- [x] Display the synced subdivision on active and completed project cards
+- [x] Add regression coverage and verify subdivision search behavior
