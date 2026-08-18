@@ -37,7 +37,7 @@ const mockProjects = [
     leadValue: null,
     source: null,
     assigned: null,
-    createdOn: null,
+    createdOn: "2025-01-10",
     lostReasonId: null,
     lostReasonName: null,
     followers: null,
@@ -58,7 +58,7 @@ const mockProjects = [
     company: "Beta Inc",
     address: "456 Oak Ave",
     lotNumber: "202",
-    completionDate: null,
+    completionDate: "2025-09-20",
     stage: "Closeout",
     assignedPermitTech: "TIM MILLER",
     assignedPlansExaminer: "",
@@ -82,7 +82,7 @@ const mockProjects = [
     leadValue: null,
     source: null,
     assigned: null,
-    createdOn: null,
+    createdOn: "2025-02-15",
     lostReasonId: null,
     lostReasonName: null,
     followers: null,
@@ -103,7 +103,7 @@ const mockProjects = [
     company: "Gamma LLC",
     address: "789 Pine Rd",
     lotNumber: "303",
-    completionDate: null,
+    completionDate: "2025-09-10",
     stage: "Complete",
     assignedPermitTech: "",
     assignedPlansExaminer: "",
@@ -127,7 +127,7 @@ const mockProjects = [
     leadValue: null,
     source: null,
     assigned: null,
-    createdOn: null,
+    createdOn: "2025-03-01",
     lostReasonId: null,
     lostReasonName: null,
     followers: null,
@@ -323,7 +323,7 @@ describe("employeeReport.monthly", () => {
     expect(result.totalCompletedProjects).toBeGreaterThanOrEqual(1);
   });
 
-  it("finds projects with Complete/Closeout stage and updatedOn in target month", async () => {
+  it("finds completed projects by their authoritative closeout date", async () => {
     const ctx = createAdminContext();
     const caller = appRouter.createCaller(ctx);
 
@@ -332,9 +332,8 @@ describe("employeeReport.monthly", () => {
       year: 2025,
     });
 
-    // Project Beta (Closeout, no completionDate, updatedOn Sept 2025) should be included
-    // Project Gamma (Complete, no completionDate, updatedOn Sept 2025) should be included
-    expect(result.totalCompletedProjects).toBeGreaterThanOrEqual(2);
+    // Project Beta and Project Gamma have September closeout dates and should be included.
+    expect(result.totalCompletedProjects).toBeGreaterThanOrEqual(3);
   });
 
   it("groups unassigned projects under 'Unassigned' employee", async () => {
@@ -466,7 +465,7 @@ describe("employeeReport.monthly", () => {
     ).rejects.toThrow("Unauthorized");
   });
 
-  it("uses completionDate as primary date, falls back to updatedOn", async () => {
+  it("uses the closeout date as the completed date and includes project started date", async () => {
     const ctx = createAdminContext();
     const caller
  = appRouter.createCaller(ctx);
@@ -478,20 +477,15 @@ describe("employeeReport.monthly", () => {
 
     // Project Alpha has completionDate "2025-09-15" - should use that
     const timEntries = result.employees.find(e => e.employee === "TIM MILLER");
-    if (timEntries) {
-      const alphaProject = timEntries.projects.find(p => p.projectId === 1);
-      expect(alphaProject).toBeDefined();
-      expect(alphaProject!.completionDate).toBe("2025-09-15");
-    }
+    const alphaProject = timEntries?.projects.find(p => p.projectId === 1);
+    expect(alphaProject).toBeDefined();
+    expect(alphaProject!.completionDate).toBe("2025-09-15");
+    expect(alphaProject!.createdOn).toBe("2025-01-10");
 
-    // Project Gamma has no completionDate - should fall back to updatedOn
+    // Project Gamma is unassigned and uses its explicit closeout date.
     const unassigned = result.employees.find(e => e.employee === "Unassigned");
-    if (unassigned) {
-      const gammaProject = unassigned.projects.find(p => p.projectId === 3);
-      if (gammaProject) {
-        expect(gammaProject.completionDate).toBe("2025-09-10T08:00:00.000Z");
-      }
-    }
+    const gammaProject = unassigned?.projects.find(p => p.projectId === 3);
+    expect(gammaProject?.completionDate).toBe("2025-09-10");
   });
 
   it("sorts employees alphabetically", async () => {

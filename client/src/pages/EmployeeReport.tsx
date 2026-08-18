@@ -37,6 +37,7 @@ type EmployeeProject = {
   company: string | null;
   address: string | null;
   lotNumber: string | null;
+  createdOn: string | null;
   completionDate: string | null;
   type: string;
   assignedPermitTech: string | null;
@@ -81,7 +82,7 @@ export default function EmployeeReport() {
     if (!data) return;
     
     const rows: string[][] = [
-      ["Employee", "Client", "Project Name", "Address", "Lot #", "Type", "Permit #", "Completion Date"]
+      ["Employee", "Client", "Project Name", "Address", "Lot #", "Type", "Permit #", "Project Started", "Project Completed"]
     ];
 
     data.employees.forEach(emp => {
@@ -94,6 +95,7 @@ export default function EmployeeReport() {
           p.lotNumber || "",
           p.type,
           p.permitNumber || "",
+          p.createdOn || "",
           p.completionDate || "",
         ]);
       });
@@ -324,6 +326,7 @@ export default function EmployeeReport() {
                               <th className="text-left px-4 py-3 font-medium text-gray-600">Lot #</th>
                               <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
                               <th className="text-left px-4 py-3 font-medium text-gray-600">Permit #</th>
+                              <th className="text-left px-4 py-3 font-medium text-gray-600">Started</th>
                               <th className="text-left px-4 py-3 font-medium text-gray-600">Completed</th>
                             </tr>
                           </thead>
@@ -353,6 +356,7 @@ export default function EmployeeReport() {
                                   </Badge>
                                 </td>
                                 <td className="px-4 py-3">{p.permitNumber || "—"}</td>
+                                <td className="px-4 py-3 text-gray-500">{formatDate(p.createdOn)}</td>
                                 <td className="px-4 py-3 text-gray-500">{formatDate(p.completionDate)}</td>
                               </tr>
                             ))}
@@ -404,7 +408,11 @@ export default function EmployeeReport() {
                     <p className="font-medium">{selectedProject.permitNumber || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Completion Date</p>
+                    <p className="text-sm text-gray-500">Project Started</p>
+                    <p className="font-medium">{formatDate(selectedProject.createdOn)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Project Completed</p>
                     <p className="font-medium">{formatDate(selectedProject.completionDate)}</p>
                   </div>
                   <div>

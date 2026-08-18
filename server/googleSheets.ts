@@ -17,8 +17,8 @@ interface SheetRow {
  * Includes retry logic for rate limit errors
  */
 async function fetchSheetAsCSV(gid: string, retries = 3): Promise<string> {
-  // Export with range A:BB to ensure all columns are included
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&range=A:BB`;
+  // Export through BC so the BC - Project Closeout Date field is included.
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}&range=A:BC`;
   
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {

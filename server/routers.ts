@@ -14,7 +14,7 @@ import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
-import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests } from "../shared/utils";
+import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests, getInvoiceProjectDates } from "../shared/utils";
 import permitTypesData from "../shared/permitTypes.json";
 
 const JWT_SECRET = new TextEncoder().encode(ENV.cookieSecret);
@@ -384,7 +384,7 @@ export const appRouter = router({
             // Extract by column position: AQ is column 42, AR is column 43
             opportunityId: getString(row['__col_42'] || row['opportunity id'] || row['Opportunity ID'] || row['Opportunity Id'] || row['opp id'] || row['Opp ID'], 100), // Column AQ - Opportunity ID
             contactId: getString(row['__col_43'] || row['contact id'] || row['Contact ID'] || row['Contact Id'] || row['contact_id'], 100), // Column AR - Contact ID
-            completionDate: getString(row['completion date'] || row['Completion Date'] || row['COMPLETION DATE']), // Column AP - Completion Date
+            completionDate: getString(row['bc - project closeout date'] || row['BC - Project Closeout Date'] || row['BC - PROJECT CLOSEOUT DATE']), // Column BC - authoritative invoice closeout date
             jurisdiction: getString(row['__col_35'] || row['jurisdiction'] || row['Jurisdiction']), // Column AJ - Jurisdiction
             lastUpdated: parseDate(row['Updated on']),
             syncedAt: new Date(),
@@ -1928,14 +1928,14 @@ export const appRouter = router({
           return null;
         };
 
-        // Filter projects with stage = Completed/Closeout where updatedOn falls in the selected month/year
-        // Note: completionDate column actually stores checklist text, not a date — use updatedOn instead
+        // Filter projects by their authoritative BC - Project Closeout Date.
+        // Updated On is deliberately not used because normal edits would change it.
         const allCompleted = allProjects.filter((p: typeof projects.$inferSelect) => {
           const stage = (p.stage || '').toLowerCase();
           if (!stage.includes('complete') && !stage.includes('closeout')) return false;
-          const dateStr = (p.updatedOn || '').trim();
-          if (!dateStr) return false;
-          const parsed = parseDateForMonth(dateStr);
+          const { projectCompletedDate } = getInvoiceProjectDates(p);
+          if (!projectCompletedDate) return false;
+          const parsed = parseDateForMonth(projectCompletedDate);
           if (!parsed) return false;
           return parsed.month === input.month && parsed.year === input.year;
         });
@@ -1948,6 +1948,7 @@ export const appRouter = router({
           company: string | null;
           address: string | null;
           lotNumber: string | null;
+          createdOn: string | null;
           completionDate: string | null;
           type: string; // Permit, Inspection, Both
           assignedPermitTech: string | null;
@@ -2001,6 +2002,7 @@ export const appRouter = router({
             roles['Unassigned'] = ['Unassigned'];
           }
 
+          const invoiceDates = getInvoiceProjectDates(p);
           const projectData: EmployeeProject = {
             projectId: p.id,
             opportunityName: p.opportunityName,
@@ -2008,7 +2010,8 @@ export const appRouter = router({
             company: p.company,
             address: p.address,
             lotNumber: p.lotNumber,
-            completionDate: p.completionDate || p.updatedOn,
+            createdOn: invoiceDates.projectStartedDate,
+            completionDate: invoiceDates.projectCompletedDate,
             type: 'Unknown',
             assignedPermitTech: p.assignedPermitTech,
             assignedPlansExaminer: p.assignedPlansExaminer,

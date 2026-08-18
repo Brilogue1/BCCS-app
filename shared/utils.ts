@@ -252,3 +252,17 @@ export function projectMatchesSearch(project: ProjectSearchRecord, rawQuery: str
     project.lotNumber,
   ].some((value) => value?.toLowerCase().includes(query));
 }
+
+
+/** The two dates used for invoice reporting. The closeout date is authoritative
+ * and intentionally never falls back to Updated On, which changes after edits. */
+export function getInvoiceProjectDates(project: {
+  createdOn?: string | null;
+  completionDate?: string | null;
+}): { projectStartedDate: string | null; projectCompletedDate: string | null } {
+  const normalize = (value: string | null | undefined) => value?.trim() || null;
+  return {
+    projectStartedDate: normalize(project.createdOn),
+    projectCompletedDate: normalize(project.completionDate),
+  };
+}

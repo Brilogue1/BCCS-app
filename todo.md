@@ -796,3 +796,12 @@
 ## Projects Search — Lot Number (August 2026)
 - [x] Extend the Projects search filter to match lot number in addition to project name and address
 - [x] Add regression coverage and verify lot-number search behavior
+
+## Invoice Reporting Dates (August 2026)
+- [x] Audit existing project-started and project-completed date fields for invoice reporting
+- [x] Define the reliable completed-date source and any required Google Sheets tracking column (BC - Project Closeout Date)
+
+## Invoice Reporting — BC Project Closeout Date (August 2026)
+- [x] Map BC - Project Closeout Date from the All App sheet to the project completion-date field
+- [x] Display project started and project completed dates in the invoice reporting workflow
+- [x] Add regression coverage for BC - Project Closeout Date mapping and invoice-report filtering
