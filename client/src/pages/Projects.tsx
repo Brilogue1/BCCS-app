@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import inspectionTypes from "../../../shared/inspectionTypes.json";
-import { normalizeInspectionType } from "../../../shared/utils";
+import { normalizeInspectionType, projectMatchesSearch } from "../../../shared/utils";
 
 export default function Projects() {
   const { user, logout } = useAuth();
@@ -132,13 +132,7 @@ export default function Projects() {
 
   // Filter active projects
   const filteredProjects = projects?.filter((project) => {
-    const query = searchQuery.toLowerCase();
-    const matchesSearch = !query || (
-      project.opportunityName?.toLowerCase().includes(query) ||
-      project.company?.toLowerCase().includes(query) ||
-      project.address?.toLowerCase().includes(query) ||
-      project.contactName?.toLowerCase().includes(query)
-    );
+    const matchesSearch = projectMatchesSearch(project, searchQuery);
     
     // Filter by completion status
     const isCompleted = project.completionStatus?.toLowerCase() === 'completed';

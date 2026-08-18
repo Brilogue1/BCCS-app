@@ -226,3 +226,29 @@ export function getPendingInspectionRequests<T extends { status?: string | null;
     return !scheduledTypeSet.has(normalizeInspectionType(inspection.inspectionType));
   });
 }
+
+
+/** Fields shown on the Projects page that users can search. */
+export type ProjectSearchRecord = {
+  opportunityName?: string | null;
+  company?: string | null;
+  address?: string | null;
+  contactName?: string | null;
+  lotNumber?: string | null;
+};
+
+/**
+ * Match a project against the Projects-page search. Lot number is included so
+ * users can find a job even when they only know the lot reference.
+ */
+export function projectMatchesSearch(project: ProjectSearchRecord, rawQuery: string): boolean {
+  const query = rawQuery.trim().toLowerCase();
+  if (!query) return true;
+  return [
+    project.opportunityName,
+    project.company,
+    project.address,
+    project.contactName,
+    project.lotNumber,
+  ].some((value) => value?.toLowerCase().includes(query));
+}

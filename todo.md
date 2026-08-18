@@ -792,3 +792,7 @@
 ## Scheduling Cap Bug — Landings at Lake Mabel 196 (August 2026)
 - [x] Investigate stale pending inspection records incorrectly blocking scheduling when the project has no visible scheduled or requested inspections
 - [x] Correct the five-inspection cap and verify the Landings at Lake Mabel 196 project can schedule an inspection
+
+## Projects Search — Lot Number (August 2026)
+- [x] Extend the Projects search filter to match lot number in addition to project name and address
+- [x] Add regression coverage and verify lot-number search behavior
