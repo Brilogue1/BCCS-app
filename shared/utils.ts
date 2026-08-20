@@ -281,3 +281,28 @@ export function getInvoiceProjectDates(project: {
     projectCompletedDate: normalize(project.completionDate),
   };
 }
+
+
+/** Whether a selected portal role differs from the role currently saved in the database. */
+export function hasPendingRoleChange(currentRole: string, selectedRole: string): boolean {
+  return currentRole !== selectedRole;
+}
+
+/**
+ * Return the newest report rows (highest sheet index first) for the current
+ * progressive display count. Past Inspections is append-only, so a higher row
+ * index represents a newer inspection.
+ */
+export function getVisibleInspectionReports<T extends { sheetRowIndex?: number | null }>(
+  reports: readonly T[],
+  displayCount: number,
+): T[] {
+  return [...reports]
+    .sort((a, b) => (b.sheetRowIndex ?? -1) - (a.sheetRowIndex ?? -1))
+    .slice(0, Math.max(0, displayCount));
+}
+
+/** Increase a progressive report list by a fixed amount without exceeding its total. */
+export function showMoreReportCount(currentCount: number, totalCount: number, increment = 5): number {
+  return Math.min(totalCount, currentCount + increment);
+}

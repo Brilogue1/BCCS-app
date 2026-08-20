@@ -815,3 +815,10 @@
 - [x] Add subdivision matching to the Projects search
 - [x] Display the synced subdivision on active and completed project cards
 - [x] Add regression coverage and verify subdivision search behavior
+
+## Admin Dashboard — Role Saving and Reports List (August 2026)
+- [x] Fix user/subcontractor role changes so they persist after navigating away from Admin
+- [x] Add an explicit Save button for pending user-role changes
+- [x] Show only the newest four inspection reports initially in Admin
+- [x] Add a Show 5 More control for progressively expanding the inspection reports list
+- [x] Add regression coverage and verify the Admin dashboard changes

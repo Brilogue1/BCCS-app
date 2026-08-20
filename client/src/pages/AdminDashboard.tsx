@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useRef, useState } from "react";
+import { getVisibleInspectionReports, showMoreReportCount } from "../../../shared/utils";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
 
@@ -25,6 +26,7 @@ export default function AdminDashboard() {
   const [generatingAll, setGeneratingAll] = useState(false);
   const [syncingLinks, setSyncingLinks] = useState(false);
   const [regeneratingAll, setRegeneratingAll] = useState(false);
+  const [visibleReportCount, setVisibleReportCount] = useState(4);
 
   // Helper to find existing report link for an inspection
   const getExistingReportUrl = (projectName: string, inspectionType: string): string | null => {
@@ -34,6 +36,11 @@ export default function AdminDashboard() {
     );
     return match?.reportUrl || null;
   };
+
+  const validPastInspectionReports = (pastInspections || []).filter(
+    (inspection: any) => inspection.source === 'past' && inspection.inspectionType && inspection.inspectionType.trim() !== '' && inspection.inspectionType.trim() !== '_' && inspection.inspectionType.trim() !== '_ '
+  );
+  const visiblePastInspectionReports = getVisibleInspectionReports(validPastInspectionReports, visibleReportCount);
 
   const generateReportMutation = trpc.pastInspections.generateReport.useMutation({
     onSuccess: (data, variables) => {
@@ -785,9 +792,10 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            {(pastInspections?.filter((i: any) => i.source === 'past' && i.inspectionType && i.inspectionType.trim() !== '' && i.inspectionType.trim() !== '_' && i.inspectionType.trim() !== '_ ')?.length ?? 0) > 0 ? (
-              <div className="divide-y divide-slate-200 max-h-[600px] overflow-y-auto">
-                {pastInspections!.filter((i: any) => i.source === 'past' && i.inspectionType && i.inspectionType.trim() !== '' && i.inspectionType.trim() !== '_' && i.inspectionType.trim() !== '_ ').map((inspection: any) => (
+            {validPastInspectionReports.length > 0 ? (
+              <>
+              <div className="divide-y divide-slate-200">
+                {visiblePastInspectionReports.map((inspection: any) => (
                   <div key={inspection.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0 gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-slate-900 truncate">{inspection.projectName}</div>
@@ -840,6 +848,20 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                <p className="text-sm text-slate-500">Showing {visiblePastInspectionReports.length} of {validPastInspectionReports.length} inspection reports</p>
+                {visiblePastInspectionReports.length < validPastInspectionReports.length && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setVisibleReportCount((count) => showMoreReportCount((count), validPastInspectionReports.length, 5))}
+                  >
+                    Show 5 more
+                  </Button>
+                )}
+              </div>
+              </>
             ) : (
               <p className="text-slate-500 text-center py-8">No past inspections found</p>
             )}

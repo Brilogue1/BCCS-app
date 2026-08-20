@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { hasPendingRoleChange } from "../../../shared/utils";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -262,7 +263,12 @@ function UserRow({
   const utils = trpc.useUtils();
   const [expanded, setExpanded] = useState(false);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
   const [updatingRole, setUpdatingRole] = useState(false);
+
+  useEffect(() => {
+    setSelectedRole(user.role);
+  }, [user.role]);
 
   const updateRoleMutation = trpc.subcontractors.updateRole.useMutation({
     onSuccess: () => {
@@ -278,6 +284,13 @@ function UserRow({
   });
 
   const isSubcontractor = user.role === "subcontractor";
+  const roleChangePending = hasPendingRoleChange(user.role, selectedRole);
+
+  const saveRole = () => {
+    if (!roleChangePending) return;
+    setUpdatingRole(true);
+    updateRoleMutation.mutate({ userId: user.id, role: selectedRole });
+  };
 
   return (
     <div className="border border-slate-200 rounded-lg overflow-hidden">
@@ -324,32 +337,27 @@ function UserRow({
           <RoleBadge role={user.role} />
         </div>
 
-        {/* Role selector — only admins can change roles; don't let admin demote themselves */}
-        <div className="shrink-0 w-40">
-          {updatingRole ? (
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Saving…
-            </div>
-          ) : (
-            <Select
-              value={user.role}
-              onValueChange={(newRole: UserRole) => {
-                if (newRole === user.role) return;
-                setUpdatingRole(true);
-                updateRoleMutation.mutate({ userId: user.id, role: newRole });
-              }}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="subcontractor">Subcontractor</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+        {/* Select a role, then explicitly save it so the change persists before navigating away. */}
+        <div className="shrink-0 w-40 space-y-1.5">
+          <Select value={selectedRole} onValueChange={(newRole: UserRole) => setSelectedRole(newRole)} disabled={updatingRole}>
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="subcontractor">Subcontractor</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            size="sm"
+            className="h-7 w-full text-xs"
+            onClick={saveRole}
+            disabled={!roleChangePending || updatingRole}
+          >
+            {updatingRole ? <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Saving…</> : "Save role"}
+          </Button>
         </div>
       </div>
 
@@ -458,8 +466,8 @@ export default function SubcontractorManager() {
 
         {/* How-to hint */}
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-700">
-          <strong>How it works:</strong> Change a user's role to <em>Subcontractor</em> using the
-          dropdown, then click the arrow next to their name to expand and assign specific projects.
+          <strong>How it works:</strong> Choose a role, then click <em>Save role</em> before leaving
+          this screen. Once a user is saved as a <em>Subcontractor</em>, click the arrow next to their name to expand and assign specific projects.
           Subcontractors will only see their assigned projects when they log in.
         </div>
 
