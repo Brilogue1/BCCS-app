@@ -261,8 +261,9 @@ export const appRouter = router({
           });
         }
         
-        // Verify user has access to this project
-        if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company)) {
+        // Project cards use opportunityId URLs. Apply the same company-plus-
+        // explicit-assignment rule here as the numeric detail lookup.
+        if (!(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',

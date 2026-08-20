@@ -839,3 +839,8 @@
 - [x] Diagnose why a listed subcontractor project returns Project Not Found when opened
 - [x] Align project-detail and inspection-scheduling access with company-plus-assignment visibility
 - [x] Add regression coverage and verify subcontractors can open and schedule eligible projects
+
+## Subcontractor Live Project Route Follow-up (August 2026)
+- [x] Trace the live project-card route and identify the lookup still returning Project Not Found
+- [x] Correct the remaining subcontractor project lookup path and cover it with regression tests
+- [x] Verify a subcontractor can open an explicitly assigned project in production

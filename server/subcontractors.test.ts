@@ -133,3 +133,13 @@ describe("subcontractorCanAccessProject", () => {
     expect(subcontractorCanAccessProject("OTHER", "ACME", false)).toBe(false);
   });
 });
+
+
+describe("project card opportunity-ID access", () => {
+  it("uses the same subcontractor rule as the numeric project-detail lookup", () => {
+    const companyProjectVisible = subcontractorCanAccessProject("ACME", "ACME", false);
+    const assignedOutsideProjectVisible = subcontractorCanAccessProject("OTHER", "ACME", true);
+    expect(companyProjectVisible).toBe(true);
+    expect(assignedOutsideProjectVisible).toBe(true);
+  });
+});
