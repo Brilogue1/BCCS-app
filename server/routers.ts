@@ -14,7 +14,7 @@ import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
-import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests, getInvoiceProjectDates } from "../shared/utils";
+import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests, getInvoiceProjectDates, resolvePersistedUserRole } from "../shared/utils";
 import permitTypesData from "../shared/permitTypes.json";
 
 const JWT_SECRET = new TextEncoder().encode(ENV.cookieSecret);
@@ -52,7 +52,7 @@ export const appRouter = router({
             email,
             name: dbUser.name || email.split('@')[0] || 'User',
             loginMethod: 'password',
-            role: dbUser.role as 'admin' | 'user',
+            role: dbUser.role as 'admin' | 'user' | 'subcontractor',
             company: dbUser.company || 'ALL',
             lastSignedIn: new Date(),
           });
@@ -97,15 +97,18 @@ export const appRouter = router({
           });
         }
         
-        // Create or update user in database
-        const openId = `local-${email}`;
+        // Keep an administrator-assigned role when the user signs in again. The
+        // Google Sheets credential source only authenticates the person; it must
+        // not reset a saved subcontractor/admin role back to its default user role.
+        const existingUser = await db.getUserByEmail(email);
+        const openId = existingUser?.openId || `local-${email}`;
         await db.upsertUser({
           openId,
           email,
-          name: email.split('@')[0] || 'User',
-          loginMethod: 'local',
-          role: validation.role as 'admin' | 'user',
-          company: validation.company || 'ALL', // Store company assignment
+          name: existingUser?.name || email.split('@')[0] || 'User',
+          loginMethod: existingUser?.loginMethod || 'local',
+          role: resolvePersistedUserRole(existingUser?.role, validation.role),
+          company: validation.company || existingUser?.company || 'ALL', // Refresh source company without changing saved role
           lastSignedIn: new Date(),
         });
         
@@ -145,13 +148,19 @@ export const appRouter = router({
       const dbInstance = await db.getDb();
       if (!dbInstance) return [];
       
-      // Subcontractors only see explicitly assigned projects
+      // Subcontractors see both their company projects and the projects explicitly
+      // assigned to them. Company access lets a subcontractor work on their own
+      // portfolio; direct assignments extend access to specific outside projects.
       if (ctx.user.role === 'subcontractor') {
         const accessRows = await dbInstance.select().from(projectAccess).where(eq(projectAccess.userId, ctx.user.id));
-        const projectIds = accessRows.map(r => r.projectId);
-        if (projectIds.length === 0) return [];
-        const assignedProjects = await dbInstance.select().from(projects).where(inArray(projects.id, projectIds)).orderBy(desc(projects.id));
-        return assignedProjects;
+        const assignedProjectIds = new Set(accessRows.map(r => r.projectId));
+        const userCompany = ctx.user.company;
+        const allProjects = await dbInstance.select().from(projects).orderBy(desc(projects.id));
+        return allProjects.filter(project => {
+          const hasExplicitAssignment = assignedProjectIds.has(project.id);
+          const belongsToOwnCompany = !!userCompany && userCompany !== 'ALL' && companiesMatch(project.company, userCompany);
+          return hasExplicitAssignment || belongsToOwnCompany;
+        });
       }
 
       // Admins see all projects

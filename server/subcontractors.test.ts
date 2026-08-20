@@ -6,6 +6,7 @@
  * - Admin-only guard on subcontractor procedures
  */
 import { describe, it, expect } from "vitest";
+import { resolvePersistedUserRole } from "../shared/utils";
 
 // ─── Role filtering logic (mirrors projects.list in routers.ts) ─────────────
 
@@ -33,7 +34,7 @@ function filterProjectsForUser(
     const assignedIds = new Set(
       accessList.filter((a) => a.userId === userId).map((a) => a.projectId)
     );
-    return allProjects.filter((p) => assignedIds.has(p.id));
+    return allProjects.filter((p) => assignedIds.has(p.id) || (company !== "ALL" && p.company === company));
   }
   if (company === "ALL") return allProjects;
   return allProjects.filter((p) => p.company === company);
@@ -60,14 +61,14 @@ const ACCESS: ProjectAccess[] = [
 ];
 
 describe("filterProjectsForUser", () => {
-  it("returns only assigned projects for subcontractor", () => {
+  it("returns both company projects and explicitly assigned outside projects for subcontractor", () => {
     const result = filterProjectsForUser(PROJECTS, "subcontractor", "ACME", 10, ACCESS);
-    expect(result.map((p) => p.id)).toEqual([1, 3]);
+    expect(result.map((p) => p.id)).toEqual([1, 2, 3, 4]);
   });
 
-  it("returns empty list for subcontractor with no assignments", () => {
+  it("returns company projects for subcontractor with no explicit assignments", () => {
     const result = filterProjectsForUser(PROJECTS, "subcontractor", "ACME", 99, ACCESS);
-    expect(result).toHaveLength(0);
+    expect(result.map((p) => p.id)).toEqual([1, 2, 4]);
   });
 
   it("returns all projects for admin (ALL company)", () => {
@@ -85,10 +86,10 @@ describe("filterProjectsForUser", () => {
     expect(result).toHaveLength(0);
   });
 
-  it("subcontractor only sees their own assignments, not other subcontractors'", () => {
+  it("subcontractor does not inherit other subcontractors' outside-company assignments", () => {
     const extraAccess: ProjectAccess[] = [...ACCESS, { userId: 20, projectId: 2 }];
     const result = filterProjectsForUser(PROJECTS, "subcontractor", "ACME", 20, extraAccess);
-    expect(result.map((p) => p.id)).toEqual([2]);
+    expect(result.map((p) => p.id)).toEqual([1, 2, 4]);
   });
 });
 
@@ -103,5 +104,17 @@ describe("requireAdmin guard", () => {
 
   it("throws Forbidden for subcontractor role", () => {
     expect(() => requireAdmin("subcontractor")).toThrow("Forbidden");
+  });
+});
+
+
+describe("resolvePersistedUserRole", () => {
+  it("preserves administrator-assigned subcontractor role on future sign-ins", () => {
+    expect(resolvePersistedUserRole("subcontractor", "user")).toBe("subcontractor");
+  });
+
+  it("uses the authentication source role only for a first-time user", () => {
+    expect(resolvePersistedUserRole(undefined, "admin")).toBe("admin");
+    expect(resolvePersistedUserRole(undefined, "user")).toBe("user");
   });
 });

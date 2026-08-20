@@ -317,3 +317,13 @@ export function hasPendingProjectAssignment(projectId: number | null | undefined
 export function getVisibleCompletedProjectDownloads<T>(projects: readonly T[], showAll: boolean, initialCount = 4): T[] {
   return showAll ? [...projects] : projects.slice(0, Math.max(0, initialCount));
 }
+
+
+/**
+ * Authentication sources can identify a person but must not overwrite a role
+ * deliberately assigned by an administrator. Existing role wins on sign-in.
+ */
+export function resolvePersistedUserRole(existingRole: string | null | undefined, sourceRole: string | null | undefined): "user" | "admin" | "subcontractor" {
+  if (existingRole === "admin" || existingRole === "subcontractor" || existingRole === "user") return existingRole;
+  return sourceRole === "admin" ? "admin" : "user";
+}

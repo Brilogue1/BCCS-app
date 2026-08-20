@@ -828,3 +828,9 @@
 - [x] Limit the completed-project PDF download list to a compact initial view
 - [x] Add a Show More / Show All control for completed-project PDF downloads
 - [x] Add regression coverage and verify the Admin dashboard follow-up changes
+
+## Subcontractor Persistence and Visibility (August 2026)
+- [x] Diagnose why saved subcontractor role changes revert after leaving Admin
+- [x] Correct user role persistence and verify the selected role remains after reload
+- [x] Allow subcontractors to view both company-matching projects and explicitly assigned projects
+- [x] Add regression coverage and verify the corrected subcontractor workflow
