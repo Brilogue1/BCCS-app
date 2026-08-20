@@ -14,10 +14,35 @@ import { createHash } from "crypto";
 import { syncInspectionToGHL, syncContactToGHL, isGHLConfigured } from "./ghl";
 import { SignJWT } from "jose";
 import { ENV } from "./_core/env";
-import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests, getInvoiceProjectDates, resolvePersistedUserRole } from "../shared/utils";
+import { companiesMatch, normalizeInspectionType, lookupInspectionsForCRM, getPendingInspectionRequests, getInvoiceProjectDates, resolvePersistedUserRole, subcontractorCanAccessProject } from "../shared/utils";
 import permitTypesData from "../shared/permitTypes.json";
 
 const JWT_SECRET = new TextEncoder().encode(ENV.cookieSecret);
+
+
+/**
+ * Central project authorization rule. It prevents a project from appearing in
+ * the list but failing in its detail/scheduling endpoints for subcontractors.
+ */
+async function userCanAccessProject(
+  user: Pick<typeof users.$inferSelect, "id" | "role" | "company">,
+  project: typeof projects.$inferSelect,
+): Promise<boolean> {
+  if (user.role === "admin" || user.company === "ALL") return true;
+
+  if (user.role !== "subcontractor") {
+    // Preserve legacy behavior for regular users without a company value.
+    return !user.company || companiesMatch(project.company, user.company);
+  }
+
+  const database = await db.getDb();
+  if (!database) return false;
+  const assignments = await database.select({ id: projectAccess.id })
+    .from(projectAccess)
+    .where(and(eq(projectAccess.userId, user.id), eq(projectAccess.projectId, project.id)))
+    .limit(1);
+  return subcontractorCanAccessProject(project.company, user.company, assignments.length > 0);
+}
 
 export const appRouter = router({
   system: systemRouter,
@@ -157,9 +182,7 @@ export const appRouter = router({
         const userCompany = ctx.user.company;
         const allProjects = await dbInstance.select().from(projects).orderBy(desc(projects.id));
         return allProjects.filter(project => {
-          const hasExplicitAssignment = assignedProjectIds.has(project.id);
-          const belongsToOwnCompany = !!userCompany && userCompany !== 'ALL' && companiesMatch(project.company, userCompany);
-          return hasExplicitAssignment || belongsToOwnCompany;
+          return subcontractorCanAccessProject(project.company, userCompany, assignedProjectIds.has(project.id));
         });
       }
 
@@ -207,15 +230,7 @@ export const appRouter = router({
           });
         }
         
-        // Subcontractors: verify explicit project access
-        if (ctx.user.role === 'subcontractor') {
-          const dbInstance = await db.getDb();
-          if (!dbInstance) throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
-          const accessRows = await dbInstance.select().from(projectAccess)
-            .where(and(eq(projectAccess.userId, ctx.user.id), eq(projectAccess.projectId, input.id)));
-          if (accessRows.length === 0) throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this project' });
-        } else if (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company)) {
-          // Verify user has access to this project (admins, ALL company users, and null company users can see all)
+        if (!(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1226,7 +1241,7 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1264,7 +1279,7 @@ export const appRouter = router({
         const [existing] = await dbInstance.select().from(inspTable).where(eq(inspTable.id, input.id));
         if (!existing) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inspection not found' });
         const project = await db.getProjectById(existing.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this inspection' });
         }
         await dbInstance.update(inspTable).set({ notes: input.notes }).where(eq(inspTable.id, input.id));
@@ -1323,7 +1338,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1452,7 +1467,7 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1471,7 +1486,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1513,7 +1528,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         // Verify user has access to this project (admins and ALL company users can see all)
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1530,7 +1545,7 @@ export const appRouter = router({
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1551,7 +1566,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -1591,7 +1606,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You do not have access to this project',
@@ -2241,7 +2256,7 @@ export const appRouter = router({
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input, ctx }) => {
         const project = await db.getProjectById(input.projectId);
-        if (!project || (ctx.user.role !== 'admin' && ctx.user.company !== 'ALL' && ctx.user.company && !companiesMatch(project.company, ctx.user.company))) {
+        if (!project || !(await userCanAccessProject(ctx.user, project))) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this project' });
         }
         return await db.getRequiredInspectionsByProjectId(input.projectId);

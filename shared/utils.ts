@@ -327,3 +327,13 @@ export function resolvePersistedUserRole(existingRole: string | null | undefined
   if (existingRole === "admin" || existingRole === "subcontractor" || existingRole === "user") return existingRole;
   return sourceRole === "admin" ? "admin" : "user";
 }
+
+
+/** A subcontractor can access a project from their own company or an explicit assignment. */
+export function subcontractorCanAccessProject(
+  projectCompany: string | null | undefined,
+  userCompany: string | null | undefined,
+  hasExplicitAssignment: boolean,
+): boolean {
+  return hasExplicitAssignment || (!!userCompany && userCompany !== "ALL" && companiesMatch(projectCompany, userCompany));
+}

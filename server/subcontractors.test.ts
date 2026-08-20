@@ -6,7 +6,7 @@
  * - Admin-only guard on subcontractor procedures
  */
 import { describe, it, expect } from "vitest";
-import { resolvePersistedUserRole } from "../shared/utils";
+import { resolvePersistedUserRole, subcontractorCanAccessProject } from "../shared/utils";
 
 // ─── Role filtering logic (mirrors projects.list in routers.ts) ─────────────
 
@@ -116,5 +116,20 @@ describe("resolvePersistedUserRole", () => {
   it("uses the authentication source role only for a first-time user", () => {
     expect(resolvePersistedUserRole(undefined, "admin")).toBe("admin");
     expect(resolvePersistedUserRole(undefined, "user")).toBe("user");
+  });
+});
+
+
+describe("subcontractorCanAccessProject", () => {
+  it("allows a company-matching project without an explicit assignment", () => {
+    expect(subcontractorCanAccessProject("ACME", "ACME", false)).toBe(true);
+  });
+
+  it("allows an explicitly assigned outside-company project", () => {
+    expect(subcontractorCanAccessProject("OTHER", "ACME", true)).toBe(true);
+  });
+
+  it("denies an unrelated project", () => {
+    expect(subcontractorCanAccessProject("OTHER", "ACME", false)).toBe(false);
   });
 });
