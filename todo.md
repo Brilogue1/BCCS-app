@@ -822,3 +822,9 @@
 - [x] Show only the newest four inspection reports initially in Admin
 - [x] Add a Show 5 More control for progressively expanding the inspection reports list
 - [x] Add regression coverage and verify the Admin dashboard changes
+
+## Admin Dashboard — Assignment Saving and Completed PDF List (August 2026)
+- [x] Add explicit save behavior for pending subcontractor project assignments and removals
+- [x] Limit the completed-project PDF download list to a compact initial view
+- [x] Add a Show More / Show All control for completed-project PDF downloads
+- [x] Add regression coverage and verify the Admin dashboard follow-up changes

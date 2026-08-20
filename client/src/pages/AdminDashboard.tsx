@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Users, CheckCircle2, Loader2, BarChart3, XCircle
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useRef, useState } from "react";
-import { getVisibleInspectionReports, showMoreReportCount } from "../../../shared/utils";
+import { getVisibleCompletedProjectDownloads, getVisibleInspectionReports, showMoreReportCount } from "../../../shared/utils";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
 
@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   const [syncingLinks, setSyncingLinks] = useState(false);
   const [regeneratingAll, setRegeneratingAll] = useState(false);
   const [visibleReportCount, setVisibleReportCount] = useState(4);
+  const [showAllCompletedProjectDownloads, setShowAllCompletedProjectDownloads] = useState(false);
 
   // Helper to find existing report link for an inspection
   const getExistingReportUrl = (projectName: string, inspectionType: string): string | null => {
@@ -41,6 +42,10 @@ export default function AdminDashboard() {
     (inspection: any) => inspection.source === 'past' && inspection.inspectionType && inspection.inspectionType.trim() !== '' && inspection.inspectionType.trim() !== '_' && inspection.inspectionType.trim() !== '_ '
   );
   const visiblePastInspectionReports = getVisibleInspectionReports(validPastInspectionReports, visibleReportCount);
+  const completedProjectDownloads = getVisibleCompletedProjectDownloads(
+    analytics?.completedProjectsList || [],
+    showAllCompletedProjectDownloads,
+  );
 
   const generateReportMutation = trpc.pastInspections.generateReport.useMutation({
     onSuccess: (data, variables) => {
@@ -666,16 +671,31 @@ export default function AdminDashboard() {
         {/* Completed Projects - Inspection Reports */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Inspection Reports
-            </CardTitle>
-            <CardDescription>Download inspection record PDFs for completed projects</CardDescription>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Inspection Reports
+                </CardTitle>
+                <CardDescription>Download inspection record PDFs for completed projects</CardDescription>
+              </div>
+              {(analytics?.completedProjectsList?.length ?? 0) > 4 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAllCompletedProjectDownloads((showAll) => !showAll)}
+                >
+                  {showAllCompletedProjectDownloads ? "Show fewer" : `Show all (${analytics?.completedProjectsList?.length})`}
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {(analytics?.completedProjectsList?.length ?? 0) > 0 ? (
+              <>
               <div className="divide-y divide-slate-200">
-                {analytics!.completedProjectsList.map((project: any) => (
+                {completedProjectDownloads.map((project: any) => (
                   <div key={project.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-slate-900 truncate">{project.opportunityName}</div>
@@ -696,6 +716,8 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+              <p className="mt-4 text-sm text-slate-500">Showing {completedProjectDownloads.length} of {analytics?.completedProjectsList?.length ?? 0} completed projects</p>
+              </>
             ) : (
               <p className="text-slate-500 text-center py-8">No completed projects yet</p>
             )}

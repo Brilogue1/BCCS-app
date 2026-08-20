@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { hasPendingRoleChange } from "../../../shared/utils";
+import { hasPendingProjectAssignment, hasPendingRoleChange } from "../../../shared/utils";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -166,6 +166,7 @@ function ProjectAssignDialog({
 }) {
   const utils = trpc.useUtils();
   const [search, setSearch] = useState("");
+  const [selectedProject, setSelectedProject] = useState<{ id: number; opportunityName: string | null } | null>(null);
   const { data: allProjects } = trpc.projects.list.useQuery();
 
   const assignMutation = trpc.subcontractors.assignProject.useMutation({
@@ -182,6 +183,13 @@ function ProjectAssignDialog({
       toast.error(err.message || "Failed to assign project");
     },
   });
+
+  useEffect(() => {
+    if (!open) {
+      setSearch("");
+      setSelectedProject(null);
+    }
+  }, [open]);
 
   const filtered = (allProjects || [])
     .filter((p) => {
@@ -200,8 +208,8 @@ function ProjectAssignDialog({
         <DialogHeader>
           <DialogTitle>Assign Project to {userName}</DialogTitle>
           <DialogDescription>
-            Search for a project and click to assign it. The subcontractor will be able to view
-            this project after logging in.
+            Select a project, then click Save project assignment. The subcontractor will be able to view
+            the saved project after logging in.
           </DialogDescription>
         </DialogHeader>
         <div className="relative">
@@ -223,10 +231,9 @@ function ProjectAssignDialog({
             filtered.map((project) => (
               <button
                 key={project.id}
-                className="w-full text-left px-3 py-2.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-colors"
-                onClick={() =>
-                  assignMutation.mutate({ userId, projectId: project.id })
-                }
+                type="button"
+                className={`w-full text-left px-3 py-2.5 rounded-md border transition-colors ${selectedProject?.id === project.id ? "bg-blue-50 border-blue-300" : "hover:bg-slate-50 border-transparent hover:border-slate-200"}`}
+                onClick={() => setSelectedProject({ id: project.id, opportunityName: project.opportunityName })}
                 disabled={assignMutation.isPending}
               >
                 <div className="font-medium text-slate-800 text-sm">
@@ -242,12 +249,19 @@ function ProjectAssignDialog({
             ))
           )}
         </div>
-        {assignMutation.isPending && (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Assigning…
-          </div>
-        )}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+          <p className="text-sm text-slate-500">
+            {selectedProject ? `Selected: ${selectedProject.opportunityName || "Unnamed project"}` : "Select a project to assign."}
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => selectedProject && assignMutation.mutate({ userId, projectId: selectedProject.id })}
+            disabled={!hasPendingProjectAssignment(selectedProject?.id) || assignMutation.isPending}
+          >
+            {assignMutation.isPending ? <><Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Saving…</> : "Save project assignment"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

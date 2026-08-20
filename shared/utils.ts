@@ -306,3 +306,14 @@ export function getVisibleInspectionReports<T extends { sheetRowIndex?: number |
 export function showMoreReportCount(currentCount: number, totalCount: number, increment = 5): number {
   return Math.min(totalCount, currentCount + increment);
 }
+
+
+/** Whether a project assignment has been selected but has not yet been saved. */
+export function hasPendingProjectAssignment(projectId: number | null | undefined): boolean {
+  return typeof projectId === 'number' && projectId > 0;
+}
+
+/** Keep completed-project PDF downloads compact until an admin explicitly expands them. */
+export function getVisibleCompletedProjectDownloads<T>(projects: readonly T[], showAll: boolean, initialCount = 4): T[] {
+  return showAll ? [...projects] : projects.slice(0, Math.max(0, initialCount));
+}
